@@ -163,3 +163,7 @@ build-native-linux/
 build-static-linux/
 build-win64/
 build-linux/
+
+!src/qt/Makefile
+!src/qt/test/Makefile
+!src/test/Makefile

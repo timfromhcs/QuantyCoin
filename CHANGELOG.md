@@ -1,10 +1,13 @@
 # QuantyCoin Release Notes & Changelog
 
-## [2.0.1] - 2026-08-16 — Fix CI Build Permissions & Script Execution
+## [2.2.0] - 2026-08-16 — Multi-Platform CI/CD Hardening & Release Build Fix
 
-- **Fix Build Scripts Executable Bit**: Added `chmod +x` step across all GitHub Actions build workflows (`build.yml` & `build-and-address-tests.yml`) to resolve script execution permissions on runner checkout.
-- **CI Matrix Fix**: Resolved process exit code 126 (`Permission denied`) on Linux and Windows cross-compiler workflows.
-- **Consensus & Features**: Maintained all v2.0.0 features including 50/50 fee splitting, autonomous monthly treasury airdrops, standalone light client mode, block explorer, and one-click mining.
+- **CI Build Hardening**: Fixed Automake stub Makefile inclusion (`src/qt/Makefile`, `src/qt/test/Makefile`, `src/test/Makefile`) and unignored them in `.gitignore`.
+- **Recursive Executable Bit Fix**: Fixed script execution permissions for `depends/`, `build-aux/`, `scripts/`, `configure`, and `autogen.sh` across Linux, macOS, and MinGW Windows runners.
+- **Consensus & Features**: Maintained all v2.0.0 & v2.0.1 consensus features including 50/50 fee splitting, autonomous monthly treasury airdrops, standalone light client mode, block explorer, and one-click mining.
+
+## [2.0.1] - 2026-08-16 — Fix CI Build Permissions & Script Execution
+- Add `chmod +x` step across build workflows.
 
 ## [2.0.0] - 2026-08-16 — Major Consensus & Feature Upgrade
 - 50/50 Fee Split (Miner / Community Treasury).

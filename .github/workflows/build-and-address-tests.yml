@@ -53,7 +53,7 @@ jobs:
 
       - name: Configure
         run: |
-          chmod +x autogen.sh configure build-aux/* scripts/* 2>/dev/null || true
+          find . -type f \( -name "*.sh" -o -name "config.guess" -o -name "config.sub" -o -name "gen_id" -o -name "autogen.sh" -o -name "configure" -o -name "compile" -o -name "depcomp" -o -name "install-sh" -o -name "missing" -o -name "test-driver" \) -exec chmod +x {} + 2>/dev/null || true
           ./autogen.sh
           ./configure \
             --disable-bench \

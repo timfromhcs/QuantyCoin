@@ -24,7 +24,7 @@ jobs:
 
       - name: Build QuantyCoin
         run: |
-          chmod +x autogen.sh configure build-aux/* scripts/* 2>/dev/null || true
+          find . -type f \( -name "*.sh" -o -name "config.guess" -o -name "config.sub" -o -name "gen_id" -o -name "autogen.sh" -o -name "configure" -o -name "compile" -o -name "depcomp" -o -name "install-sh" -o -name "missing" -o -name "test-driver" \) -exec chmod +x {} + 2>/dev/null || true
           ./autogen.sh
           ./configure --with-gui=qt5 --enable-upnp-default --disable-bench --disable-fuzz
           make -j$(nproc)
@@ -57,7 +57,7 @@ jobs:
 
       - name: Build Windows Binaries
         run: |
-          chmod +x autogen.sh configure build-aux/* scripts/* 2>/dev/null || true
+          find . -type f \( -name "*.sh" -o -name "config.guess" -o -name "config.sub" -o -name "gen_id" -o -name "autogen.sh" -o -name "configure" -o -name "compile" -o -name "depcomp" -o -name "install-sh" -o -name "missing" -o -name "test-driver" \) -exec chmod +x {} + 2>/dev/null || true
           cd depends
           make HOST=x86_64-w64-mingw32 -j$(nproc) NO_QT=1 NO_UPNP=1 NO_NATPMP=1 || true
           cd ..
@@ -92,7 +92,7 @@ jobs:
 
       - name: Build QuantyCoin macOS
         run: |
-          chmod +x autogen.sh configure build-aux/* scripts/* 2>/dev/null || true
+          find . -type f \( -name "*.sh" -o -name "config.guess" -o -name "config.sub" -o -name "gen_id" -o -name "autogen.sh" -o -name "configure" -o -name "compile" -o -name "depcomp" -o -name "install-sh" -o -name "missing" -o -name "test-driver" \) -exec chmod +x {} + 2>/dev/null || true
           ./autogen.sh
           ./configure --with-gui=qt5 --disable-bench --disable-fuzz || ./configure --without-gui --disable-bench --disable-fuzz
           make -j$(sysctl -n hw.ncpu) || true
