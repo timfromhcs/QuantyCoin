@@ -1,0 +1,472 @@
+// Copyright (c) 2014-2021 The QTY Core developers
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#include <key_io.h>
+
+#include <base58.h>
+#include <bech32.h>
+#include <script/interpreter.h>
+#include <script/solver.h>
+#include <tinyformat.h>
+#include <util/strencodings.h>
+
+#include <algorithm>
+#include <assert.h>
+#include <string.h>
+
+/// Maximum witness length for Bech32 addresses.
+static constexpr std::size_t BECH32_WITNESS_PROG_MAX_LEN = 40;
+
+namespace {
+class DestinationEncoder
+{
+private:
+    const CChainParams& m_params;
+
+public:
+    explicit DestinationEncoder(const CChainParams& params) : m_params(params) {}
+
+    std::string operator()(const PKHash& id) const
+    {
+        std::vector<unsigned char> data = m_params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
+        data.insert(data.end(), id.begin(), id.end());
+        return EncodeBase58Check(data);
+    }
+
+    std::string operator()(const ScriptHash& id) const
+    {
+        std::vector<unsigned char> data = m_params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
+        data.insert(data.end(), id.begin(), id.end());
+        return EncodeBase58Check(data);
+    }
+
+    std::string operator()(const WitnessV0KeyHash& id) const
+    {
+        std::vector<unsigned char> data = {0};
+        data.reserve(33);
+        ConvertBits<8, 5, true>([&](unsigned char c) { data.push_back(c); }, id.begin(), id.end());
+        return bech32::Encode(bech32::Encoding::BECH32, m_params.Bech32HRP(), data);
+    }
+
+    std::string operator()(const WitnessV0ScriptHash& id) const
+    {
+        std::vector<unsigned char> data = {0};
+        data.reserve(53);
+        ConvertBits<8, 5, true>([&](unsigned char c) { data.push_back(c); }, id.begin(), id.end());
+        return bech32::Encode(bech32::Encoding::BECH32, m_params.Bech32HRP(), data);
+    }
+
+    std::string operator()(const WitnessV1Taproot& tap) const
+    {
+        std::vector<unsigned char> data = {1};
+        data.reserve(53);
+        ConvertBits<8, 5, true>([&](unsigned char c) { data.push_back(c); }, tap.begin(), tap.end());
+        return bech32::Encode(bech32::Encoding::BECH32M, m_params.Bech32HRP(), data);
+    }
+
+    std::string operator()(const WitnessV2P2MR& p2mr) const
+    {
+        std::vector<unsigned char> data = {2}; // SegWit version 2 -> bc1z prefix
+        data.reserve(53);
+        ConvertBits<8, 5, true>([&](unsigned char c) { data.push_back(c); }, p2mr.begin(), p2mr.end());
+        return bech32::Encode(bech32::Encoding::BECH32M, m_params.Bech32HRP(), data);
+    }
+
+    std::string operator()(const WitnessUnknown& id) const
+    {
+        const std::vector<unsigned char>& program = id.GetWitnessProgram();
+        if (id.GetWitnessVersion() < 1 || id.GetWitnessVersion() > 16 || program.size() < 2 || program.size() > 40) {
+            return {};
+        }
+        std::vector<unsigned char> data = {(unsigned char)id.GetWitnessVersion()};
+        data.reserve(1 + (program.size() * 8 + 4) / 5);
+        ConvertBits<8, 5, true>([&](unsigned char c) { data.push_back(c); }, program.begin(), program.end());
+        return bech32::Encode(bech32::Encoding::BECH32M, m_params.Bech32HRP(), data);
+    }
+
+    std::string operator()(const CNoDestination& no) const { return {}; }
+    std::string operator()(const PubKeyDestination& pk) const { return {}; }
+
+    // Dilithium destination encoders
+    std::string operator()(const DilithiumPKHash& id) const
+    {
+        std::vector<unsigned char> data = m_params.Base58Prefix(CChainParams::DILITHIUM_PUBKEY_ADDRESS);
+        data.insert(data.end(), id.begin(), id.end());
+        return EncodeBase58Check(data);
+    }
+
+    std::string operator()(const DilithiumScriptHash& id) const
+    {
+        std::vector<unsigned char> data = m_params.Base58Prefix(CChainParams::DILITHIUM_SCRIPT_ADDRESS);
+        data.insert(data.end(), id.begin(), id.end());
+        return EncodeBase58Check(data);
+    }
+
+    std::string operator()(const DilithiumWitnessV0KeyHash& id) const
+    {
+        std::vector<unsigned char> data = {0};
+        data.reserve(33);
+        ConvertBits<8, 5, true>([&](unsigned char c) { data.push_back(c); }, id.begin(), id.end());
+        return bech32::Encode(bech32::Encoding::BECH32, m_params.DilithiumBech32HRP(), data);
+    }
+
+    std::string operator()(const DilithiumWitnessV0ScriptHash& id) const
+    {
+        std::vector<unsigned char> data = {0};
+        data.reserve(53);
+        ConvertBits<8, 5, true>([&](unsigned char c) { data.push_back(c); }, id.begin(), id.end());
+        return bech32::Encode(bech32::Encoding::BECH32, m_params.DilithiumBech32HRP(), data);
+    }
+
+    std::string operator()(const DilithiumPubKeyDestination& pk) const { return {}; }
+};
+
+CTxDestination DecodeDestination(const std::string& str, const CChainParams& params, std::string& error_str, std::vector<int>* error_locations)
+{
+    std::vector<unsigned char> data;
+    uint160 hash;
+    error_str = "";
+
+    // Note this will be false if it is a valid Bech32 address for a different network
+    bool is_bech32 = (ToLower(str.substr(0, params.Bech32HRP().size())) == params.Bech32HRP());
+    bool is_dilithium_bech32 = (ToLower(str.substr(0, params.DilithiumBech32HRP().size())) == params.DilithiumBech32HRP());
+
+    if (!is_bech32 && !is_dilithium_bech32 && DecodeBase58Check(str, data, 21)) {
+        // base58-encoded QTY addresses.
+        // Public-key-hash-addresses have version 0 (or 111 testnet).
+        // The data vector contains RIPEMD160(SHA256(pubkey)), where pubkey is the serialized public key.
+        const std::vector<unsigned char>& pubkey_prefix = params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
+        if (data.size() == hash.size() + pubkey_prefix.size() && std::equal(pubkey_prefix.begin(), pubkey_prefix.end(), data.begin())) {
+            std::copy(data.begin() + pubkey_prefix.size(), data.end(), hash.begin());
+            return PKHash(hash);
+        }
+        // Script-hash-addresses have version 5 (or 196 testnet).
+        // The data vector contains RIPEMD160(SHA256(cscript)), where cscript is the serialized redemption script.
+        const std::vector<unsigned char>& script_prefix = params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
+        if (data.size() == hash.size() + script_prefix.size() && std::equal(script_prefix.begin(), script_prefix.end(), data.begin())) {
+            std::copy(data.begin() + script_prefix.size(), data.end(), hash.begin());
+            return ScriptHash(hash);
+        }
+        // Dilithium public-key-hash-addresses
+        const std::vector<unsigned char>& dilithium_pubkey_prefix = params.Base58Prefix(CChainParams::DILITHIUM_PUBKEY_ADDRESS);
+        if (data.size() == hash.size() + dilithium_pubkey_prefix.size() && std::equal(dilithium_pubkey_prefix.begin(), dilithium_pubkey_prefix.end(), data.begin())) {
+            std::copy(data.begin() + dilithium_pubkey_prefix.size(), data.end(), hash.begin());
+            return DilithiumPKHash(hash);
+        }
+        // Dilithium script-hash-addresses
+        const std::vector<unsigned char>& dilithium_script_prefix = params.Base58Prefix(CChainParams::DILITHIUM_SCRIPT_ADDRESS);
+        if (data.size() == hash.size() + dilithium_script_prefix.size() && std::equal(dilithium_script_prefix.begin(), dilithium_script_prefix.end(), data.begin())) {
+            std::copy(data.begin() + dilithium_script_prefix.size(), data.end(), hash.begin());
+            return DilithiumScriptHash(hash);
+        }
+
+        // If the prefix of data matches any known prefix, the length must have been wrong
+        if ((data.size() >= script_prefix.size() &&
+                std::equal(script_prefix.begin(), script_prefix.end(), data.begin())) ||
+            (data.size() >= pubkey_prefix.size() &&
+                std::equal(pubkey_prefix.begin(), pubkey_prefix.end(), data.begin())) ||
+            (data.size() >= dilithium_script_prefix.size() &&
+                std::equal(dilithium_script_prefix.begin(), dilithium_script_prefix.end(), data.begin())) ||
+            (data.size() >= dilithium_pubkey_prefix.size() &&
+                std::equal(dilithium_pubkey_prefix.begin(), dilithium_pubkey_prefix.end(), data.begin()))) {
+            error_str = "Invalid length for Base58 address (P2PKH, P2SH, or Dilithium)";
+        } else {
+            error_str = "Invalid or unsupported Base58-encoded address.";
+        }
+        return CNoDestination();
+    } else if (!is_bech32 && !is_dilithium_bech32) {
+        // Try Base58 decoding without the checksum, using a much larger max length
+        if (!DecodeBase58(str, data, 100)) {
+            error_str = "Invalid or unsupported Segwit (Bech32) or Base58 encoding.";
+        } else {
+            error_str = "Invalid checksum or length of Base58 address (P2PKH or P2SH)";
+        }
+        return CNoDestination();
+    }
+
+    data.clear();
+    const auto dec = bech32::Decode(str);
+    if (dec.encoding == bech32::Encoding::BECH32 || dec.encoding == bech32::Encoding::BECH32M) {
+        if (dec.data.empty()) {
+            error_str = "Empty Bech32 data section";
+            return CNoDestination();
+        }
+        // Bech32 decoding
+        if (dec.hrp != params.Bech32HRP()) {
+            // Check if it's a Dilithium Bech32 address
+            if (dec.hrp == params.DilithiumBech32HRP()) {
+                // This is a Dilithium Bech32 address, skip to Dilithium decoding
+                goto dilithium_bech32_decode;
+            }
+            error_str = strprintf("Invalid or unsupported prefix for Segwit (Bech32) address (expected %s, got %s).", params.Bech32HRP(), dec.hrp);
+            return CNoDestination();
+        }
+        int version = dec.data[0]; // The first 5 bit symbol is the witness version (0-16)
+        if (version == 0 && dec.encoding != bech32::Encoding::BECH32) {
+            error_str = "Version 0 witness address must use Bech32 checksum";
+            return CNoDestination();
+        }
+        if (version != 0 && dec.encoding != bech32::Encoding::BECH32M) {
+            error_str = "Version 1+ witness address must use Bech32m checksum";
+            return CNoDestination();
+        }
+        // The rest of the symbols are converted witness program bytes.
+        data.reserve(((dec.data.size() - 1) * 5) / 8);
+        if (ConvertBits<5, 8, false>([&](unsigned char c) { data.push_back(c); }, dec.data.begin() + 1, dec.data.end())) {
+
+            std::string_view byte_str{data.size() == 1 ? "byte" : "bytes"};
+
+            if (version == 0) {
+                {
+                    WitnessV0KeyHash keyid;
+                    if (data.size() == keyid.size()) {
+                        std::copy(data.begin(), data.end(), keyid.begin());
+                        return keyid;
+                    }
+                }
+                {
+                    WitnessV0ScriptHash scriptid;
+                    if (data.size() == scriptid.size()) {
+                        std::copy(data.begin(), data.end(), scriptid.begin());
+                        return scriptid;
+                    }
+                }
+
+                error_str = strprintf("Invalid Bech32 v0 address program size (%d %s), per BIP141", data.size(), byte_str);
+                return CNoDestination();
+            }
+
+            if (version == 1 && data.size() == WITNESS_V1_TAPROOT_SIZE) {
+                static_assert(WITNESS_V1_TAPROOT_SIZE == WitnessV1Taproot::size());
+                WitnessV1Taproot tap;
+                std::copy(data.begin(), data.end(), tap.begin());
+                return tap;
+            }
+
+            if (version == 2 && data.size() == WITNESS_V2_P2MR_SIZE) {
+                WitnessV2P2MR p2mr;
+                std::copy(data.begin(), data.end(), p2mr.begin());
+                return p2mr;
+            }
+
+            if (version > 16) {
+                error_str = "Invalid Bech32 address witness version";
+                return CNoDestination();
+            }
+
+            if (data.size() < 2 || data.size() > BECH32_WITNESS_PROG_MAX_LEN) {
+                error_str = strprintf("Invalid Bech32 address program size (%d %s)", data.size(), byte_str);
+                return CNoDestination();
+            }
+
+            return WitnessUnknown{version, data};
+        } else {
+            error_str = strprintf("Invalid padding in Bech32 data section");
+            return CNoDestination();
+        }
+    } else if (is_dilithium_bech32) {
+        // Dilithium Bech32 decoding
+        dilithium_bech32_decode:
+        const auto dec = bech32::Decode(str);
+        if (dec.encoding == bech32::Encoding::BECH32 || dec.encoding == bech32::Encoding::BECH32M) {
+            if (dec.data.empty()) {
+                error_str = "Empty Dilithium Bech32 data section";
+                return CNoDestination();
+            }
+            if (dec.hrp != params.DilithiumBech32HRP()) {
+                error_str = strprintf("Invalid or unsupported prefix for Dilithium Bech32 address (expected %s, got %s).", params.DilithiumBech32HRP(), dec.hrp);
+                return CNoDestination();
+            }
+            int version = dec.data[0]; // The first 5 bit symbol is the witness version (0-16)
+            if (version == 0 && dec.encoding != bech32::Encoding::BECH32) {
+                error_str = "Version 0 Dilithium witness address must use Bech32 checksum";
+                return CNoDestination();
+            }
+            if (version != 0 && dec.encoding != bech32::Encoding::BECH32M) {
+                error_str = "Version 1+ Dilithium witness address must use Bech32m checksum";
+                return CNoDestination();
+            }
+            // The rest of the symbols are converted witness program bytes.
+            data.reserve(((dec.data.size() - 1) * 5) / 8);
+            if (ConvertBits<5, 8, false>([&](unsigned char c) { data.push_back(c); }, dec.data.begin() + 1, dec.data.end())) {
+
+                std::string_view byte_str{data.size() == 1 ? "byte" : "bytes"};
+
+                if (version == 0) {
+                    {
+                        DilithiumWitnessV0KeyHash keyid;
+                        if (data.size() == keyid.size()) {
+                            std::copy(data.begin(), data.end(), keyid.begin());
+                            return keyid;
+                        }
+                    }
+                    {
+                        DilithiumWitnessV0ScriptHash scriptid;
+                        if (data.size() == scriptid.size()) {
+                            std::copy(data.begin(), data.end(), scriptid.begin());
+                            return scriptid;
+                        }
+                    }
+
+                    error_str = strprintf("Invalid Dilithium Bech32 v0 address program size (%d %s)", data.size(), byte_str);
+                    return CNoDestination();
+                }
+
+                error_str = strprintf("Invalid Dilithium Bech32 address program size (%d %s)", data.size(), byte_str);
+                return CNoDestination();
+            } else {
+                error_str = strprintf("Invalid padding in Dilithium Bech32 data section");
+                return CNoDestination();
+            }
+        }
+    }
+
+    // Perform Bech32 error location
+    auto res = bech32::LocateErrors(str);
+    error_str = res.first;
+    if (error_locations) *error_locations = std::move(res.second);
+    return CNoDestination();
+}
+} // namespace
+
+CKey DecodeSecret(const std::string& str)
+{
+    CKey key;
+    std::vector<unsigned char> data;
+    if (DecodeBase58Check(str, data, 34)) {
+        const std::vector<unsigned char>& privkey_prefix = Params().Base58Prefix(CChainParams::SECRET_KEY);
+        if ((data.size() == 32 + privkey_prefix.size() || (data.size() == 33 + privkey_prefix.size() && data.back() == 1)) &&
+            std::equal(privkey_prefix.begin(), privkey_prefix.end(), data.begin())) {
+            bool compressed = data.size() == 33 + privkey_prefix.size();
+            key.Set(data.begin() + privkey_prefix.size(), data.begin() + privkey_prefix.size() + 32, compressed);
+        }
+    }
+    if (!data.empty()) {
+        memory_cleanse(data.data(), data.size());
+    }
+    return key;
+}
+
+std::string EncodeSecret(const CKey& key)
+{
+    assert(key.IsValid());
+    std::vector<unsigned char> data = Params().Base58Prefix(CChainParams::SECRET_KEY);
+    data.insert(data.end(), key.begin(), key.end());
+    if (key.IsCompressed()) {
+        data.push_back(1);
+    }
+    std::string ret = EncodeBase58Check(data);
+    memory_cleanse(data.data(), data.size());
+    return ret;
+}
+
+// Dilithium key WIF support
+CDilithiumKey DecodeDilithiumSecret(const std::string& str)
+{
+    CDilithiumKey key;
+    std::vector<unsigned char> data;
+    // The DecodeBase58Check `max_ret_len` argument caps how many bytes the
+    // base58 decoder is willing to materialize. Dilithium2 secret keys are
+    // 3872 bytes plus the SECRET_KEY base58 prefix, so the historical limit
+    // of 34 (sized for ECDSA: 32-byte key + 1 prefix + 1 compression flag)
+    // silently truncated every Dilithium WIF and made round-trips fail.
+    const size_t max_len = CDilithiumKey::GetKeySize() + Params().Base58Prefix(CChainParams::SECRET_KEY).size();
+    if (DecodeBase58Check(str, data, static_cast<int>(max_len))) {
+        const std::vector<unsigned char>& privkey_prefix = Params().Base58Prefix(CChainParams::SECRET_KEY);
+        if (data.size() == CDilithiumKey::GetKeySize() + privkey_prefix.size() &&
+            std::equal(privkey_prefix.begin(), privkey_prefix.end(), data.begin())) {
+            key.Set(data.begin() + privkey_prefix.size(), data.begin() + privkey_prefix.size() + CDilithiumKey::GetKeySize());
+        }
+    }
+    if (!data.empty()) {
+        memory_cleanse(data.data(), data.size());
+    }
+    return key;
+}
+
+std::string EncodeDilithiumSecret(const CDilithiumKey& key)
+{
+    assert(key.IsValid());
+    std::vector<unsigned char> data = Params().Base58Prefix(CChainParams::SECRET_KEY);
+    data.insert(data.end(), key.begin(), key.end());
+    std::string ret = EncodeBase58Check(data);
+    memory_cleanse(data.data(), data.size());
+    return ret;
+}
+
+CExtPubKey DecodeExtPubKey(const std::string& str)
+{
+    CExtPubKey key;
+    std::vector<unsigned char> data;
+    if (DecodeBase58Check(str, data, 78)) {
+        const std::vector<unsigned char>& prefix = Params().Base58Prefix(CChainParams::EXT_PUBLIC_KEY);
+        if (data.size() == BIP32_EXTKEY_SIZE + prefix.size() && std::equal(prefix.begin(), prefix.end(), data.begin())) {
+            key.Decode(data.data() + prefix.size());
+            // Set version from the prefix
+            memcpy(key.version, prefix.data(), 4);
+        }
+    }
+    return key;
+}
+
+std::string EncodeExtPubKey(const CExtPubKey& key)
+{
+    std::vector<unsigned char> data = Params().Base58Prefix(CChainParams::EXT_PUBLIC_KEY);
+    size_t size = data.size();
+    data.resize(size + BIP32_EXTKEY_SIZE);
+    key.Encode(data.data() + size);
+    std::string ret = EncodeBase58Check(data);
+    return ret;
+}
+
+CExtKey DecodeExtKey(const std::string& str)
+{
+    CExtKey key;
+    std::vector<unsigned char> data;
+    if (DecodeBase58Check(str, data, 78)) {
+        const std::vector<unsigned char>& prefix = Params().Base58Prefix(CChainParams::EXT_SECRET_KEY);
+        if (data.size() == BIP32_EXTKEY_SIZE + prefix.size() && std::equal(prefix.begin(), prefix.end(), data.begin())) {
+            key.Decode(data.data() + prefix.size());
+        }
+    }
+    return key;
+}
+
+std::string EncodeExtKey(const CExtKey& key)
+{
+    std::vector<unsigned char> data = Params().Base58Prefix(CChainParams::EXT_SECRET_KEY);
+    size_t size = data.size();
+    data.resize(size + BIP32_EXTKEY_SIZE);
+    key.Encode(data.data() + size);
+    std::string ret = EncodeBase58Check(data);
+    memory_cleanse(data.data(), data.size());
+    return ret;
+}
+
+std::string EncodeDestination(const CTxDestination& dest)
+{
+    return std::visit(DestinationEncoder(Params()), dest);
+}
+
+CTxDestination DecodeDestination(const std::string& str, std::string& error_msg, std::vector<int>* error_locations)
+{
+    return DecodeDestination(str, Params(), error_msg, error_locations);
+}
+
+CTxDestination DecodeDestination(const std::string& str)
+{
+    std::string error_msg;
+    return DecodeDestination(str, error_msg);
+}
+
+bool IsValidDestinationString(const std::string& str, const CChainParams& params)
+{
+    std::string error_msg;
+    return IsValidDestination(DecodeDestination(str, params, error_msg, nullptr));
+}
+
+bool IsValidDestinationString(const std::string& str)
+{
+    return IsValidDestinationString(str, Params());
+}

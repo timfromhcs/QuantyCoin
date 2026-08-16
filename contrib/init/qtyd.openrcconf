@@ -1,0 +1,33 @@
+# /etc/conf.d/qtyd: config file for /etc/init.d/qtyd
+
+# Config file location
+#QTYD_CONFIGFILE="/etc/qty/qty.conf"
+
+# What directory to write pidfile to?  (created and owned by $QTYD_USER)
+#QTYD_PIDDIR="/var/run/qtyd"
+
+# What filename to give the pidfile
+#QTYD_PIDFILE="${QTYD_PIDDIR}/qtyd.pid"
+
+# Where to write qtyd data (be mindful that the blockchain is large)
+#QTYD_DATADIR="/var/lib/qtyd"
+
+# User and group to own qtyd process
+#QTYD_USER="qty"
+#QTYD_GROUP="qty"
+
+# Path to qtyd executable
+#QTYD_BIN="/usr/bin/qtyd"
+
+# Nice value to run qtyd under
+#QTYD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#QTYD_OPTS=""
+
+# The timeout in seconds OpenRC will wait for qtyd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+QTYD_SIGTERM_TIMEOUT=600

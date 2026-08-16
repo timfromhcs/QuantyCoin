@@ -1,0 +1,200 @@
+// Copyright (c) 2014-2021 The QTY Core developers
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#include <chainparams.h>
+#include <consensus/amount.h>
+#include <net.h>
+#include <signet.h>
+#include <uint256.h>
+#include <util/chaintype.h>
+#include <validation.h>
+#include <deploymentstatus.h>
+#include <chain.h>
+#include <script/interpreter.h>
+
+#include <test/util/setup_common.h>
+
+#include <boost/test/unit_test.hpp>
+
+BOOST_FIXTURE_TEST_SUITE(validation_tests, TestingSetup)
+
+static void TestBlockSubsidyHalvings(const Consensus::Params& consensusParams)
+{
+    int maxHalvings = 64;
+    CAmount nInitialSubsidy = 5 * COIN; // QTY: 5 QTY per block
+
+    CAmount nPreviousSubsidy = nInitialSubsidy * 2; // for height == 0
+    BOOST_CHECK_EQUAL(nPreviousSubsidy, nInitialSubsidy * 2);
+    for (int nHalvings = 0; nHalvings < maxHalvings; nHalvings++) {
+        int nHeight = nHalvings * consensusParams.nSubsidyHalvingInterval;
+        CAmount nSubsidy = GetBlockSubsidy(nHeight, consensusParams);
+        BOOST_CHECK(nSubsidy <= nInitialSubsidy);
+        BOOST_CHECK_EQUAL(nSubsidy, nPreviousSubsidy / 2);
+        nPreviousSubsidy = nSubsidy;
+    }
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(maxHalvings * consensusParams.nSubsidyHalvingInterval, consensusParams), 0);
+}
+
+static void TestBlockSubsidyHalvings(int nSubsidyHalvingInterval)
+{
+    Consensus::Params consensusParams;
+    consensusParams.nSubsidyHalvingInterval = nSubsidyHalvingInterval;
+    TestBlockSubsidyHalvings(consensusParams);
+}
+
+BOOST_AUTO_TEST_CASE(block_subsidy_test)
+{
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::QTYMAIN);
+    TestBlockSubsidyHalvings(chainParams->GetConsensus()); // As in main
+    TestBlockSubsidyHalvings(1500); // As in regtest (QTY: 10x Bitcoin for 1-min blocks)
+    TestBlockSubsidyHalvings(1000); // Just another interval
+}
+
+BOOST_AUTO_TEST_CASE(subsidy_limit_test)
+{
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::QTYMAIN);
+    CAmount nSum = 0;
+    for (int nHeight = 0; nHeight < 140000000; nHeight += 1000) {
+        CAmount nSubsidy = GetBlockSubsidy(nHeight, chainParams->GetConsensus());
+        BOOST_CHECK(nSubsidy <= 5 * COIN);
+        nSum += nSubsidy * 1000;
+        BOOST_CHECK(MoneyRange(nSum));
+    }
+    BOOST_CHECK_EQUAL(nSum, CAmount{2099999972700000}); // QTY: 5 QTY/block, 2.1M halving interval
+}
+
+BOOST_AUTO_TEST_CASE(signet_parse_tests)
+{
+    ArgsManager signet_argsman;
+    signet_argsman.ForceSetArg("-signetchallenge", "51"); // set challenge to OP_TRUE
+    const auto signet_params = CreateChainParams(signet_argsman, ChainType::QTYSIGNET);
+    CBlock block;
+    BOOST_CHECK(signet_params->GetConsensus().signet_challenge == std::vector<uint8_t>{OP_TRUE});
+    CScript challenge{OP_TRUE};
+
+    // empty block is invalid
+    BOOST_CHECK(!SignetTxs::Create(block, challenge));
+    BOOST_CHECK(!CheckSignetBlockSolution(block, signet_params->GetConsensus()));
+
+    // no witness commitment
+    CMutableTransaction cb;
+    cb.vout.emplace_back(0, CScript{});
+    block.vtx.push_back(MakeTransactionRef(cb));
+    block.vtx.push_back(MakeTransactionRef(cb)); // Add dummy tx to exercise merkle root code
+    BOOST_CHECK(!SignetTxs::Create(block, challenge));
+    BOOST_CHECK(!CheckSignetBlockSolution(block, signet_params->GetConsensus()));
+
+    // no header is treated valid
+    std::vector<uint8_t> witness_commitment_section_141{0xaa, 0x21, 0xa9, 0xed};
+    for (int i = 0; i < 32; ++i) {
+        witness_commitment_section_141.push_back(0xff);
+    }
+    cb.vout.at(0).scriptPubKey = CScript{} << OP_RETURN << witness_commitment_section_141;
+    block.vtx.at(0) = MakeTransactionRef(cb);
+    BOOST_CHECK(SignetTxs::Create(block, challenge));
+    BOOST_CHECK(CheckSignetBlockSolution(block, signet_params->GetConsensus()));
+
+    // no data after header, valid
+    std::vector<uint8_t> witness_commitment_section_325{0xec, 0xc7, 0xda, 0xa2};
+    cb.vout.at(0).scriptPubKey = CScript{} << OP_RETURN << witness_commitment_section_141 << witness_commitment_section_325;
+    block.vtx.at(0) = MakeTransactionRef(cb);
+    BOOST_CHECK(SignetTxs::Create(block, challenge));
+    BOOST_CHECK(CheckSignetBlockSolution(block, signet_params->GetConsensus()));
+
+    // Premature end of data, invalid
+    witness_commitment_section_325.push_back(0x01);
+    witness_commitment_section_325.push_back(0x51);
+    cb.vout.at(0).scriptPubKey = CScript{} << OP_RETURN << witness_commitment_section_141 << witness_commitment_section_325;
+    block.vtx.at(0) = MakeTransactionRef(cb);
+    BOOST_CHECK(!SignetTxs::Create(block, challenge));
+    BOOST_CHECK(!CheckSignetBlockSolution(block, signet_params->GetConsensus()));
+
+    // has data, valid
+    witness_commitment_section_325.push_back(0x00);
+    cb.vout.at(0).scriptPubKey = CScript{} << OP_RETURN << witness_commitment_section_141 << witness_commitment_section_325;
+    block.vtx.at(0) = MakeTransactionRef(cb);
+    BOOST_CHECK(SignetTxs::Create(block, challenge));
+    BOOST_CHECK(CheckSignetBlockSolution(block, signet_params->GetConsensus()));
+
+    // Extraneous data, invalid
+    witness_commitment_section_325.push_back(0x00);
+    cb.vout.at(0).scriptPubKey = CScript{} << OP_RETURN << witness_commitment_section_141 << witness_commitment_section_325;
+    block.vtx.at(0) = MakeTransactionRef(cb);
+    BOOST_CHECK(!SignetTxs::Create(block, challenge));
+    BOOST_CHECK(!CheckSignetBlockSolution(block, signet_params->GetConsensus()));
+}
+
+//! Test retrieval of valid assumeutxo values.
+BOOST_AUTO_TEST_CASE(test_assumeutxo)
+{
+    const auto params = CreateChainParams(*m_node.args, ChainType::QTYREGTEST);
+
+    // These heights don't have assumeutxo configurations associated, per the contents
+    // of kernel/chainparams.cpp.
+    std::vector<int> bad_heights{0, 100, 111, 115, 209, 211};
+
+    for (auto empty : bad_heights) {
+        const auto out = params->AssumeutxoForHeight(empty);
+        BOOST_CHECK(!out);
+    }
+
+    // QTY's own snapshot values, not the ones inherited from Bitcoin: both the
+    // base block hash and the serialized UTXO hash depend on the subsidy and
+    // chain parameters. REQUIRE rather than CHECK because these dereference an
+    // optional -- while the table was empty this read uninitialised stack and
+    // compared it against the expected hash, which is undefined behaviour that
+    // happened to surface as a plain assertion failure.
+    const auto out110{params->AssumeutxoForHeight(110)};
+    BOOST_REQUIRE(out110);
+    BOOST_CHECK_EQUAL(out110->hash_serialized.ToString(), "5d86a7f67e8bb0e146c206164dcc984c2af8b3449845a42dd72ef76f082e690a");
+    BOOST_CHECK_EQUAL(out110->nChainTx, 111U);
+
+    const auto out110_2{params->AssumeutxoForBlockhash(uint256S("0x100831e245415bda8a1b889280fd766c9a1e8a805e2c89c85ae4bc582b4f3efb"))};
+    BOOST_REQUIRE(out110_2);
+    BOOST_CHECK_EQUAL(out110_2->hash_serialized.ToString(), "5d86a7f67e8bb0e146c206164dcc984c2af8b3449845a42dd72ef76f082e690a");
+    BOOST_CHECK_EQUAL(out110_2->nChainTx, 111U);
+}
+
+
+BOOST_AUTO_TEST_CASE(script_flag_exceptions_cannot_clear_dilithium_p2mr)
+{
+    // QTY currently ships an empty script_flag_exceptions map, but the
+    // override mechanism must not be able to clear Dilithium / P2MR /
+    // P2MR_ONLY if entries are ever added (including Bitcoin-lineage hashes).
+    auto& chainman = *Assert(m_node.chainman);
+    Consensus::Params& consensus = const_cast<Consensus::Params&>(chainman.GetConsensus());
+
+    uint256 exception_hash = uint256S("0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
+    // Exception payload with none of the Dilithium / P2MR bits.
+    consensus.script_flag_exceptions[exception_hash] = SCRIPT_VERIFY_P2SH;
+
+    CBlockIndex index;
+    index.nHeight = 0;
+    index.phashBlock = &exception_hash;
+
+    // Height 0 is before nDilithiumHeight (1) and nDilithiumP2MRHeight (1) on
+    // regtest: P2MR forced, Dilithium / P2MR_ONLY not.
+    {
+        const unsigned flags = GetBlockScriptFlags(index, chainman);
+        BOOST_CHECK(flags & SCRIPT_VERIFY_P2MR);
+        BOOST_CHECK(!(flags & SCRIPT_VERIFY_DILITHIUM));
+        BOOST_CHECK(!(flags & SCRIPT_VERIFY_DILITHIUM_P2MR_ONLY));
+        BOOST_CHECK(flags & SCRIPT_VERIFY_P2SH); // from exception payload
+    }
+
+    // After both activation heights, all three bits must be forced back on.
+    index.nHeight = 1;
+    {
+        const unsigned flags = GetBlockScriptFlags(index, chainman);
+        BOOST_CHECK(flags & SCRIPT_VERIFY_P2MR);
+        BOOST_CHECK(flags & SCRIPT_VERIFY_DILITHIUM);
+        BOOST_CHECK(flags & SCRIPT_VERIFY_DILITHIUM_P2MR_ONLY);
+    }
+
+    // Cleanup so later tests see the stock empty map.
+    consensus.script_flag_exceptions.erase(exception_hash);
+}
+
+
+BOOST_AUTO_TEST_SUITE_END()

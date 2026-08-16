@@ -1,0 +1,93 @@
+#!/sbin/openrc-run
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/qty/.qty" ]; then
+	QTYD_DEFAULT_DATADIR="/var/lib/qty/.qty"
+else
+	QTYD_DEFAULT_DATADIR="/var/lib/qtyd"
+fi
+
+QTYD_CONFIGFILE=${QTYD_CONFIGFILE:-/etc/qty/qty.conf}
+QTYD_PIDDIR=${QTYD_PIDDIR:-/var/run/qtyd}
+QTYD_PIDFILE=${QTYD_PIDFILE:-${QTYD_PIDDIR}/qtyd.pid}
+QTYD_DATADIR=${QTYD_DATADIR:-${QTYD_DEFAULT_DATADIR}}
+QTYD_USER=${QTYD_USER:-${QTY_USER:-qty}}
+QTYD_GROUP=${QTYD_GROUP:-qty}
+QTYD_BIN=${QTYD_BIN:-/usr/bin/qtyd}
+QTYD_NICE=${QTYD_NICE:-${NICELEVEL:-0}}
+QTYD_OPTS="${QTYD_OPTS:-${QTY_OPTS}}"
+
+name="QTY Core Daemon"
+description="QTY cryptocurrency P2P network daemon"
+
+command="/usr/bin/qtyd"
+command_args="-pid=\"${QTYD_PIDFILE}\" \
+		-conf=\"${QTYD_CONFIGFILE}\" \
+		-datadir=\"${QTYD_DATADIR}\" \
+		-daemon \
+		${QTYD_OPTS}"
+
+required_files="${QTYD_CONFIGFILE}"
+start_stop_daemon_args="-u ${QTYD_USER} \
+			-N ${QTYD_NICE} -w 2000"
+pidfile="${QTYD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${QTYD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${QTYD_USER}:${QTYD_GROUP}" \
+	"${QTYD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${QTYD_USER}:${QTYD_GROUP}" \
+	"${QTYD_PIDDIR}"
+
+	checkpath -f \
+	-o "${QTYD_USER}:${QTYD_GROUP}" \
+	-m 0660 \
+	"${QTYD_CONFIGFILE}"
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if grep -qs '^rpcuser=' "${QTYD_CONFIGFILE}" && \
+		! grep -qs '^rpcpassword=' "${QTYD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run qtyd."
+		eerror "The setting must appear in ${QTYD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"QTY Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

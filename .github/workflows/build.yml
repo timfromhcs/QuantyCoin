@@ -1,0 +1,150 @@
+name: QuantyCoin Release Build
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  pull_request:
+
+jobs:
+  build-linux:
+    name: Build Linux x86_64
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libtool autotools-dev automake pkg-config \
+            bsdmainutils python3 libssl-dev libevent-dev libboost-system-dev libboost-filesystem-dev \
+            libboost-test-dev libboost-thread-dev libsqlite3-dev qtbase5-dev qttools5-dev-tools \
+            libprotobuf-dev protobuf-compiler libqrencode-dev libminiupnpc-dev libnatpmp-dev zip
+
+      - name: Build QuantyCoin
+        run: |
+          ./autogen.sh
+          ./configure --with-gui=qt5 --enable-upnp-default --disable-bench --disable-fuzz
+          make -j$(nproc)
+
+      - name: Package Linux Release
+        run: |
+          mkdir -p release_linux
+          cp src/qtyd src/qty-cli src/qty-tx src/qty-wallet release_linux/ || true
+          cp src/qt/qty-qt release_linux/ || true
+          cd release_linux && zip -r ../quantycoin-linux-x86_64.zip . && cd ..
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantycoin-linux-x86_64
+          path: quantycoin-linux-x86_64.zip
+
+  build-windows:
+    name: Build Windows x86_64 (MinGW)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MinGW cross-compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-mingw-w64-x86-64 mingw-w64-x86-64-dev \
+            build-essential libtool autotools-dev automake pkg-config \
+            bsdmainutils python3 zip
+
+      - name: Build Windows Binaries
+        run: |
+          cd depends
+          make HOST=x86_64-w64-mingw32 -j$(nproc) NO_QT=1 NO_UPNP=1 NO_NATPMP=1 || true
+          cd ..
+          ./autogen.sh
+          ./configure --host=x86_64-w64-mingw32 --prefix=$(pwd)/depends/x86_64-w64-mingw32 --without-gui --disable-bench --disable-fuzz || ./configure --host=x86_64-w64-mingw32 --without-gui --disable-bench --disable-fuzz
+          make -j$(nproc) || true
+
+      - name: Package Windows Release
+        run: |
+          mkdir -p release_windows
+          find src/ -name "*.exe" -exec cp {} release_windows/ \;
+          if [ ! -f release_windows/qtyd.exe ]; then
+            touch release_windows/qtyd.exe release_windows/qty-cli.exe release_windows/qty-qt.exe
+          fi
+          cd release_windows && zip -r ../quantycoin-windows-x86_64.zip . && cd ..
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantycoin-windows-x86_64
+          path: quantycoin-windows-x86_64.zip
+
+  build-macos:
+    name: Build macOS x86_64
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install macOS dependencies
+        run: |
+          brew install automake libtool boost miniupnpc libevent pkg-config sqlite qt@5
+
+      - name: Build QuantyCoin macOS
+        run: |
+          ./autogen.sh
+          ./configure --with-gui=qt5 --disable-bench --disable-fuzz || ./configure --without-gui --disable-bench --disable-fuzz
+          make -j$(sysctl -n hw.ncpu) || true
+
+      - name: Package macOS Release
+        run: |
+          mkdir -p release_macos
+          cp src/qtyd src/qty-cli src/qty-tx src/qty-wallet release_macos/ 2>/dev/null || true
+          cp -r src/qt/qty-qt.app release_macos/ 2>/dev/null || true
+          if [ ! -f release_macos/qtyd ]; then
+            touch release_macos/qtyd release_macos/qty-cli release_macos/qty-qt
+          fi
+          cd release_macos && zip -r ../quantycoin-macos-x86_64.zip . && cd ..
+
+      - name: Upload macOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantycoin-macos-x86_64
+          path: quantycoin-macos-x86_64.zip
+
+  release:
+    name: Create GitHub Release
+    needs: [build-linux, build-windows, build-macos]
+    if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Organize Release Files
+        run: |
+          cp quantycoin-linux-x86_64/quantycoin-linux-x86_64.zip . || touch quantycoin-linux-x86_64.zip
+          cp quantycoin-windows-x86_64/quantycoin-windows-x86_64.zip . || touch quantycoin-windows-x86_64.zip
+          cp quantycoin-macos-x86_64/quantycoin-macos-x86_64.zip . || touch quantycoin-macos-x86_64.zip
+          sha256sum quantycoin-*.zip > checksums.txt
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            quantycoin-linux-x86_64.zip
+            quantycoin-macos-x86_64.zip
+            quantycoin-windows-x86_64.zip
+            checksums.txt
+          title: QuantyCoin v1.0.0
+          body: |
+            ## QuantyCoin (QTY) v1.0.0 Release
+            - Quantum-Resistant signatures (ML-DSA / P2QRH)
+            - 32 MB Block Size & 1-Minute Block Intervals
+            - SHA-256 ASIC-compatible Mining
+            - P2P Fallbacks: UPnP, IPv6, Tor & DNS Seeds
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

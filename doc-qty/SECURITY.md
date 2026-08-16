@@ -1,0 +1,184 @@
+# Security Policy
+
+## Supported Versions
+
+We provide security updates for the following QTY versions:
+
+| Version | Supported          | End of Life |
+| ------- | ------------------ | ----------- |
+| 1.1.x   | ✅ Current         | TBD         |
+| 1.0.x   | ✅ Maintenance     | 2025-12-31  |
+| 0.1.x   | ⚠️ Critical only   | 2024-12-31  |
+
+## Reporting a Vulnerability
+
+### Reporting Process
+
+**DO NOT** report security vulnerabilities through public GitHub issues.
+
+Use either private channel, preferring the first:
+
+1. **GitHub private vulnerability reporting** — "Report a vulnerability" under
+   the repository's Security tab. Private, authenticated, no key management.
+2. **Email** — **security@qty.tech**, unencrypted.
+
+Include the following information:
+- Description of the vulnerability
+- Steps to reproduce
+- Potential impact assessment
+- Suggested fix (if any)
+- Your contact information for follow-up
+
+### Response Timeline
+
+We are pretty responsive, so we will try to meet these timelines with regards to responding to security reports.
+
+- **Initial Response**: Within 48 hours
+- **Severity Assessment**: Within 7 days
+- **Fix Development**: 30-90 days depending on complexity
+- **Public Disclosure**: After fix is deployed and users have time to upgrade
+
+### Severity Categories
+
+#### Critical (CVSS 9.0-10.0)
+- Remote code execution
+- Consensus failures leading to chain splits
+- Private key extraction
+- **Response**: Immediate embargo, emergency release
+
+#### High (CVSS 7.0-8.9)
+- Denial of service attacks
+- Transaction malleability
+- Wallet fund loss
+- **Response**: 30-day embargo, coordinated release
+
+#### Medium (CVSS 4.0-6.9)
+- Information disclosure
+- Minor protocol violations
+- Performance degradation
+- **Response**: 60-day embargo, next scheduled release
+
+#### Low (CVSS 0.1-3.9)
+- Minor bugs with limited impact
+- **Response**: Public issue after fix is ready
+
+## Encrypted reporting
+
+QTY Core does not publish PGP keys. **Use GitHub private vulnerability
+reporting** when a report must stay confidential — it is private end to end,
+requires no key exchange, and carries the whole thread through to advisory
+publication. Email to security@qty.tech is unencrypted and is the fallback.
+
+## Disclosure Timeline
+
+### Standard Process
+
+1. **Day 0**: Vulnerability reported
+2. **Day 1-2**: Initial response and triage
+3. **Day 7**: Severity assessment and embargo timeline set
+4. **Day 30-90**: Fix development and testing
+5. **Day 90-120**: Coordinated disclosure and release
+6. **Day 120+**: Public advisory publication
+
+### Emergency Process (Critical Vulnerabilities)
+
+1. **Hour 0**: Report received
+2. **Hour 6**: Emergency team assembled
+3. **Day 1**: Fix development begins
+4. **Day 3-7**: Emergency release prepared
+5. **Day 7**: Public release and advisory
+
+## Advisory Publication
+
+### Advisory Format
+
+```markdown
+# QTY Security Advisory [YEAR]-[NUMBER]
+
+**Title**: [Vulnerability Description]
+**CVE**: CVE-YYYY-XXXXX (if assigned)
+**Severity**: [Critical|High|Medium|Low]
+**Affected Versions**: [version ranges]
+**Fixed In**: vX.Y.Z
+**Published**: YYYY-MM-DD
+
+## Impact
+[What an attacker can achieve]
+
+## Description
+[Technical details of the vulnerability]
+
+## Workarounds
+[Mitigation steps if available]
+
+## Solution
+[How the fix addresses the issue]
+
+## Credits
+[Reporter acknowledgment]
+
+## Timeline
+- YYYY-MM-DD: Initial report
+- YYYY-MM-DD: Fix developed
+- YYYY-MM-DD: Release published
+- YYYY-MM-DD: Public disclosure
+```
+
+### Publication Channels
+
+- GitHub Security Advisories
+- QTY website security page
+- Mailing list notifications
+- Telegram announcements (link to GitHub)
+
+## Security Best Practices
+
+### For Users
+
+- **Verify Downloads**: Always check SHA256SUMS and GPG signatures
+- **Keep Updated**: Install security updates promptly
+- **Secure Setup**: Use proper firewall and access controls
+- **Backup Wallets**: Maintain secure, encrypted backups
+
+### For Developers
+
+- **Code Review**: All security-sensitive code requires expert review
+- **Testing**: Include negative test cases and edge conditions
+- **Dependencies**: Keep third-party libraries updated
+- **Secrets**: Never commit private keys or sensitive configuration
+
+## Responsible Disclosure Guidelines
+
+### For Security Researchers
+
+- **Good Faith**: Research conducted in good faith with intent to improve security
+- **Scope**: Focus on QTY Core software, not infrastructure attacks
+- **No Harm**: Do not access, modify, or delete user data
+- **Disclosure**: Work with us on responsible timeline before public disclosure
+
+### Recognition
+
+- Security researchers will be credited in advisories (unless they prefer anonymity)
+- Significant contributions may be eligible for bounty rewards
+- Hall of fame recognition on QTY website
+
+## Emergency Contacts
+
+For urgent security matters requiring immediate attention, email
+**security@qty.tech** and put `URGENT` in the subject line. The address is
+monitored by more than one person, so it does not depend on any individual
+being available.
+
+## Security Audit History
+
+| Date | Scope | Auditor | Report |
+|------|-------|---------|---------|
+| TBD  | Full codebase | TBD | TBD |
+
+## Additional Resources
+
+- [Bitcoin Core Security Policy](https://github.com/bitcoin/bitcoin/blob/master/SECURITY.md)
+- [CVE Database](https://cve.mitre.org/)
+- [NIST Post-Quantum Cryptography](https://csrc.nist.gov/projects/post-quantum-cryptography)
+
+---

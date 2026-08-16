@@ -1,0 +1,7 @@
+[main]
+host = https://www.transifex.com
+
+[o:qty:p:qty:r:qt-translation-026x]
+file_filter = src/qt/locale/qty_<lang>.xlf
+source_file = src/qt/locale/qty_en.xlf
+source_lang = en

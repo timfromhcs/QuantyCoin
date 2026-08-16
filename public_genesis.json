@@ -1,0 +1,16 @@
+{
+  "network": "QuantyCoin Mainnet (QTY)",
+  "ticker": "QTY",
+  "height": 0,
+  "hash": "0000005bf8fea73c1465d4ca5b9f96d837fd8089201d455a9f51d41b2ec8b6a4",
+  "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "merkle_root": "fa0ed1209057624c98b130c0bb391862314557e9666afa124a2c7db005f3c735",
+  "timestamp": 1771804800,
+  "timestamp_str": "QuantyCoin genesis: quantum-safe launch baseline, 16/Aug/2026",
+  "nonce": 2303311,
+  "bits": "0x1e0377ae",
+  "reward_satoshis": 500000000,
+  "reward_qty": 5.0,
+  "algorithm": "SHA-256 (ASIC Compatible)",
+  "signature_scheme": "ML-DSA-65 (Post-Quantum)"
+}
