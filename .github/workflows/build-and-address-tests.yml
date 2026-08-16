@@ -53,6 +53,7 @@ jobs:
 
       - name: Configure
         run: |
+          chmod +x autogen.sh configure build-aux/* scripts/* 2>/dev/null || true
           ./autogen.sh
           ./configure \
             --disable-bench \
