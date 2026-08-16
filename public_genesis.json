@@ -1,6 +1,6 @@
 {
   "project": "QuantyCoin",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "ticker": "QTY",
   "network": "QuantyCoin Mainnet (QTY)",
   "genesis": {

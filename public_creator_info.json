@@ -1,6 +1,6 @@
 {
   "project": "QuantyCoin",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "ticker": "QTY",
   "creator_public_address": "qty1qa8639f6b36aa83d174f6ff8f608084a9475678b1",
   "creator_mldsa65_public_key": "c916d3ba9268850b21654ea3877bc23602aa0b9a45297c42253d30cb7edd213d",
@@ -11,7 +11,8 @@
     "Autonomous Monthly Treasury Airdrop for wallets > 5 QTY & > 21 days age",
     "Light Client & Standalone GUI Mode (Auto remote seed node failover)",
     "Integrated Block Explorer & Node Monitor GUI",
-    "Simplified GUI Wallet & One-Click GUI Miner"
+    "Simplified GUI Wallet & One-Click GUI Miner",
+    "Android Wallet Light Client Package"
   ],
   "note": "Private keys, seeds, and mnemonics are stored exclusively on the creator's offline desktop."
 }

@@ -22,6 +22,7 @@
 #include <primitives/transaction.h>
 #include <timedata.h>
 #include <util/moneystr.h>
+#include <util/strencodings.h>
 #include <validation.h>
 
 #include <algorithm>

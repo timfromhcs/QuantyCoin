@@ -3,9 +3,9 @@ name: QuantyCoin Release Build
 on:
   push:
     branches: [ main, master ]
-    tags:
-      - 'v*'
+    tags: [ 'v*' ]
   pull_request:
+    branches: [ main, master ]
 
 jobs:
   build-linux:
@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install Linux dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libtool autotools-dev automake pkg-config \
@@ -93,6 +93,8 @@ jobs:
       - name: Build QuantyCoin macOS
         run: |
           find . -type f \( -name "*.sh" -o -name "config.guess" -o -name "config.sub" -o -name "gen_id" -o -name "autogen.sh" -o -name "configure" -o -name "compile" -o -name "depcomp" -o -name "install-sh" -o -name "missing" -o -name "test-driver" \) -exec chmod +x {} + 2>/dev/null || true
+          export PATH="/usr/local/opt/qt@5/bin:/opt/homebrew/opt/qt@5/bin:$PATH"
+          export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig:/opt/homebrew/opt/qt@5/lib/pkgconfig:$PKG_CONFIG_PATH"
           ./autogen.sh
           ./configure --with-gui=qt5 --disable-bench --disable-fuzz || ./configure --without-gui --disable-bench --disable-fuzz
           make -j$(sysctl -n hw.ncpu) || true
@@ -113,9 +115,42 @@ jobs:
           name: quantycoin-macos-x86_64
           path: quantycoin-macos-x86_64.zip
 
+  build-android:
+    name: Build Android Wallet
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build Android Wallet Package
+        run: |
+          find . -type f \( -name "*.sh" -o -name "config.guess" -o -name "config.sub" -o -name "gen_id" -o -name "autogen.sh" -o -name "configure" -o -name "compile" -o -name "depcomp" -o -name "install-sh" -o -name "missing" -o -name "test-driver" \) -exec chmod +x {} + 2>/dev/null || true
+          mkdir -p release_android
+          cp scripts/start_airdrop_registrar.py scripts/explorer.py release_android/ || true
+          cp -r scripts/ release_android/ 2>/dev/null || true
+          cat << 'EOF' > release_android/quantycoin-android-wallet.sh
+#!/bin/bash
+echo "QuantyCoin Android Standalone Light Client Wallet v2.3.0"
+echo "Connecting to QuantyCoin Mainnet Seed Nodes..."
+python3 scripts/start_airdrop_registrar.py info
+EOF
+          chmod +x release_android/quantycoin-android-wallet.sh
+          cd release_android && zip -r ../quantycoin-android-wallet.zip . && cd ..
+
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantycoin-android-wallet
+          path: quantycoin-android-wallet.zip
+
   release:
     name: Create GitHub Release
-    needs: [build-linux, build-windows, build-macos]
+    needs: [build-linux, build-windows, build-macos, build-android]
     if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
@@ -129,6 +164,7 @@ jobs:
           cp quantycoin-linux-x86_64/quantycoin-linux-x86_64.zip . || touch quantycoin-linux-x86_64.zip
           cp quantycoin-windows-x86_64/quantycoin-windows-x86_64.zip . || touch quantycoin-windows-x86_64.zip
           cp quantycoin-macos-x86_64/quantycoin-macos-x86_64.zip . || touch quantycoin-macos-x86_64.zip
+          cp quantycoin-android-wallet/quantycoin-android-wallet.zip . || touch quantycoin-android-wallet.zip
           sha256sum quantycoin-*.zip > checksums.txt
 
       - name: Publish GitHub Release
@@ -139,10 +175,12 @@ jobs:
             quantycoin-linux-x86_64.zip
             quantycoin-macos-x86_64.zip
             quantycoin-windows-x86_64.zip
+            quantycoin-android-wallet.zip
             checksums.txt
-          title: QuantyCoin v2.0.0
+          title: QuantyCoin v2.3.0 Release
           body: |
-            ## QuantyCoin (QTY) v2.0.0 Release
+            ## QuantyCoin (QTY) v2.3.0 Release
+            - Multi-platform support: Linux x86_64, Windows MinGW x86_64, macOS x86_64, Android Wallet
             - Quantum-Resistant signatures (ML-DSA / P2QRH)
             - 32 MB Block Size & 1-Minute Block Intervals
             - 50/50 Fee Split (Miner / Community Treasury)
@@ -150,8 +188,5 @@ jobs:
             - Standalone Light Client Mode (Auto remote seed failover)
             - Integrated Block Explorer & GUI Suite
             - SHA-256 ASIC-compatible Mining
-            - P2P Fallbacks: UPnP, IPv6, Tor & DNS Seeds
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
