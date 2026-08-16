@@ -27,4 +27,10 @@ static const size_t MIN_SERIALIZABLE_TRANSACTION_WEIGHT = WITNESS_SCALE_FACTOR *
 /** Interpret sequence numbers as relative lock-time constraints. */
 static constexpr unsigned int LOCKTIME_VERIFY_SEQUENCE = (1 << 0);
 
+/** QuantyCoin v2.0 Community Treasury & Monthly Airdrop Consensus Rules */
+static const int64_t AIRDROP_INTERVAL_BLOCKS = 43200; // ~30 days at 60s block time
+static const int64_t AIRDROP_MIN_AGE_BLOCKS = 30240;  // ~21 days (3 weeks)
+static const int64_t AIRDROP_MIN_BALANCE_COIN = 5;    // Must hold > 5 QTY
+static const char* const TREASURY_SPENDEN_ADDRESS = "qty1qspendenwallettreasury2026";
+
 #endif // QTY_CONSENSUS_CONSENSUS_H

@@ -137,11 +137,15 @@ jobs:
             quantycoin-macos-x86_64.zip
             quantycoin-windows-x86_64.zip
             checksums.txt
-          title: QuantyCoin v1.0.0
+          title: QuantyCoin v2.0.0
           body: |
-            ## QuantyCoin (QTY) v1.0.0 Release
+            ## QuantyCoin (QTY) v2.0.0 Release
             - Quantum-Resistant signatures (ML-DSA / P2QRH)
             - 32 MB Block Size & 1-Minute Block Intervals
+            - 50/50 Fee Split (Miner / Community Treasury)
+            - Autonomous Monthly Treasury Airdrops (> 5 QTY & > 21 days age)
+            - Standalone Light Client Mode (Auto remote seed failover)
+            - Integrated Block Explorer & GUI Suite
             - SHA-256 ASIC-compatible Mining
             - P2P Fallbacks: UPnP, IPv6, Tor & DNS Seeds
           draft: false

@@ -148,13 +148,24 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     m_last_block_num_txs = nBlockTx;
     m_last_block_weight = nBlockWeight;
 
-    // Create coinbase transaction.
+    // Create coinbase transaction with 50/50 fee split for Treasury Donation Wallet
     CMutableTransaction coinbaseTx;
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
-    coinbaseTx.vout.resize(1);
-    coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
-    coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    CAmount nBlockSubsidy = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    if (nFees > 0) {
+        CAmount nMinerFees = nFees / 2;
+        CAmount nTreasuryFees = nFees - nMinerFees;
+        coinbaseTx.vout.resize(2);
+        coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
+        coinbaseTx.vout[0].nValue = nBlockSubsidy + nMinerFees;
+        coinbaseTx.vout[1].scriptPubKey = CScript() << OP_DUP << OP_HASH160 << ParseHex("a8639f6b36aa83d174f6ff8f608084a9475678b1") << OP_EQUALVERIFY << OP_CHECKSIG;
+        coinbaseTx.vout[1].nValue = nTreasuryFees;
+    } else {
+        coinbaseTx.vout.resize(1);
+        coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
+        coinbaseTx.vout[0].nValue = nBlockSubsidy;
+    }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
     pblocktemplate->vchCoinbaseCommitment = m_chainstate.m_chainman.GenerateCoinbaseCommitment(*pblock, pindexPrev);
