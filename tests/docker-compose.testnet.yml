@@ -1,0 +1,155 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # Full Nodes (5 Independent Validator Instances)
+  # ----------------------------------------------------------------------------
+  node-1-seed:
+    image: python:3.11-slim
+    container_name: quanty-node-1-seed
+    working_dir: /app
+    volumes:
+      - ..:/app
+    command: python -m node.daemon --port 19888 --rpcport 19889 --datadir /tmp/node1
+    ports:
+      - "19888:19888"
+      - "19889:19889"
+    networks:
+      testnet:
+        ipv4_address: 172.28.0.10
+
+  node-2:
+    image: python:3.11-slim
+    container_name: quanty-node-2
+    working_dir: /app
+    volumes:
+      - ..:/app
+    command: python -m node.daemon --port 19890 --rpcport 19891 --datadir /tmp/node2 --connect 172.28.0.10:19888
+    ports:
+      - "19890:19890"
+      - "19891:19891"
+    depends_on:
+      - node-1-seed
+    networks:
+      testnet:
+        ipv4_address: 172.28.0.11
+
+  node-3:
+    image: python:3.11-slim
+    container_name: quanty-node-3
+    working_dir: /app
+    volumes:
+      - ..:/app
+    command: python -m node.daemon --port 19892 --rpcport 19893 --datadir /tmp/node3 --connect 172.28.0.10:19888
+    ports:
+      - "19892:19892"
+      - "19893:19893"
+    depends_on:
+      - node-1-seed
+    networks:
+      testnet:
+        ipv4_address: 172.28.0.12
+
+  node-4:
+    image: python:3.11-slim
+    container_name: quanty-node-4
+    working_dir: /app
+    volumes:
+      - ..:/app
+    command: python -m node.daemon --port 19894 --rpcport 19895 --datadir /tmp/node4 --connect 172.28.0.11:19890
+    ports:
+      - "19894:19894"
+      - "19895:19895"
+    depends_on:
+      - node-2
+    networks:
+      testnet:
+        ipv4_address: 172.28.0.13
+
+  node-5:
+    image: python:3.11-slim
+    container_name: quanty-node-5
+    working_dir: /app
+    volumes:
+      - ..:/app
+    command: python -m node.daemon --port 19896 --rpcport 19897 --datadir /tmp/node5 --connect 172.28.0.10:19888
+    ports:
+      - "19896:19896"
+      - "19897:19897"
+    depends_on:
+      - node-1-seed
+    networks:
+      testnet:
+        ipv4_address: 172.28.0.14
+
+  # ----------------------------------------------------------------------------
+  # Dedicated Mining Instances
+  # ----------------------------------------------------------------------------
+  miner-alpha:
+    image: python:3.11-slim
+    container_name: quanty-miner-alpha
+    working_dir: /app
+    volumes:
+      - ..:/app
+    command: python -m miner.cli --address qty1q02n8pkc4xedjxgrfpl25q6hyks35pftpujdqxx --threads 2 --rpc 172.28.0.10:19889
+    depends_on:
+      - node-1-seed
+    networks:
+      testnet:
+        ipv4_address: 172.28.0.20
+
+  miner-beta:
+    image: python:3.11-slim
+    container_name: quanty-miner-beta
+    working_dir: /app
+    volumes:
+      - ..:/app
+    command: python -m miner.cli --address qty1q02n8pkc4xedjxgrfpl25q6hyks35pftpujdqxx --threads 2 --rpc 172.28.0.14:19897
+    depends_on:
+      - node-5
+    networks:
+      testnet:
+        ipv4_address: 172.28.0.21
+
+  # ----------------------------------------------------------------------------
+  # Automated Wallet & Transaction Flood Clients
+  # ----------------------------------------------------------------------------
+  wallet-client-1:
+    image: python:3.11-slim
+    container_name: quanty-wallet-client-1
+    working_dir: /app
+    volumes:
+      - ..:/app
+    command: python -c "import time; time.sleep(3600)"
+    networks:
+      testnet:
+        ipv4_address: 172.28.0.30
+
+  wallet-client-2:
+    image: python:3.11-slim
+    container_name: quanty-wallet-client-2
+    working_dir: /app
+    volumes:
+      - ..:/app
+    command: python -c "import time; time.sleep(3600)"
+    networks:
+      testnet:
+        ipv4_address: 172.28.0.31
+
+  wallet-client-3:
+    image: python:3.11-slim
+    container_name: quanty-wallet-client-3
+    working_dir: /app
+    volumes:
+      - ..:/app
+    command: python -c "import time; time.sleep(3600)"
+    networks:
+      testnet:
+        ipv4_address: 172.28.0.32
+
+networks:
+  testnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

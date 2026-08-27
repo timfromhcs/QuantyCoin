@@ -1,18 +1,18 @@
 {
   "project": "QuantyCoin",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "ticker": "QTY",
-  "creator_public_address": "qty1qa8639f6b36aa83d174f6ff8f608084a9475678b1",
-  "creator_mldsa65_public_key": "c916d3ba9268850b21654ea3877bc23602aa0b9a45297c42253d30cb7edd213d",
+  "creator_public_address": "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g",
   "treasury_donation_address": "qty1qspendenwallettreasury2026",
   "network": "QuantyCoin Mainnet (QTY)",
-  "features_v2": [
+  "features_v3": [
     "50/50 Transaction Fee Split (Miner / Community Treasury)",
-    "Autonomous Monthly Treasury Airdrop for wallets > 5 QTY & > 21 days age",
-    "Light Client & Standalone GUI Mode (Auto remote seed node failover)",
-    "Integrated Block Explorer & Node Monitor GUI",
-    "Simplified GUI Wallet & One-Click GUI Miner",
-    "Android Wallet Light Client Package"
+    "BIP39/BIP44 Native HD Wallet & QR Code Processing",
+    "High-Performance Standalone Full Node (P2P Wire, Chainstate, RPC)",
+    "Standalone Light Wallet Client with Auto Remote Seed Failover",
+    "Multi-Threaded Solo & Stratum Mining Suite",
+    "Unified All-in-One Darkmode Desktop Application",
+    "Multi-Platform Native Installers and CI/CD Automation"
   ],
-  "note": "Private keys, seeds, and mnemonics are stored exclusively on the creator's offline desktop."
+  "note": "Private keys, seeds, and mnemonics are stored exclusively in the offline Air-Gapped Desktop Vault."
 }

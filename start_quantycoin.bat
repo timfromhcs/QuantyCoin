@@ -1,15 +1,12 @@
 @echo off
-title QuantyCoin (QTY) Launcher
+title QuantyCoin Core Suite v3.0
 echo =========================================================
-echo             QuantyCoin (QTY) Mainnet Launcher
+echo             QuantyCoin (QTY) Core Suite Launcher v3.0
 echo =========================================================
-if exist "src\qt\qty-qt.exe" (
-    echo Starting QuantyCoin Qt GUI Wallet...
-    start "" "src\qt\qty-qt.exe"
-) else if exist "src\qtyd.exe" (
-    echo Starting QuantyCoin Node Daemon...
-    start "" "src\qtyd.exe" -upnp
+if exist "dist\bin\suite\QuantyCoinSuite.exe" (
+    echo Starting QuantyCoin Cyberpunk Combined Suite...
+    start "" "dist\bin\suite\QuantyCoinSuite.exe"
 ) else (
-    echo Binaries not found. Please build or download QuantyCoin binaries.
-    pause
+    echo Launching QuantyCoin Combined Suite via Python...
+    python -m ui.suite_gui
 )

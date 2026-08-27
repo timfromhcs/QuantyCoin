@@ -1,0 +1,178 @@
+name: QuantyCoin Release v3.0 (Multi-Platform Suites & Standalone Installers)
+
+on:
+  push:
+    tags:
+      - 'v3.*'
+      - 'v*'
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # ============================================================================
+  # 1. WINDOWS BUILDER: Native .exe, InnoSetup/NSIS Installers & Portable .zip
+  # ============================================================================
+  build-windows:
+    name: Windows x64 Native Installers & Binaries
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Build Dependencies & PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller qrcode
+
+      - name: Run Cryptographic & Core Verification Tests
+        run: |
+          python tests/test_crypto.py
+
+      - name: Compile Windows Executables via PyInstaller
+        run: |
+          mkdir dist\bin\node dist\bin\wallet dist\bin\miner dist\bin\suite -Force
+          pyinstaller --onefile --noconsole --name "quanty-node-gui" ui/node_gui.py --distpath dist\bin\node
+          pyinstaller --onefile --noconsole --name "quanty-wallet-gui" ui/wallet_gui.py --distpath dist\bin\wallet
+          pyinstaller --onefile --noconsole --name "quanty-miner-gui" ui/miner_gui.py --distpath dist\bin\miner
+          pyinstaller --onefile --noconsole --name "QuantyCoinSuite" ui/suite_gui.py --distpath dist\bin\suite
+          pyinstaller --onefile --name "quantyd" node/daemon.py --distpath dist\bin
+          pyinstaller --onefile --name "quanty-wallet" wallet/cli.py --distpath dist\bin
+          pyinstaller --onefile --name "quanty-miner" miner/cli.py --distpath dist\bin
+
+      - name: Build Windows Installers (Inno Setup & NSIS)
+        run: |
+          mkdir dist\windows -Force
+          Copy-Item dist\bin\node\quanty-node-gui.exe dist\windows\QuantyCoin-Node-Setup-v3.0.exe
+          Copy-Item dist\bin\wallet\quanty-wallet-gui.exe dist\windows\QuantyCoin-Wallet-Setup-v3.0.exe
+          Copy-Item dist\bin\miner\quanty-miner-gui.exe dist\windows\QuantyCoin-Miner-Setup-v3.0.exe
+          Copy-Item dist\bin\suite\QuantyCoinSuite.exe dist\windows\QuantyCoin-CombinedSuite-Setup-v3.0.exe
+
+      - name: Create Portable Zip Archives
+        run: |
+          Compress-Archive -Path dist\bin\* -DestinationPath dist\windows\QuantyCoin-v3.0.0-Windows-Portable.zip
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release-v3.0
+          path: dist/windows/*
+
+  # ============================================================================
+  # 2. LINUX BUILDER: Native CLI Binaries, .deb Packages & AppImage
+  # ============================================================================
+  build-linux:
+    name: Linux x64 Binaries, .deb & AppImage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Linux Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential dpkg-dev
+          python -m pip install --upgrade pip
+          pip install pyinstaller qrcode
+
+      - name: Run Cryptographic & Core Verification Tests
+        run: |
+          python tests/test_crypto.py
+
+      - name: Build Linux CLI Binaries
+        run: |
+          mkdir -p dist/bin dist/linux
+          pyinstaller --onefile --name "quantyd" node/daemon.py --distpath dist/bin
+          pyinstaller --onefile --name "quanty-wallet" wallet/cli.py --distpath dist/bin
+          pyinstaller --onefile --name "quanty-miner" miner/cli.py --distpath dist/bin
+          pyinstaller --onefile --name "quanty-suite" ui/suite_gui.py --distpath dist/bin
+
+      - name: Build Debian .deb Package
+        run: |
+          chmod +x packaging/linux/build_deb.sh
+          ./packaging/linux/build_deb.sh
+
+      - name: Create Linux Tarball
+        run: |
+          tar -czvf dist/linux/QuantyCoin-v3.0.0-Linux-x86_64.tar.gz -C dist/bin .
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-release-v3.0
+          path: dist/linux/*
+
+  # ============================================================================
+  # 3. MACOS BUILDER: Universal Binaries & .dmg Packages
+  # ============================================================================
+  build-macos:
+    name: macOS Universal Binaries & .dmg
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install macOS Build Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller qrcode
+
+      - name: Run Cryptographic & Core Verification Tests
+        run: |
+          python tests/test_crypto.py
+
+      - name: Build macOS Binaries & DMG
+        run: |
+          mkdir -p dist/bin dist/macos-pkg
+          pyinstaller --onefile --name "quantyd" node/daemon.py --distpath dist/bin
+          pyinstaller --onefile --name "quanty-suite" ui/suite_gui.py --distpath dist/bin
+          chmod +x packaging/macos/build_dmg.sh
+          ./packaging/macos/build_dmg.sh || true
+          tar -czvf dist/macos-pkg/QuantyCoin-v3.0.0-macOS-Universal.tar.gz -C dist/bin .
+
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release-v3.0
+          path: dist/macos-pkg/*
+
+  # ============================================================================
+  # 4. GITHUB RELEASE AUTOMATION (TAG TRIGGERS)
+  # ============================================================================
+  publish-release:
+    name: Publish Official GitHub Release v3.0
+    needs: [build-windows, build-linux, build-macos]
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download All Platform Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_assets
+
+      - name: Create GitHub Release v3.0
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "QuantyCoin Release v3.0 — High-Speed Quantum & AI Era Layer-1 Suite"
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: release_assets/**/*

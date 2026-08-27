@@ -1,0 +1,71 @@
+"""
+QuantyCoin Wallet RPC Client
+Connects to Local or Remote Node RPC with Fallback Discovery
+Zero-Mock Implementation
+"""
+
+import json
+import urllib.request
+import urllib.error
+from typing import Dict, Any, List, Optional
+from core.genesis_constants import DEFAULT_RPC_PORT
+
+
+class WalletRPCClient:
+    """Communicates with QuantyCoin full node RPC."""
+    def __init__(self, rpc_host: str = "127.0.0.1", rpc_port: int = DEFAULT_RPC_PORT, fallback_hosts: Optional[List[str]] = None):
+        self.rpc_host = rpc_host
+        self.rpc_port = rpc_port
+        self.fallback_hosts = fallback_hosts or ["127.0.0.1", "seed1.quantycoin.org", "seed2.quantycoin.org"]
+
+    def _call(self, method: str, params: list) -> Any:
+        payload = json.dumps({
+            "jsonrpc": "2.0",
+            "method": method,
+            "params": params,
+            "id": 1
+        }).encode('utf-8')
+        
+        hosts = [self.rpc_host] + [h for h in self.fallback_hosts if h != self.rpc_host]
+        last_error = None
+        
+        for host in hosts:
+            url = f"http://{host}:{self.rpc_port}"
+            req = urllib.request.Request(
+                url,
+                data=payload,
+                headers={"Content-Type": "application/json"}
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=4) as response:
+                    res_body = response.read().decode('utf-8')
+                    res = json.loads(res_body)
+                    if res.get("error"):
+                        raise RuntimeError(res["error"]["message"])
+                    return res["result"]
+            except Exception as e:
+                last_error = e
+                continue
+                
+        raise ConnectionError(f"Failed to connect to any node RPC: {last_error}")
+
+    def get_info(self) -> Dict[str, Any]:
+        return self._call("getinfo", [])
+
+    def get_block_count(self) -> int:
+        return self._call("getblockcount", [])
+
+    def get_address_balance(self, address: str) -> Dict[str, Any]:
+        return self._call("getaddressbalance", [address])
+
+    def get_address_utxos(self, address: str) -> List[Dict[str, Any]]:
+        return self._call("getaddressutxos", [address])
+
+    def send_raw_transaction(self, raw_tx_hex: str) -> str:
+        return self._call("sendrawtransaction", [raw_tx_hex])
+
+    def get_block_template(self) -> Dict[str, Any]:
+        return self._call("getblocktemplate", [])
+
+    def submit_block(self, raw_block_hex: str) -> str:
+        return self._call("submitblock", [raw_block_hex])
