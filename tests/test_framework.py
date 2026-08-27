@@ -80,6 +80,29 @@ class QuantyTestFramework:
         """Connect from_idx to to_idx via P2P."""
         return self.nodes[from_idx].daemon.p2p.connect_to_peer("127.0.0.1", self.nodes[to_idx].p2p_port)
 
+    def disconnect_nodes(self, from_idx: int, to_idx: int) -> None:
+        """Disconnect all peer connections between from_idx and to_idx."""
+        to_port = self.nodes[to_idx].p2p_port
+        from_port = self.nodes[from_idx].p2p_port
+        
+        with self.nodes[from_idx].daemon.p2p._lock:
+            for k, peer in list(self.nodes[from_idx].daemon.p2p._peers.items()):
+                if peer.port == to_port or f":{to_port}" in k:
+                    peer.disconnect()
+                    self.nodes[from_idx].daemon.p2p._peers.pop(k, None)
+                    
+        with self.nodes[to_idx].daemon.p2p._lock:
+            for k, peer in list(self.nodes[to_idx].daemon.p2p._peers.items()):
+                if peer.port == from_port or f":{from_port}" in k:
+                    peer.disconnect()
+                    self.nodes[to_idx].daemon.p2p._peers.pop(k, None)
+
+    def isolate_node(self, node_idx: int) -> None:
+        """Disconnect node_idx from all peers to simulate network partition."""
+        for j in range(self.num_nodes):
+            if j != node_idx:
+                self.disconnect_nodes(node_idx, j)
+
     def generate(self, node_idx: int, num_blocks: int, address: Optional[str] = None) -> List[str]:
         """Mine num_blocks on node_idx."""
         addr = address or "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g"

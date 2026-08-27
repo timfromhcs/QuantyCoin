@@ -18,8 +18,8 @@ class ReorgTest(QuantyTestFramework):
         assert self.nodes[1].rpc.get_block_count() == 3
         
         print("2. Disconnecting Node 1 to simulate a network split / partition...")
-        # Disconnect Node 1
-        self.nodes[1].daemon.p2p.stop()
+        # Disconnect Node 1 from mesh
+        self.isolate_node(1)
         
         print("3. Mining Branch A on Node 0 (2 blocks -> Height 5)...")
         self.generate(0, 2)
@@ -30,9 +30,8 @@ class ReorgTest(QuantyTestFramework):
         assert self.nodes[1].rpc.get_block_count() == 7
         
         print("5. Reconnecting partition & resolving fork choice...")
-        # Restart Node 1 P2P and connect to Node 0
-        self.nodes[1].daemon.p2p.start()
-        self.nodes[1].daemon.p2p.connect_to_peer("127.0.0.1", self.nodes[0].p2p_port)
+        # Reconnect Node 1 to Node 0
+        self.connect_nodes(1, 0)
         
         # Inject Branch B tip into Node 0
         tip_b_block = self.nodes[1].daemon.chainstate.get_block_by_height(7)

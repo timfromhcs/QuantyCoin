@@ -46,6 +46,11 @@ class P2PManager:
         self._is_running = True
         self._server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if hasattr(socket, 'SO_REUSEPORT'):
+            try:
+                self._server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            except Exception:
+                pass
         self._server_sock.bind((self.listen_host, self.listen_port))
         self._server_sock.listen(50)
         
@@ -60,9 +65,14 @@ class P2PManager:
         self._is_running = False
         if self._server_sock:
             try:
+                self._server_sock.shutdown(socket.SHUT_RDWR)
+            except Exception:
+                pass
+            try:
                 self._server_sock.close()
             except Exception:
                 pass
+            self._server_sock = None
         with self._lock:
             for peer in list(self._peers.values()):
                 peer.disconnect()
