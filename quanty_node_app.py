@@ -1,12 +1,12 @@
 """
-QuantyCoin Node GUI Entrypoint (v4.0)
+QuantyCoin Full Node GUI Entrypoint (Native Qt6 v4.0)
 """
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from ui.node_gui import launch_node_gui
+from ui.qt_node_app import main
 
 if __name__ == "__main__":
-    launch_node_gui()
+    main()

@@ -31,23 +31,25 @@ jobs:
       - name: Install Build Dependencies & PyInstaller
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller qrcode
+          pip install pyinstaller qrcode pillow pyside6
 
       - name: Run Cryptographic & Core Verification Tests
         env:
           PYTHONPATH: .
+          QT_QPA_PLATFORM: offscreen
         run: |
           python tests/test_crypto.py
           python tests/test_core.py
           python tests/test_p2p.py
 
-      - name: Compile Windows Executables via PyInstaller
+      - name: Compile Windows Native Executables via PyInstaller
         env:
           PYTHONPATH: .
         run: |
-          python -c "import os; [os.makedirs(d, exist_ok=True) for d in ['dist/bin/node', 'dist/bin/wallet', 'dist/bin/miner', 'dist/bin/suite', 'dist/windows']]"
+          python -c "import os; [os.makedirs(d, exist_ok=True) for d in ['dist/bin/node', 'dist/bin/wallet', 'dist/bin/lightning', 'dist/bin/miner', 'dist/bin/suite', 'dist/windows']]"
           python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --noconsole --name "quanty-node-gui" quanty_node_app.py --distpath dist/bin/node
-          python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --noconsole --name "quanty-wallet-gui" quanty_wallet_app.py --distpath dist/bin/wallet
+          python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --noconsole --name "quanty-wallet-full-gui" quanty_wallet_full_app.py --distpath dist/bin/wallet
+          python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --noconsole --name "quanty-lightning-wallet-gui" quanty_lightning_wallet_app.py --distpath dist/bin/lightning
           python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --noconsole --name "quanty-miner-gui" quanty_miner_app.py --distpath dist/bin/miner
           python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --noconsole --name "QuantyCoinSuite" quanty_suite_app.py --distpath dist/bin/suite
           python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --name "quantyd" quantyd_cli.py --distpath dist/bin
@@ -57,7 +59,8 @@ jobs:
       - name: Build Windows Installers
         run: |
           Copy-Item dist\bin\node\quanty-node-gui.exe dist\windows\QuantyCoin-Node-Setup-v4.0.exe
-          Copy-Item dist\bin\wallet\quanty-wallet-gui.exe dist\windows\QuantyCoin-Wallet-Setup-v4.0.exe
+          Copy-Item dist\bin\wallet\quanty-wallet-full-gui.exe dist\windows\QuantyCoin-FullWallet-Setup-v4.0.exe
+          Copy-Item dist\bin\lightning\quanty-lightning-wallet-gui.exe dist\windows\QuantyCoin-LightningWallet-Setup-v4.0.exe
           Copy-Item dist\bin\miner\quanty-miner-gui.exe dist\windows\QuantyCoin-Miner-Setup-v4.0.exe
           Copy-Item dist\bin\suite\QuantyCoinSuite.exe dist\windows\QuantyCoin-CombinedSuite-Setup-v4.0.exe
           Copy-Item dist\bin\quantyd.exe dist\windows\quantyd.exe
@@ -92,19 +95,20 @@ jobs:
       - name: Install Linux Build Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential dpkg-dev
+          sudo apt-get install -y build-essential dpkg-dev libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-shape0 libxcb-xfixes0
           python -m pip install --upgrade pip
-          pip install pyinstaller qrcode
+          pip install pyinstaller qrcode pillow pyside6
 
       - name: Run Cryptographic & Core Verification Tests
         env:
           PYTHONPATH: .
+          QT_QPA_PLATFORM: offscreen
         run: |
           python tests/test_crypto.py
           python tests/test_core.py
           python tests/test_p2p.py
 
-      - name: Build Linux CLI Binaries
+      - name: Build Linux Native Binaries
         env:
           PYTHONPATH: .
         run: |
@@ -147,11 +151,12 @@ jobs:
       - name: Install macOS Build Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller qrcode
+          pip install pyinstaller qrcode pillow pyside6
 
       - name: Run Cryptographic & Core Verification Tests
         env:
           PYTHONPATH: .
+          QT_QPA_PLATFORM: offscreen
         run: |
           python tests/test_crypto.py
           python tests/test_core.py
@@ -191,7 +196,7 @@ jobs:
       - name: Create GitHub Release v4.0
         uses: softprops/action-gh-release@v2
         with:
-          name: "QuantyCoin Release v4.0 — High-Speed Quantum & AI Era Layer-1 Suite"
+          name: "QuantyCoin Release v4.0 — High-Speed Quantum & AI Era Layer-1 Native Suite"
           draft: false
           prerelease: false
           generate_release_notes: true

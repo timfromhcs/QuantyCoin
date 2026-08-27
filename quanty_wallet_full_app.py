@@ -1,12 +1,12 @@
 """
-QuantyCoin Miner GUI Entrypoint (Native Qt6 v4.0)
+QuantyCoin Full Sovereign Wallet GUI Entrypoint (Native Qt6 v4.0 with Built-in Node)
 """
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from ui.qt_miner_app import main
+from ui.qt_wallet_full_app import main
 
 if __name__ == "__main__":
     main()
