@@ -8,7 +8,7 @@ import json
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
-from typing import Dict, Any, Optional, Callable
+from typing import Dict, Any, Optional, Callable, List, Tuple, Union
 from urllib.parse import urlparse, parse_qs
 from core.genesis_constants import DEFAULT_RPC_PORT
 from core.transaction import Transaction
