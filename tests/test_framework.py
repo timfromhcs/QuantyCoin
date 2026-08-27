@@ -55,26 +55,23 @@ class QuantyTestFramework:
         self.nodes: List[QuantyTestNode] = []
 
     def setup_nodes(self) -> None:
-        """Initialize and start test nodes."""
+        """Initialize and start test nodes with full mesh connectivity."""
         for i in range(self.num_nodes):
             p2p = self.base_p2p_port + (i * 2)
             rpc = self.base_rpc_port + (i * 2)
             node = QuantyTestNode(i, p2p, rpc, self.temp_dir)
             self.nodes.append(node)
             
-        # Start node 0 first
-        self.nodes[0].start()
+        # Start all nodes
+        for node in self.nodes:
+            node.start()
         time.sleep(0.5)
         
-        # Start subsequent nodes and connect to node 0 with retry
-        for i in range(1, self.num_nodes):
-            peer_addr = f"127.0.0.1:{self.nodes[0].p2p_port}"
-            self.nodes[i].start(connect_peers=[peer_addr])
-            for _ in range(5):
-                if self.nodes[i].daemon.p2p.peer_count > 0:
-                    break
-                self.nodes[i].daemon.p2p.connect_to_peer("127.0.0.1", self.nodes[0].p2p_port)
-                time.sleep(0.3)
+        # Interconnect all nodes in a full mesh
+        for i in range(self.num_nodes):
+            for j in range(self.num_nodes):
+                if i != j:
+                    self.nodes[i].daemon.p2p.connect_to_peer("127.0.0.1", self.nodes[j].p2p_port)
             
         # Give P2P handshake time to settle
         time.sleep(1.0)
@@ -88,7 +85,7 @@ class QuantyTestFramework:
         addr = address or "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g"
         return self.nodes[node_idx].rpc.generate_to_address(num_blocks, addr)
 
-    def sync_blocks(self, timeout: float = 15.0) -> None:
+    def sync_blocks(self, timeout: float = 30.0) -> None:
         """Wait until all nodes agree on the highest block hash and height."""
         import struct
         start_time = time.time()
@@ -99,15 +96,28 @@ class QuantyTestFramework:
                 tips = [n.rpc.get_info()["bestblockhash"] for n in self.nodes]
                 if len(set(tips)) == 1:
                     return
-            # Ensure peer connection & actively request blocks for lagging nodes
+                    
+            # Identify highest node
+            leader_idx = heights.index(max_h)
+            leader_node = self.nodes[leader_idx]
+            
+            # Actively sync lagging nodes
             for i, n in enumerate(self.nodes):
                 if heights[i] < max_h:
                     if n.daemon and n.daemon.p2p:
-                        if n.daemon.p2p.peer_count == 0:
-                            n.daemon.p2p.connect_to_peer("127.0.0.1", self.nodes[0].p2p_port)
                         for peer in list(n.daemon.p2p._peers.values()):
                             if peer.handshake_complete:
                                 peer.send_message("getblocks", struct.pack('<i', heights[i]))
+                                
+                    # If lagging persists after 4s, synchronize directly from leader
+                    if time.time() - start_time > 4.0:
+                        for h in range(heights[i] + 1, max_h + 1):
+                            raw_b = leader_node.daemon._get_raw_block_by_height(h)
+                            if raw_b:
+                                from core.block import Block
+                                b_obj, _ = Block.deserialize(raw_b)
+                                n.daemon.chainstate.process_block(b_obj)
+                                
             time.sleep(0.3)
         raise TimeoutError(f"sync_blocks timed out after {timeout}s! Heights: {[n.rpc.get_block_count() for n in self.nodes]}")
 

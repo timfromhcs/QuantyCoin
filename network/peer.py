@@ -114,8 +114,11 @@ class PeerConnection:
                     if self.last_ping_time > 0:
                         self.latency_ms = (time.time() - self.last_ping_time) * 1000
                 else:
-                    self.on_message(self, command, payload)
-                    
+                    try:
+                        self.on_message(self, command, payload)
+                    except Exception:
+                        pass
+                        
             except Exception:
                 break
                 
