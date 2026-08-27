@@ -5,6 +5,7 @@ Zero-Mock Implementation
 """
 
 import socket
+import struct
 import threading
 import time
 from typing import Dict, List, Tuple, Optional, Callable, Any
@@ -139,6 +140,9 @@ class P2PManager:
                     
             elif command == "verack":
                 peer.handshake_complete = True
+                # If remote peer is ahead, request their blocks
+                if peer.peer_height > self.get_local_height():
+                    peer.send_message("getblocks", struct.pack('<i', self.get_local_height()))
                 
             elif command == "inv":
                 items = parse_inv_payload(payload)

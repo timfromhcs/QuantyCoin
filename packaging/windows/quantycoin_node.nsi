@@ -1,6 +1,6 @@
-; QuantyCoin v5.0 Full Node NSIS Installer Script
+; QuantyCoin v6.0 Full Node NSIS Installer Script
 !define PRODUCT_NAME "QuantyCoin Full Node"
-!define PRODUCT_VERSION "5.0.0"
+!define PRODUCT_VERSION "6.0.0"
 !define PRODUCT_PUBLISHER "QuantyCoin Core Contributors"
 !define PRODUCT_WEB_SITE "https://quantycoin.org"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -27,7 +27,7 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_LANGUAGE "German"
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "..\..\dist\windows\QuantyCoin-Node-Setup-v5.0.exe"
+OutFile "..\..\dist\windows\QuantyCoin-Node-Setup-v6.0.exe"
 InstallDir "$PROGRAMFILES64\QuantyCoin Node"
 
 Section "MainSection" SEC01

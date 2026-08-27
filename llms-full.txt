@@ -1,9 +1,9 @@
-# QuantyCoin (QTY) - Comprehensive Technical Specification & LLM Context (v5.0)
+# QuantyCoin (QTY) - Comprehensive Technical Specification & LLM Context (v6.0)
 
 ## 1. Project Identity
 - **Name**: QuantyCoin
 - **Ticker**: QTY
-- **Network**: QuantyCoin Mainnet (v5.0)
+- **Network**: QuantyCoin Mainnet (v6.0)
 - **Genesis Block Hash**: `00000630e8fea852dc1666700adde16da0db9624a8162dd161d7c10d6dbc3f00`
 - **Genesis Merkle Root**: `90a41f0dae5894ba6bd5e574ea4b0b6e1132d54b1f1e4c376fce4fcaf42df8bb`
 - **Genesis Timestamp**: `1771804800` ("2026: QuantyCoin - The High-Speed Quantum & AI Era Layer-1")
@@ -44,7 +44,7 @@
 - **Default Stratum Mining Pool Port**: `3333`
 
 ## 5. JSON-RPC 2.0 API Methods
-- `getinfo`: Returns node version ("5.0.0"), block count, peer count, circulating supply.
+- `getinfo`: Returns node version ("6.0.0"), block count, peer count, circulating supply.
 - `getblockchaininfo`: Returns best block hash, height, cumulative chainwork, block index size.
 - `getblockcount`: Returns current tip block height integer.
 - `getbestblockhash`: Returns 64-character hex hash of active tip.
@@ -62,8 +62,8 @@
 ## 6. Native Desktop Qt6 Applications
 - **Palette**: Obsidian `#0A0D14`, Card `#121724`, Slate `#1E2433`, Cyan `#00F0FF`, Violet `#8A2BE2`, Green `#00FF88`, Pink `#FF007A`.
 - **Applications**:
-  1. `QuantyCoin-CombinedSuite-Setup-v5.0.exe` / `quanty_suite_app.py`
-  2. `QuantyCoin-FullWallet-Setup-v5.0.exe` / `quanty_wallet_full_app.py`
-  3. `QuantyCoin-LightningWallet-Setup-v5.0.exe` / `quanty_lightning_wallet_app.py`
-  4. `QuantyCoin-Node-Setup-v5.0.exe` / `quanty_node_app.py`
-  5. `QuantyCoin-Miner-Setup-v5.0.exe` / `quanty_miner_app.py`
+  1. `QuantyCoin-CombinedSuite-Setup-v6.0.exe` / `quanty_suite_app.py`
+  2. `QuantyCoin-FullWallet-Setup-v6.0.exe` / `quanty_wallet_full_app.py`
+  3. `QuantyCoin-LightningWallet-Setup-v6.0.exe` / `quanty_lightning_wallet_app.py`
+  4. `QuantyCoin-Node-Setup-v6.0.exe` / `quanty_node_app.py`
+  5. `QuantyCoin-Miner-Setup-v6.0.exe` / `quanty_miner_app.py`

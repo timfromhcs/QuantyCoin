@@ -2,11 +2,11 @@
 
 <div align="center">
 
-[![Release v5.0](https://img.shields.io/badge/release-v5.0.0-00F0FF.svg?style=for-the-badge&logo=github)](https://github.com/timfromhcs/QuantyCoin/releases)
+[![Release v6.0](https://img.shields.io/badge/release-v6.0.0-00F0FF.svg?style=for-the-badge&logo=github)](https://github.com/timfromhcs/QuantyCoin/releases)
 [![Build Status](https://img.shields.io/badge/build-passing-00FF88.svg?style=for-the-badge&logo=github-actions)](https://github.com/timfromhcs/QuantyCoin/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-8A2BE2.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-1E2433.svg?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/timfromhcs/QuantyCoin/releases)
-[![Network](https://img.shields.io/badge/network-Mainnet%20v5.0-FF007A.svg?style=for-the-badge)](https://quantycoin.org)
+[![Network](https://img.shields.io/badge/network-Mainnet%20v6.0-FF007A.svg?style=for-the-badge)](https://quantycoin.org)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-3776AB.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org)
 [![LLM Ready](https://img.shields.io/badge/GEO-llms.txt%20Ready-00F0FF.svg?style=for-the-badge)](llms.txt)
 
@@ -41,7 +41,7 @@
 
 **QuantyCoin (QTY)** is a high-speed, decentralized Layer-1 proof-of-work (PoW) blockchain designed for instant micropayments, post-quantum cryptographic security, and enterprise AI-era data throughput.
 
-QuantyCoin v5.0 ships with **real native Qt6 desktop GUI applications** (not browser web apps) inspired by Bitcoin Cash II / Bitcoin Core Qt architectures, providing dedicated native windows for sovereign wallet operation, lightning-fast SPV transactions, full node management, and multi-threaded parallel mining.
+QuantyCoin v6.0 ships with **real native Qt6 desktop GUI applications** (not browser web apps) inspired by Bitcoin Cash II / Bitcoin Core Qt architectures, providing dedicated native windows for sovereign wallet operation, lightning-fast SPV transactions, full node management, and multi-threaded parallel mining.
 
 ---
 
@@ -50,7 +50,7 @@ QuantyCoin v5.0 ships with **real native Qt6 desktop GUI applications** (not bro
 QuantyCoin provides **4 dedicated native desktop applications** (Qt6 / PySide6) styled in an obsidian cyberpunk design (`#0A0D14`, `#00F0FF`, `#8A2BE2`, `#00FF88`, `#FF007A`):
 
 ### 1. 💎 Full Sovereign Wallet with Built-in Full Node (`quanty_wallet_full_app.py`)
-* **Executable:** `QuantyCoin-FullWallet-Setup-v5.0.exe` / `quanty-wallet-full-gui.exe`
+* **Executable:** `QuantyCoin-FullWallet-Setup-v6.0.exe` / `quanty-wallet-full-gui.exe`
 * **Features:**
   * **Integrated Sovereign Node:** Automatically spins up and synchronizes a background full node daemon — no third-party trust required.
   * **Overview Dashboard:** Available, Pending, and Total QTY balance with real-time Satoshis counter.
@@ -59,28 +59,28 @@ QuantyCoin provides **4 dedicated native desktop applications** (Qt6 / PySide6) 
   * **BIP39 24-Word Seed Vault:** Generates, backs up, and restores 24-word cryptographic master keys (`m/44'/999'/0'/0/0`).
 
 ### 2. ⚡ Lightning Light Wallet without Node (`quanty_lightning_wallet_app.py`)
-* **Executable:** `QuantyCoin-LightningWallet-Setup-v5.0.exe` / `quanty-lightning-wallet-gui.exe`
+* **Executable:** `QuantyCoin-LightningWallet-Setup-v6.0.exe` / `quanty-lightning-wallet-gui.exe`
 * **Features:**
   * **Zero Local Blockchain Storage:** Instant startup (< 0.1s) connecting via remote SPV RPC.
   * **Lightning Fast Micropayments:** Ultra-low latency transaction broadcasting and balance sync.
   * **Instant QR Payments:** Native QR generation and payment requests.
 
 ### 3. 🌐 Standalone Full Node Manager (`quanty_node_app.py`)
-* **Executable:** `QuantyCoin-Node-Setup-v5.0.exe` / `quanty-node-gui.exe`
+* **Executable:** `QuantyCoin-Node-Setup-v6.0.exe` / `quanty-node-gui.exe`
 * **Features:**
   * **P2P Telemetry & World Peers:** Real-time peer connection table with IP, ping latency, sub-version, and wire traffic graph.
   * **On-Chain Block Explorer:** Search blocks by height, 64-char hash, TXID, or Bech32 address.
   * **Interactive RPC Console:** Command autocomplete (`getinfo`, `getblock`, `getmempoolinfo`), terminal history, and JSON inspector.
 
 ### 4. ⛏ Standalone Multi-Threaded Miner (`quanty_miner_app.py`)
-* **Executable:** `QuantyCoin-Miner-Setup-v5.0.exe` / `quanty-miner-gui.exe`
+* **Executable:** `QuantyCoin-Miner-Setup-v6.0.exe` / `quanty-miner-gui.exe`
 * **Features:**
   * **Real-Time Dynamic Hashrate Graph:** 60fps hardware-accelerated QPainter curve (kH/s, MH/s, GH/s).
   * **Worker Threads Slider:** Adjust active parallel CPU/GPU workers (1 to 32 threads) on the fly.
   * **Solo & Stratum Protocols:** Toggle between direct RPC solo mining and hosting a Stratum pool server on port 3333.
 
 ### 5. 🚀 Combined Master Suite (`quanty_suite_app.py`)
-* **Executable:** `QuantyCoin-CombinedSuite-Setup-v5.0.exe` / `QuantyCoinSuite.exe`
+* **Executable:** `QuantyCoin-CombinedSuite-Setup-v6.0.exe` / `QuantyCoinSuite.exe`
 * **Features:** Unified sidebar navigation allowing seamless switching between the Full Wallet, Lightning Wallet, Node Manager, and Miner with 1-Click Launch All.
 
 ---
@@ -112,7 +112,7 @@ QuantyCoin/
 ├── packaging/                 # InnoSetup & NSIS Windows Installers, Debian .deb, Linux AppImage, macOS DMG
 ├── share/pixmaps/             # Multi-resolution ICO, PNG, and vector logo assets
 ├── llms.txt                   # Generative Engine Optimization index for AI search engines
-└── .github/workflows/         # Automated Cross-Platform CI/CD Cloud Release Pipeline (v5.0)
+└── .github/workflows/         # Automated Cross-Platform CI/CD Cloud Release Pipeline (v6.0)
 ```
 
 ---
@@ -259,19 +259,19 @@ ALL 4 STRESS TESTS COMPLETED WITH 100% PASS (0 ERRORS, 0 DEADLOCKS)!
 Precompiled standalone native installers and portable archives are built automatically via GitHub Actions:
 
 - 🪟 **Windows (x64):**
-  - Full Wallet Setup (with Node): `QuantyCoin-FullWallet-Setup-v5.0.exe`
-  - Lightning Wallet Setup: `QuantyCoin-LightningWallet-Setup-v5.0.exe`
-  - Standalone Node Setup: `QuantyCoin-Node-Setup-v5.0.exe`
-  - Standalone Miner Setup: `QuantyCoin-Miner-Setup-v5.0.exe`
-  - Combined Master Suite Setup: `QuantyCoin-CombinedSuite-Setup-v5.0.exe`
-  - Portable Archive: `QuantyCoin-v5.0.0-Windows-Portable.zip`
+  - Full Wallet Setup (with Node): `QuantyCoin-FullWallet-Setup-v6.0.exe`
+  - Lightning Wallet Setup: `QuantyCoin-LightningWallet-Setup-v6.0.exe`
+  - Standalone Node Setup: `QuantyCoin-Node-Setup-v6.0.exe`
+  - Standalone Miner Setup: `QuantyCoin-Miner-Setup-v6.0.exe`
+  - Combined Master Suite Setup: `QuantyCoin-CombinedSuite-Setup-v6.0.exe`
+  - Portable Archive: `QuantyCoin-v6.0.0-Windows-Portable.zip`
 - 🐧 **Linux (x64):**
-  - Debian/Ubuntu Package: `QuantyCoin-5.0.0-amd64.deb`
-  - Universal AppImage: `QuantyCoin-5.0.0-x86_64.AppImage`
-  - Standalone Tarball: `QuantyCoin-v5.0.0-Linux-x86_64.tar.gz`
+  - Debian/Ubuntu Package: `QuantyCoin-6.0.0-amd64.deb`
+  - Universal AppImage: `QuantyCoin-6.0.0-x86_64.AppImage`
+  - Standalone Tarball: `QuantyCoin-v6.0.0-Linux-x86_64.tar.gz`
 - 🍎 **macOS (Universal):**
-  - Universal DMG Package: `QuantyCoin-v5.0.0-macOS-Universal.dmg`
-  - Binary Tarball: `QuantyCoin-v5.0.0-macOS-Universal.tar.gz`
+  - Universal DMG Package: `QuantyCoin-v6.0.0-macOS-Universal.dmg`
+  - Binary Tarball: `QuantyCoin-v6.0.0-macOS-Universal.tar.gz`
 
 ---
 
@@ -309,7 +309,7 @@ QuantyCoin is natively optimized for AI search engines, LLM agents, and automate
   author = {QuantyCoin Core Contributors},
   title = {QuantyCoin: High-Performance Quantum & AI Era Layer-1 Blockchain},
   url = {https://github.com/timfromhcs/QuantyCoin},
-  version = {5.0.0},
+  version = {6.0.0},
   year = {2026}
 }
 ```

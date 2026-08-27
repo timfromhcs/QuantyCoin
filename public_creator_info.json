@@ -1,12 +1,13 @@
 {
   "project": "QuantyCoin",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "ticker": "QTY",
   "creator_public_address": "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g",
   "treasury_donation_address": "qty1qspendenwallettreasury2026",
   "network": "QuantyCoin Mainnet (QTY)",
-  "features_v5": [
+  "features_v6": [
     "Native Qt6 Desktop Applications (Sovereign Full Wallet with built-in Node, Lightning SPV Wallet, Standalone Node & Miner)",
+    "Bitcoin Core & Bitcoin Cash II Architecture Integration with Cyberpunk Dark Theme",
     "50/50 Transaction Fee Split (Miner / Community Treasury)",
     "BIP39/BIP44 Native HD Wallet & In-App Dynamic QR Code Processing",
     "High-Performance Full Node Daemon (P2P Wire Framing, Reorg State Machine, JSON-RPC 2.0)",

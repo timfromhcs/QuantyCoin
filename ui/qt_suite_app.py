@@ -25,7 +25,7 @@ from miner.engine import MiningEngine
 class QuantyMasterSuiteWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("QuantyCoin Master Suite (v4.0.0 Cyberpunk Dark Edition)")
+        self.setWindowTitle("QuantyCoin Master Suite (v6.0.0 Cyberpunk Dark Edition)")
         self.resize(1180, 760)
         self.setStyleSheet(CYBERPUNK_QSS)
 
@@ -69,7 +69,7 @@ class QuantyMasterSuiteWindow(QtWidgets.QMainWindow):
         b_title = QtWidgets.QVBoxLayout()
         t1 = QtWidgets.QLabel("QUANTYCOIN")
         t1.setStyleSheet("font-weight: 800; font-size: 15px; color: #F1F5F9; letter-spacing: 0.5px;")
-        t2 = QtWidgets.QLabel("SUITE v4.0")
+        t2 = QtWidgets.QLabel("SUITE v6.0")
         t2.setStyleSheet("font-weight: 700; font-size: 11px; color: #00F0FF; font-family: 'JetBrains Mono';")
         b_title.addWidget(t1)
         b_title.addWidget(t2)
@@ -127,7 +127,7 @@ class QuantyMasterSuiteWindow(QtWidgets.QMainWindow):
         root_layout.addWidget(self.stack, 1)
 
         # Instantiate the 4 Sub-Apps (without creating separate OS windows)
-        self.app_wallet = QuantyFullWalletWindow()
+        self.app_wallet = QuantyFullWalletWindow(auto_start_daemon=False)
         self.app_lightning = QuantyLightningWalletWindow()
         self.app_node = QuantyNodeWindow(auto_start_daemon=False)
         self.app_miner = QuantyMinerWindow()
@@ -137,7 +137,7 @@ class QuantyMasterSuiteWindow(QtWidgets.QMainWindow):
         self.stack.addWidget(self.app_node.centralWidget())
         self.stack.addWidget(self.app_miner.centralWidget())
 
-        self.statusBar().showMessage("QuantyCoin Unified Cyberpunk Suite v4.0 Active | All Systems Synchronized")
+        self.statusBar().showMessage("QuantyCoin Unified Cyberpunk Suite v6.0 Active | All Systems Synchronized")
 
     def switch_view(self, index: int):
         self.stack.setCurrentIndex(index)

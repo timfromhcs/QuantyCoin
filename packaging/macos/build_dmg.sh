@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build Universal macOS DMG Package for QuantyCoin v5.0
+# Build Universal macOS DMG Package for QuantyCoin v6.0
 set -euo pipefail
 
 APP_NAME="QuantyCoin"
-VERSION="5.0.0"
+VERSION="6.0.0"
 DMG_NAME="QuantyCoin-v${VERSION}-macOS-Universal.dmg"
 
-echo "Building macOS .app bundle for v5.0..."
+echo "Building macOS .app bundle for v6.0..."
 mkdir -p "dist/macos/${APP_NAME}.app/Contents/MacOS"
 mkdir -p "dist/macos/${APP_NAME}.app/Contents/Resources"
 
@@ -24,7 +24,7 @@ cat << EOF > "dist/macos/${APP_NAME}.app/Contents/Info.plist"
     <key>CFBundleName</key>
     <string>QuantyCoin</string>
     <key>CFBundleVersion</key>
-    <string>5.0.0</string>
+    <string>6.0.0</string>
 </dict>
 </plist>
 EOF

@@ -68,9 +68,9 @@ class FullWalletSyncWorker(QtCore.QThread):
 
 
 class QuantyFullWalletWindow(QtWidgets.QMainWindow):
-    def __init__(self, rpc_port: int = 19889):
+    def __init__(self, rpc_port: int = 19889, auto_start_daemon: bool = True):
         super().__init__()
-        self.setWindowTitle("QuantyCoin Full Wallet (Integrated Node v4.0 Production)")
+        self.setWindowTitle("QuantyCoin Full Wallet (Integrated Node v6.0 Production)")
         self.resize(1060, 700)
         self.setStyleSheet(CYBERPUNK_QSS)
 
@@ -81,11 +81,12 @@ class QuantyFullWalletWindow(QtWidgets.QMainWindow):
 
         # Launch Built-in Full Node Daemon
         self.node_daemon: Optional[QuantyNode] = None
-        try:
-            self.node_daemon = QuantyNode(p2p_port=19888, rpc_port=rpc_port)
-            self.node_daemon.start()
-        except Exception as e:
-            print(f"Built-in Node notice: {e}")
+        if auto_start_daemon:
+            try:
+                self.node_daemon = QuantyNode(p2p_port=19888, rpc_port=rpc_port)
+                self.node_daemon.start()
+            except Exception as e:
+                print(f"Built-in Node notice: {e}")
 
         self.wallet = HDWallet()
         self.rpc_client = WalletRPCClient(rpc_port=rpc_port)

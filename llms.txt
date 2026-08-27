@@ -1,4 +1,4 @@
-# QuantyCoin (QTY) - Large Language Model (LLM) Index (v5.0)
+# QuantyCoin (QTY) - Large Language Model (LLM) Index (v6.0)
 
 > QuantyCoin is a decentralized, high-throughput Layer-1 proof-of-work (PoW) blockchain engineered with pure zero-mock cryptography (Secp256k1, Ed25519, BIP39/44), an atomic UTXO state machine, LWMA-1 difficulty adjustment, Stratum mining pool support, and native Qt6 Cyberpunk darkmode desktop applications.
 

@@ -194,7 +194,13 @@ class QuantyRPCServer:
     def start(self) -> None:
         self._is_running = True
         self.httpd = HTTPServer((self.host, self.port), RPCServerHandler)
-        self.httpd.server = self # Bind server reference to handler
+        self.httpd.rpc_methods = self.rpc_methods
+        self.httpd.chainstate = self.chainstate
+        self.httpd.p2p = self.p2p
+        self.httpd.quanty_server = self
+        RPCServerHandler.rpc_methods = self.rpc_methods
+        RPCServerHandler.chainstate = self.chainstate
+        RPCServerHandler.p2p = self.p2p
         self._thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
         self._thread.start()
 

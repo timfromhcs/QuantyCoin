@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use QuantyCoin in your research, software, or cryptographic benchmarks, please cite it as below."
 title: "QuantyCoin: High-Performance Quantum & AI Era Layer-1 Blockchain"
-version: 5.0.0
+version: 6.0.0
 date-released: 2026-08-27
 authors:
   - family-names: "QuantyCoin Core Contributors"
