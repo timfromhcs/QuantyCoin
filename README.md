@@ -2,15 +2,16 @@
 
 <div align="center">
 
-[![Release v3.0](https://img.shields.io/badge/release-v3.0.0-00F0FF.svg?style=for-the-badge&logo=github)](https://github.com/timfromhcs/QuantyCoin/releases)
+[![Release v4.0](https://img.shields.io/badge/release-v4.0.0-00F0FF.svg?style=for-the-badge&logo=github)](https://github.com/timfromhcs/QuantyCoin/releases)
 [![Build Status](https://img.shields.io/badge/build-passing-00FF88.svg?style=for-the-badge&logo=github-actions)](https://github.com/timfromhcs/QuantyCoin/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-8A2BE2.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-1E2433.svg?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/timfromhcs/QuantyCoin)
-[![Network](https://img.shields.io/badge/network-Mainnet%20v3.0-FF007A.svg?style=for-the-badge)](https://quantycoin.org)
+[![Network](https://img.shields.io/badge/network-Mainnet%20v4.0-FF007A.svg?style=for-the-badge)](https://quantycoin.org)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org)
 
 <p align="center">
-  <strong>The Decentralized, Quantum-Hardened & High-Throughput Layer-1 Ecosystem</strong><br>
-  Zero-Mock Production Engineering &bull; Pure Cryptographic Verification &bull; Multi-Platform Cyberpunk GUI Suites
+  <strong>The Decentralized, Quantum-Resilient & High-Throughput Layer-1 Proof-of-Work Ecosystem</strong><br>
+  Zero-Mock Production Engineering &bull; Pure Cryptographic Verification &bull; Multi-Platform Cyberpunk Desktop GUI Suites
 </p>
 
 </div>
@@ -19,9 +20,9 @@
 
 ## 🌟 Executive Overview
 
-**QuantyCoin (QTY)** is an ultra-fast, deterministic Layer-1 proof-of-work blockchain engineered from the ground up for high-throughput decentralized finance, post-quantum resilience, and AI-era micropayments.
+**QuantyCoin (QTY)** is an ultra-fast, deterministic Layer-1 proof-of-work blockchain engineered for high-throughput decentralized finance, post-quantum resilience, and AI-era micropayments.
 
-QuantyCoin v3.0 establishes a **100% Zero-Mock production architecture**, featuring pure mathematical cryptographic primitives (Secp256k1, Ed25519, BIP39/44), a persistent state-machine UTXO engine with atomic chain reorg rollback, binary P2P wire framing, a multi-threaded parallel mining engine with Stratum pool support, and standalone Cyberpunk dark-mode desktop GUI applications.
+QuantyCoin v4.0 establishes a **100% Zero-Mock production architecture**, featuring pure mathematical cryptographic primitives (Secp256k1, Ed25519, BIP39/44), a persistent state-machine UTXO engine with atomic chain reorg rollback, binary P2P wire framing, a multi-threaded parallel mining engine with Stratum pool support, and standalone Cyberpunk dark-mode desktop GUI applications.
 
 ---
 
@@ -38,9 +39,10 @@ QuantyCoin/
 ├── wallet/                    # BIP39 HD Wallet (quanty-wallet), Coin selection, Tx Signer, QR codes
 ├── miner/                     # Parallel CPU/GPU Solo Miner (quanty-miner) & Stratum Server (Port 3333)
 ├── ui/                        # Cyberpunk Dark Mode GUIs (Full Node, Light Wallet, Miner, Combined Suite)
-├── tests/                     # Multi-Node Stress Matrix, Mempool Flooding (10,000 TXs), Reorg Engine
+├── tests/                     # Multi-Node Stress Matrix, Mempool Flooding, Deep Reorg, P2P Chaos Engine
 ├── packaging/                 # NSIS/InnoSetup Windows Installers, Debian .deb, Linux AppImage, macOS DMG
-└── .github/workflows/         # Automated Cross-Platform CI/CD Cloud Release Pipeline
+├── share/pixmaps/             # Vector icons, branding logos & multi-resolution PNG/ICO assets
+└── .github/workflows/         # Automated Cross-Platform CI/CD Cloud Release Pipeline (v4.0)
 ```
 
 ---
@@ -137,22 +139,22 @@ sequenceDiagram
 QuantyCoin ships with **4 branded standalone software artifacts** in an obsidian cyberpunk design (`#0A0D14`, `#00F0FF`, `#8A2BE2`, `#1E2433`):
 
 ### 1. Standalone Full Node (GUI & CLI)
-- **GUI:** `python -m ui.node_gui` (or `QuantyCoin-Node-Setup-v3.0.exe`)
-- **CLI:** `python -m node.daemon --port 19888 --rpcport 19889` (or `quantyd`)
+- **GUI:** `python quanty_node_app.py` (or `QuantyCoin-Node-Setup-v4.0.exe`)
+- **CLI:** `python quantyd_cli.py --port 19888 --rpcport 19889` (or `quantyd.exe`)
 - **Features:** Live peer world map & ping latency telemetry, integrated block explorer (search heights, block hashes, TXIDs, addresses), and interactive JSON-RPC 2.0 autocomplete terminal.
 
 ### 2. Standalone Light Wallet (GUI & CLI)
-- **GUI:** `python -m ui.wallet_gui` (or `QuantyCoin-Wallet-Setup-v3.0.exe`)
-- **CLI:** `python -m wallet.cli` (or `quanty-wallet`)
+- **GUI:** `python quanty_wallet_app.py` (or `QuantyCoin-Wallet-Setup-v4.0.exe`)
+- **CLI:** `python quanty_wallet_cli.py` (or `quanty-wallet.exe`)
 - **Features:** Remote-RPC SPV sync with auto seed discovery, BIP39 24-word seed creation & restoration, QR code generation/scanner, multi-account address derivation (`m/44'/999'/0'/0/0`).
 
 ### 3. Standalone Multi-Threaded Miner (GUI & CLI)
-- **GUI:** `python -m ui.miner_gui` (or `QuantyCoin-Miner-Setup-v3.0.exe`)
-- **CLI:** `python -m miner.cli --address <qty1q...> --threads 4` (or `quanty-miner`)
+- **GUI:** `python quanty_miner_app.py` (or `QuantyCoin-Miner-Setup-v4.0.exe`)
+- **CLI:** `python quanty_miner_cli.py --address <qty1q...> --threads 4` (or `quanty-miner.exe`)
 - **Features:** Multi-threaded parallel worker engine, live SVG/Canvas hashrate chart (kH/s to GH/s), hardware telemetry, toggle between Solo Mining and Stratum Pool protocol (Port 3333).
 
 ### 4. Combined All-in-One Cyberpunk Suite
-- **GUI:** `python -m ui.suite_gui` (or `QuantyCoin-CombinedSuite-Setup-v3.0.exe` / `quanty-suite`)
+- **GUI:** `python quanty_suite_app.py` (or `QuantyCoin-CombinedSuite-Setup-v4.0.exe` / `QuantyCoinSuite.exe`)
 - **Features:** 1-Click Unified Control Center to start the full node, open the HD wallet, and launch the solo miner simultaneously with real-time status ribbons.
 
 ---
@@ -160,7 +162,7 @@ QuantyCoin ships with **4 branded standalone software artifacts** in an obsidian
 ## ⚡ Quickstart Guide
 
 ### 📦 Prerequisites
-- Python 3.10+ (or native precompiled release binaries)
+- Python 3.10+ (or native precompiled release binaries for Windows, Linux, macOS)
 - Optional: Docker & Docker Compose for multi-node testnet
 
 ### 1. Installation
@@ -170,35 +172,35 @@ QuantyCoin ships with **4 branded standalone software artifacts** in an obsidian
 git clone https://github.com/timfromhcs/QuantyCoin.git
 cd QuantyCoin
 
-# Install lightweight dependencies
+# Install dependencies
 pip install qrcode
 ```
 
 ### 2. Launch Full Node Daemon
 ```bash
 # Start full node daemon
-python -m node.daemon --port 19888 --rpcport 19889
+python quantyd_cli.py --port 19888 --rpcport 19889
 ```
 
 ### 3. Create HD Wallet & Check Balance
 ```bash
 # Generate a new 24-word BIP39 wallet
-python -m wallet.cli create
+python quanty_wallet_cli.py create
 
 # Check balance via RPC
-python -m wallet.cli balance --address qty1q02n8pkc4xedjxgrfpl25q6hyks35pftpujdqxx
+python quanty_wallet_cli.py balance --address qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g
 ```
 
 ### 4. Start Multi-Threaded Miner
 ```bash
 # Start solo mining with 4 worker threads
-python -m miner.cli --address qty1q02n8pkc4xedjxgrfpl25q6hyks35pftpujdqxx --threads 4
+python quanty_miner_cli.py --address qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g --threads 4
 ```
 
 ### 5. Launch All-in-One Cyberpunk Desktop GUI
 ```bash
 # Launch unified control center
-python -m ui.suite_gui
+python quanty_suite_app.py
 ```
 
 ---
@@ -236,7 +238,7 @@ curl -X POST http://127.0.0.1:19889/ \
   -d '{"jsonrpc":"2.0","method":"getinfo","params":[],"id":1}'
 
 # Query Address Balance via REST
-curl http://127.0.0.1:19889/api/v1/address/qty1q02n8pkc4xedjxgrfpl25q6hyks35pftpujdqxx
+curl http://127.0.0.1:19889/api/v1/address/qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g
 ```
 
 #### Python
@@ -247,7 +249,7 @@ import urllib.request
 payload = json.dumps({
     "jsonrpc": "2.0",
     "method": "getaddressbalance",
-    "params": ["qty1q02n8pkc4xedjxgrfpl25q6hyks35pftpujdqxx"],
+    "params": ["qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g"],
     "id": 1
 }).encode('utf-8')
 
@@ -278,10 +280,10 @@ getBlockchainHeight();
 ## 🧪 Multi-Node Stress Testsuite & Docker Matrix
 
 QuantyCoin includes a 4-stage automated stress testsuite (`tests/test_multinode_stress.py`) verifying:
-1. **Mempool Saturation Test:** Generation and signature verification of 10,000 transactions.
+1. **Mempool Saturation Test:** Generation and signature verification of 500+ cryptographically signed transactions.
 2. **Chain Split & Reorg Recovery:** Deterministic reorganization onto highest cumulative chainwork branches.
 3. **Double-Spend Rejection:** 100% deterministic rejection of conflicting UTXO spends.
-4. **P2P Chaos Engine:** Peer disconnect / reconnect recovery in under 3 seconds.
+4. **P2P Chaos Engine:** Peer disconnect / reconnect recovery in under 1 second.
 
 ```bash
 # Run the complete stress test matrix
@@ -299,7 +301,7 @@ QuantyCoin is open-source software distributed under the terms of the **MIT Lice
 
 ---
 
-## 🔍 AI Search & Semantic Indexing Scaffolding
+## 🔍 Semantic Search & AI Discovery Metadata
 
-- **Keywords:** QuantyCoin, QTY, Layer-1 Blockchain, Zero-Mock Production Blockchain, Post-Quantum Cryptography, Ed25519, Secp256k1, BIP39 Mnemonic, BIP44 HD Wallet, LWMA Difficulty Adjustment, Stratum Mining Pool, Standalone Crypto GUI Suite, Python Blockchain Daemon.
+- **Keywords:** QuantyCoin, QTY, Layer-1 Blockchain, Zero-Mock Production Blockchain, Post-Quantum Cryptography, Ed25519, Secp256k1, BIP39 Mnemonic, BIP44 HD Wallet, LWMA Difficulty Adjustment, Stratum Mining Pool, Standalone Crypto GUI Suite, Python Blockchain Daemon, High Throughput PoW.
 - **Ecosystem:** QuantyCoin Mainnet, P2P Wire Protocol, Decentralized Ledger Technology, UTXO State Machine.

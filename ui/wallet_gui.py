@@ -1,5 +1,5 @@
 """
-QuantyCoin Standalone Light Wallet GUI (Cyberpunk Dark Mode)
+QuantyCoin Standalone Light Wallet GUI (Cyberpunk Dark Mode v4.0)
 Remote-RPC Sync, BIP39 24-Word Recovery, QR Code Send/Receive & Multi-Account Manager
 """
 
@@ -7,10 +7,20 @@ import sys
 import os
 import json
 import webbrowser
+from typing import Optional, Any, Dict, List
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-from .shared_theme import render_html_page
-from wallet.hd_wallet import HDWallet, generate_qr_ascii
+
+# Safe imports for both package and PyInstaller onefile execution
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+try:
+    from ui.shared_theme import render_html_page
+except ImportError:
+    from shared_theme import render_html_page
+
+from wallet.hd_wallet import HDWallet
 from wallet.rpc_client import WalletRPCClient
 
 WALLET_HTML_BODY = """
@@ -269,7 +279,7 @@ class WalletGUIHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
         if parsed.path == '/':
-            html = render_html_page("Light Wallet Client", "LIGHT WALLET", WALLET_HTML_BODY, WALLET_JS)
+            html = render_html_page("Light Wallet Client", "LIGHT WALLET v4.0", WALLET_HTML_BODY, WALLET_JS)
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -347,7 +357,7 @@ def launch_wallet_gui(gui_port: int = 8082, rpc_port: int = 19889):
     server = HTTPServer(('127.0.0.1', gui_port), WalletGUIHandler)
     url = f"http://127.0.0.1:{gui_port}"
     print(f"\n========================================================")
-    print(f"QUANTYCOIN STANDALONE LIGHT WALLET GUI RUNNING")
+    print(f"QUANTYCOIN STANDALONE LIGHT WALLET GUI RUNNING (v4.0)")
     print(f"Open in browser: {url}")
     print(f"========================================================\n")
     try:

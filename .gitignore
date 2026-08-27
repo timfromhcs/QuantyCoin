@@ -66,6 +66,7 @@ src/qt/qty-qt.includes
 *.orig
 *.pyc
 __pycache__/
+*.spec
 *.o
 *.o-*
 *.a

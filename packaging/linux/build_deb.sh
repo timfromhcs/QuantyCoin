@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Build Debian/Ubuntu .deb package for QuantyCoin v3.0
+# Build Debian/Ubuntu .deb package for QuantyCoin v4.0
 set -euo pipefail
 
 PACKAGE_NAME="quantycoin"
-VERSION="3.0.0"
+VERSION="4.0.0"
 ARCH="amd64"
 DEB_DIR="dist/deb/${PACKAGE_NAME}_${VERSION}_${ARCH}"
 

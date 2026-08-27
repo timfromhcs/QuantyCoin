@@ -1,5 +1,5 @@
 """
-QuantyCoin Standalone Miner GUI (Cyberpunk Dark Mode)
+QuantyCoin Standalone Miner GUI (Cyberpunk Dark Mode v4.0)
 Real-Time Hashrate Canvas Graph, Worker Telemetry, Solo & Stratum Pool Mining Controls
 """
 
@@ -7,9 +7,19 @@ import sys
 import os
 import json
 import webbrowser
+from typing import Optional, Any, Dict, List
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
-from .shared_theme import render_html_page
+
+# Safe imports for both package and PyInstaller onefile execution
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+try:
+    from ui.shared_theme import render_html_page
+except ImportError:
+    from shared_theme import render_html_page
+
 from miner.engine import MiningEngine
 from miner.stratum import StratumServer
 
@@ -57,7 +67,7 @@ MINER_HTML_BODY = """
     </div>
     <div class="input-group">
       <label class="input-label">Coinbase Payout Address (qty1q...)</label>
-      <input type="text" id="miner-payout-addr" class="input-control" value="qty1q02n8pkc4xedjxgrfpl25q6hyks35pftpujdqxx">
+      <input type="text" id="miner-payout-addr" class="input-control" value="qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g">
     </div>
     <div class="grid-2">
       <div class="input-group">
@@ -154,6 +164,7 @@ async function fetchMinerTelemetry() {
 
 function drawHashrateChart() {
   const canvas = document.getElementById('hashrate-canvas');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const w = canvas.width;
   const h = canvas.height;
@@ -217,7 +228,7 @@ class MinerGUIHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
         if parsed.path == '/':
-            html = render_html_page("Standalone Miner Suite", "MINER SUITE", MINER_HTML_BODY, MINER_JS)
+            html = render_html_page("Standalone Miner Suite", "MINER SUITE v4.0", MINER_HTML_BODY, MINER_JS)
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -284,7 +295,7 @@ def launch_miner_gui(gui_port: int = 8083, rpc_port: int = 19889):
     server = HTTPServer(('127.0.0.1', gui_port), MinerGUIHandler)
     url = f"http://127.0.0.1:{gui_port}"
     print(f"\n========================================================")
-    print(f"QUANTYCOIN STANDALONE MINER GUI RUNNING")
+    print(f"QUANTYCOIN STANDALONE MINER GUI RUNNING (v4.0)")
     print(f"Open in browser: {url}")
     print(f"========================================================\n")
     try:

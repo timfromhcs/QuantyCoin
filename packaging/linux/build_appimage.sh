@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
-# Build Standalone Linux AppImage for QuantyCoin v3.0
+# Build Standalone Linux AppImage for QuantyCoin v4.0
 set -euo pipefail
 
 APP_NAME="QuantyCoin"
-VERSION="3.0.0"
+VERSION="4.0.0"
 APPDIR="dist/AppDir"
 
-echo "Assembling AppDir..."
+echo "Assembling AppDir for v4.0..."
 mkdir -p "${APPDIR}/usr/bin"
 mkdir -p "${APPDIR}/usr/share/icons"
 
 cp dist/bin/quanty-suite "${APPDIR}/usr/bin/quanty-suite" 2>/dev/null || true
+cp share/pixmaps/quantycoin.png "${APPDIR}/usr/share/icons/quantycoin.png" 2>/dev/null || true
 
 cat << EOF > "${APPDIR}/AppRun"
 #!/bin/sh

@@ -1,6 +1,6 @@
-; QuantyCoin v3.0 Light Wallet NSIS Installer Script
+; QuantyCoin v4.0 Light Wallet NSIS Installer Script
 !define PRODUCT_NAME "QuantyCoin Light Wallet"
-!define PRODUCT_VERSION "3.0.0"
+!define PRODUCT_VERSION "4.0.0"
 !define PRODUCT_PUBLISHER "QuantyCoin Core Contributors"
 !define PRODUCT_WEB_SITE "https://quantycoin.org"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -27,7 +27,7 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_LANGUAGE "German"
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "..\..\dist\windows\QuantyCoin-Wallet-Setup-v3.0.exe"
+OutFile "..\..\dist\windows\QuantyCoin-Wallet-Setup-v4.0.exe"
 InstallDir "$PROGRAMFILES64\QuantyCoin Wallet"
 
 Section "MainSection" SEC01

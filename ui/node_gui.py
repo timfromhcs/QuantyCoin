@@ -1,5 +1,5 @@
 """
-QuantyCoin Standalone Full Node GUI (Cyberpunk Dark Mode)
+QuantyCoin Standalone Full Node GUI (Cyberpunk Dark Mode v4.0)
 Live P2P Dashboard, Integrated Block Explorer & Interactive RPC Console
 """
 
@@ -8,9 +8,19 @@ import os
 import json
 import webbrowser
 import threading
+from typing import Optional, Any, Dict, List
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-from .shared_theme import render_html_page
+
+# Safe imports for both package and PyInstaller onefile execution
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+try:
+    from ui.shared_theme import render_html_page
+except ImportError:
+    from shared_theme import render_html_page
+
 from wallet.rpc_client import WalletRPCClient
 
 NODE_HTML_BODY = """
@@ -67,7 +77,7 @@ NODE_HTML_BODY = """
         <div><strong style="color: var(--text-muted);">Protocol:</strong> <span>v70015 (QuantyWire)</span></div>
         <div><strong style="color: var(--text-muted);">Default P2P Port:</strong> <span>19888</span></div>
         <div><strong style="color: var(--text-muted);">Default RPC Port:</strong> <span>19889</span></div>
-        <div><strong style="color: var(--text-muted);">Network:</strong> <span class="status-pill status-online">MAINNET ACTIVE</span></div>
+        <div><strong style="color: var(--text-muted);">Network:</strong> <span class="status-pill status-online">MAINNET v4.0 ACTIVE</span></div>
       </div>
     </div>
 
@@ -231,7 +241,7 @@ class NodeGUIHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
         if parsed.path == '/':
-            html = render_html_page("Full Node & Block Explorer", "NODE SUITE", NODE_HTML_BODY, NODE_JS)
+            html = render_html_page("Full Node & Block Explorer", "NODE SUITE v4.0", NODE_HTML_BODY, NODE_JS)
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -242,7 +252,7 @@ class NodeGUIHandler(BaseHTTPRequestHandler):
                 peers = self.rpc_client._call("getpeerinfo", [])
                 info["peers"] = peers
                 self._send_json(200, info)
-            except Exception as e:
+            except Exception:
                 self._send_json(200, {"blocks": 0, "connections": 0, "mempool_size": 0, "bestblockhash": "Connecting to node...", "circulating_supply": 50, "peers": []})
         elif parsed.path == '/api/explorer':
             q = parse_qs(parsed.query).get('q', [''])[0]
@@ -292,7 +302,7 @@ def launch_node_gui(gui_port: int = 8081, rpc_port: int = 19889):
     server = HTTPServer(('127.0.0.1', gui_port), NodeGUIHandler)
     url = f"http://127.0.0.1:{gui_port}"
     print(f"\n========================================================")
-    print(f"QUANTYCOIN STANDALONE FULL NODE GUI RUNNING")
+    print(f"QUANTYCOIN STANDALONE FULL NODE GUI RUNNING (v4.0)")
     print(f"Open in browser: {url}")
     print(f"========================================================\n")
     try:

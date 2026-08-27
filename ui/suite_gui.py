@@ -1,5 +1,5 @@
 """
-QuantyCoin Combined All-in-One Suite GUI (Cyberpunk Dark Mode)
+QuantyCoin Combined All-in-One Suite GUI (Cyberpunk Dark Mode v4.0)
 Unified Control Center for Full Node, Light Wallet & Mining Engine
 Branding: Obsidian #0A0D14 | Quanty Cyan #00F0FF | Neon Violet #8A2BE2 | Slate Grey #1E2433
 """
@@ -10,9 +10,19 @@ import json
 import time
 import webbrowser
 import threading
+from typing import Optional, Any, Dict, List
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
-from .shared_theme import render_html_page
+
+# Safe imports for both package and PyInstaller onefile execution
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+try:
+    from ui.shared_theme import render_html_page
+except ImportError:
+    from shared_theme import render_html_page
+
 from node.daemon import QuantyNode
 from wallet.hd_wallet import HDWallet
 from wallet.rpc_client import WalletRPCClient
@@ -23,7 +33,7 @@ SUITE_HTML_BODY = """
 <div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(18, 23, 36, 0.9), rgba(30, 36, 51, 0.9)); border-color: var(--border-cyan);">
   <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
     <div>
-      <div style="font-size: 20px; font-weight: 800; letter-spacing: 0.5px;">QUANTYCOIN CORE <span style="color: var(--accent-cyan);">SUITE v3.0</span></div>
+      <div style="font-size: 20px; font-weight: 800; letter-spacing: 0.5px;">QUANTYCOIN CORE <span style="color: var(--accent-cyan);">SUITE v4.0</span></div>
       <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Unified Layer-1 Node, HD Wallet & Mining Control Matrix</div>
     </div>
     <div style="display: flex; gap: 12px;">
@@ -65,7 +75,7 @@ SUITE_HTML_BODY = """
       <span style="color: var(--accent-violet);">🛡</span>
     </div>
     <div class="card-value" style="font-size: 20px; color: var(--accent-green);" id="val-health">100% OPERATIONAL</div>
-    <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Zero-Mock Verified</div>
+    <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Zero-Mock v4.0 Verified</div>
   </div>
 </div>
 
@@ -286,7 +296,7 @@ class SuiteGUIHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
         if parsed.path == '/':
-            html = render_html_page("Unified Control Suite", "ALL-IN-ONE SUITE", SUITE_HTML_BODY, SUITE_JS)
+            html = render_html_page("Unified Control Suite", "ALL-IN-ONE SUITE v4.0", SUITE_HTML_BODY, SUITE_JS)
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -354,7 +364,7 @@ class SuiteGUIHandler(BaseHTTPRequestHandler):
             if data.get("action") == "start":
                 if SuiteGUIHandler.miner:
                     SuiteGUIHandler.miner.stop()
-                payout = SuiteGUIHandler.wallet.get_receiving_address(0) if SuiteGUIHandler.wallet else "qty1q02n8pkc4xedjxgrfpl25q6hyks35pftpujdqxx"
+                payout = SuiteGUIHandler.wallet.get_receiving_address(0) if SuiteGUIHandler.wallet else "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g"
                 threads = int(data.get("threads", 4))
                 SuiteGUIHandler.miner = MiningEngine(payout_address=payout, threads=threads)
                 SuiteGUIHandler.miner.start()
@@ -416,7 +426,7 @@ def launch_suite_gui(gui_port: int = 8080):
     server = HTTPServer(('127.0.0.1', gui_port), SuiteGUIHandler)
     url = f"http://127.0.0.1:{gui_port}"
     print(f"\n========================================================")
-    print(f"QUANTYCOIN COMBINED ALL-IN-ONE SUITE RUNNING")
+    print(f"QUANTYCOIN COMBINED ALL-IN-ONE SUITE RUNNING (v4.0)")
     print(f"Open in browser: {url}")
     print(f"========================================================\n")
     try:

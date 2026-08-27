@@ -1,5 +1,5 @@
 """
-QuantyCoin Cyberpunk Dark Mode Theme & Base HTML UI Framework
+QuantyCoin Cyberpunk Dark Mode Theme & Base HTML UI Framework (v4.0 Production)
 Branding: Obsidian #0A0D14 | Quanty Cyan #00F0FF | Neon Violet #8A2BE2 | Slate Grey #1E2433
 """
 
@@ -80,8 +80,8 @@ body {
 }
 
 .logo-icon {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
   border-radius: 8px;
   display: flex;
@@ -90,11 +90,12 @@ body {
   font-weight: 900;
   font-family: var(--font-mono);
   color: #000;
+  font-size: 18px;
   box-shadow: var(--glow-cyan);
 }
 
 .brand-title {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
@@ -141,6 +142,12 @@ body {
   gap: 16px;
 }
 
+@media (max-width: 900px) {
+  .grid-2, .grid-3, .grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -164,7 +171,7 @@ body {
 }
 
 .card-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -333,6 +340,7 @@ tr:hover td {
   margin-bottom: 20px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 8px;
+  flex-wrap: wrap;
 }
 
 .tab-btn {
@@ -367,7 +375,7 @@ def render_html_page(title: str, app_name: str, body_content: str, custom_js: st
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title} — QuantyCoin v3.0</title>
+  <title>{title} — QuantyCoin v4.0</title>
   <style>{CYBERPUNK_CSS}</style>
 </head>
 <body>
@@ -380,7 +388,7 @@ def render_html_page(title: str, app_name: str, body_content: str, custom_js: st
     <div style="display: flex; align-items: center; gap: 16px;">
       <div class="status-pill status-online">
         <div class="status-indicator"></div>
-        <span>MAINNET v3.0</span>
+        <span>MAINNET v4.0</span>
       </div>
     </div>
   </header>
@@ -390,7 +398,7 @@ def render_html_page(title: str, app_name: str, body_content: str, custom_js: st
   </main>
 
   <footer style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border-color);">
-    QuantyCoin Core Ecosystem v3.0.0 &bull; High-Speed Quantum & AI Era Layer-1 &bull; MIT License
+    QuantyCoin Core Ecosystem v4.0.0 &bull; High-Speed Quantum & AI Era Layer-1 &bull; MIT License
   </footer>
 
   <script>

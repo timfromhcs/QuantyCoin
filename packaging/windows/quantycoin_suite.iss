@@ -1,6 +1,6 @@
-; QuantyCoin v3.0 Combined Suite Inno Setup Installer Script
+; QuantyCoin v4.0 Combined Suite Inno Setup Installer Script
 #define MyAppName "QuantyCoin Combined Suite"
-#define MyAppVersion "3.0.0"
+#define MyAppVersion "4.0.0"
 #define MyAppPublisher "QuantyCoin Core Contributors"
 #define MyAppURL "https://quantycoin.org"
 #define MyAppExeName "QuantyCoinSuite.exe"
@@ -17,7 +17,8 @@ DefaultDirName={autopf}\QuantyCoin
 DisableProgramGroupPage=yes
 LicenseFile=..\..\COPYING
 OutputDir=..\..\dist\windows
-OutputBaseFilename=QuantyCoin-CombinedSuite-Setup-v3.0
+OutputBaseFilename=QuantyCoin-CombinedSuite-Setup-v4.0
+SetupIconFile=..\..\share\pixmaps\quantycoin.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
@@ -35,8 +36,8 @@ Source: "..\..\dist\bin\QuantyCoinSuite.exe"; DestDir: "{app}"; Flags: ignorever
 Source: "..\..\dist\bin\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\share\pixmaps\quantycoin.ico"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\share\pixmaps\quantycoin.ico"
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent

@@ -1,18 +1,18 @@
 {
   "project": "QuantyCoin",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "ticker": "QTY",
   "creator_public_address": "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g",
   "treasury_donation_address": "qty1qspendenwallettreasury2026",
   "network": "QuantyCoin Mainnet (QTY)",
-  "features_v3": [
+  "features_v4": [
     "50/50 Transaction Fee Split (Miner / Community Treasury)",
     "BIP39/BIP44 Native HD Wallet & QR Code Processing",
     "High-Performance Standalone Full Node (P2P Wire, Chainstate, RPC)",
     "Standalone Light Wallet Client with Auto Remote Seed Failover",
     "Multi-Threaded Solo & Stratum Mining Suite",
-    "Unified All-in-One Darkmode Desktop Application",
-    "Multi-Platform Native Installers and CI/CD Automation"
+    "Unified All-in-One Cyberpunk Darkmode Desktop Application",
+    "Multi-Platform Native Installers and Automated GitHub CI/CD Releases"
   ],
   "note": "Private keys, seeds, and mnemonics are stored exclusively in the offline Air-Gapped Desktop Vault."
 }

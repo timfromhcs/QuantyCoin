@@ -1,9 +1,9 @@
-name: QuantyCoin Release v3.0 (Multi-Platform Suites & Standalone Installers)
+name: QuantyCoin Release v4.0 (Multi-Platform Suites & Standalone Installers)
 
 on:
   push:
     tags:
-      - 'v3.*'
+      - 'v4.*'
       - 'v*'
     branches:
       - main
@@ -46,32 +46,32 @@ jobs:
           PYTHONPATH: .
         run: |
           python -c "import os; [os.makedirs(d, exist_ok=True) for d in ['dist/bin/node', 'dist/bin/wallet', 'dist/bin/miner', 'dist/bin/suite', 'dist/windows']]"
-          pyinstaller --onefile --paths . --noconsole --name "quanty-node-gui" ui/node_gui.py --distpath dist/bin/node
-          pyinstaller --onefile --paths . --noconsole --name "quanty-wallet-gui" ui/wallet_gui.py --distpath dist/bin/wallet
-          pyinstaller --onefile --paths . --noconsole --name "quanty-miner-gui" ui/miner_gui.py --distpath dist/bin/miner
-          pyinstaller --onefile --paths . --noconsole --name "QuantyCoinSuite" ui/suite_gui.py --distpath dist/bin/suite
-          pyinstaller --onefile --paths . --name "quantyd" node/daemon.py --distpath dist/bin
-          pyinstaller --onefile --paths . --name "quanty-wallet" wallet/cli.py --distpath dist/bin
-          pyinstaller --onefile --paths . --name "quanty-miner" miner/cli.py --distpath dist/bin
+          python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --noconsole --name "quanty-node-gui" quanty_node_app.py --distpath dist/bin/node
+          python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --noconsole --name "quanty-wallet-gui" quanty_wallet_app.py --distpath dist/bin/wallet
+          python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --noconsole --name "quanty-miner-gui" quanty_miner_app.py --distpath dist/bin/miner
+          python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --noconsole --name "QuantyCoinSuite" quanty_suite_app.py --distpath dist/bin/suite
+          python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --name "quantyd" quantyd_cli.py --distpath dist/bin
+          python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --name "quanty-wallet" quanty_wallet_cli.py --distpath dist/bin
+          python -m PyInstaller --onefile --paths . --icon share/pixmaps/quantycoin.ico --name "quanty-miner" quanty_miner_cli.py --distpath dist/bin
 
       - name: Build Windows Installers
         run: |
-          Copy-Item dist\bin\node\quanty-node-gui.exe dist\windows\QuantyCoin-Node-Setup-v3.0.exe
-          Copy-Item dist\bin\wallet\quanty-wallet-gui.exe dist\windows\QuantyCoin-Wallet-Setup-v3.0.exe
-          Copy-Item dist\bin\miner\quanty-miner-gui.exe dist\windows\QuantyCoin-Miner-Setup-v3.0.exe
-          Copy-Item dist\bin\suite\QuantyCoinSuite.exe dist\windows\QuantyCoin-CombinedSuite-Setup-v3.0.exe
+          Copy-Item dist\bin\node\quanty-node-gui.exe dist\windows\QuantyCoin-Node-Setup-v4.0.exe
+          Copy-Item dist\bin\wallet\quanty-wallet-gui.exe dist\windows\QuantyCoin-Wallet-Setup-v4.0.exe
+          Copy-Item dist\bin\miner\quanty-miner-gui.exe dist\windows\QuantyCoin-Miner-Setup-v4.0.exe
+          Copy-Item dist\bin\suite\QuantyCoinSuite.exe dist\windows\QuantyCoin-CombinedSuite-Setup-v4.0.exe
           Copy-Item dist\bin\quantyd.exe dist\windows\quantyd.exe
           Copy-Item dist\bin\quanty-wallet.exe dist\windows\quanty-wallet.exe
           Copy-Item dist\bin\quanty-miner.exe dist\windows\quanty-miner.exe
 
       - name: Create Portable Zip Archives
         run: |
-          Compress-Archive -Path dist\bin\* -DestinationPath dist\windows\QuantyCoin-v3.0.0-Windows-Portable.zip -Force
+          Compress-Archive -Path dist\bin\* -DestinationPath dist\windows\QuantyCoin-v4.0.0-Windows-Portable.zip -Force
 
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-release-v3.0
+          name: windows-release-v4.0
           path: dist/windows/*
 
   # ============================================================================
@@ -109,10 +109,10 @@ jobs:
           PYTHONPATH: .
         run: |
           mkdir -p dist/bin dist/linux
-          pyinstaller --onefile --paths . --name "quantyd" node/daemon.py --distpath dist/bin
-          pyinstaller --onefile --paths . --name "quanty-wallet" wallet/cli.py --distpath dist/bin
-          pyinstaller --onefile --paths . --name "quanty-miner" miner/cli.py --distpath dist/bin
-          pyinstaller --onefile --paths . --name "quanty-suite" ui/suite_gui.py --distpath dist/bin
+          python -m PyInstaller --onefile --paths . --name "quantyd" quantyd_cli.py --distpath dist/bin
+          python -m PyInstaller --onefile --paths . --name "quanty-wallet" quanty_wallet_cli.py --distpath dist/bin
+          python -m PyInstaller --onefile --paths . --name "quanty-miner" quanty_miner_cli.py --distpath dist/bin
+          python -m PyInstaller --onefile --paths . --name "quanty-suite" quanty_suite_app.py --distpath dist/bin
 
       - name: Build Debian .deb Package
         run: |
@@ -121,12 +121,12 @@ jobs:
 
       - name: Create Linux Tarball
         run: |
-          tar -czvf dist/linux/QuantyCoin-v3.0.0-Linux-x86_64.tar.gz -C dist/bin .
+          tar -czvf dist/linux/QuantyCoin-v4.0.0-Linux-x86_64.tar.gz -C dist/bin .
 
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-release-v3.0
+          name: linux-release-v4.0
           path: dist/linux/*
 
   # ============================================================================
@@ -162,23 +162,23 @@ jobs:
           PYTHONPATH: .
         run: |
           mkdir -p dist/bin dist/macos-pkg
-          pyinstaller --onefile --paths . --name "quantyd" node/daemon.py --distpath dist/bin
-          pyinstaller --onefile --paths . --name "quanty-suite" ui/suite_gui.py --distpath dist/bin
+          python -m PyInstaller --onefile --paths . --name "quantyd" quantyd_cli.py --distpath dist/bin
+          python -m PyInstaller --onefile --paths . --name "quanty-suite" quanty_suite_app.py --distpath dist/bin
           chmod +x packaging/macos/build_dmg.sh
           ./packaging/macos/build_dmg.sh || true
-          tar -czvf dist/macos-pkg/QuantyCoin-v3.0.0-macOS-Universal.tar.gz -C dist/bin .
+          tar -czvf dist/macos-pkg/QuantyCoin-v4.0.0-macOS-Universal.tar.gz -C dist/bin .
 
       - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-release-v3.0
+          name: macos-release-v4.0
           path: dist/macos-pkg/*
 
   # ============================================================================
   # 4. GITHUB RELEASE AUTOMATION (TAG TRIGGERS)
   # ============================================================================
   publish-release:
-    name: Publish Official GitHub Release v3.0
+    name: Publish Official GitHub Release v4.0
     needs: [build-windows, build-linux, build-macos]
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
@@ -188,10 +188,10 @@ jobs:
         with:
           path: release_assets
 
-      - name: Create GitHub Release v3.0
+      - name: Create GitHub Release v4.0
         uses: softprops/action-gh-release@v2
         with:
-          name: "QuantyCoin Release v3.0 — High-Speed Quantum & AI Era Layer-1 Suite"
+          name: "QuantyCoin Release v4.0 — High-Speed Quantum & AI Era Layer-1 Suite"
           draft: false
           prerelease: false
           generate_release_notes: true
