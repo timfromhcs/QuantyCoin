@@ -1,6 +1,6 @@
 {
   "project": "QuantyCoin",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "ticker": "QTY",
   "network": "QuantyCoin Mainnet (QTY)",
   "genesis": {
@@ -14,10 +14,10 @@
     "coinbase_payout_address": "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g",
     "reward_qty": 50
   },
-  "consensus_v4": {
+  "consensus_v5": {
     "max_block_size_mb": 32,
     "target_block_time_seconds": 60,
-    "difficulty_algorithm": "DGW / LWMA (Height 1)",
+    "difficulty_algorithm": "DGW / LWMA-1 (Height 1)",
     "pow_algorithm": "SHA-256 (ASIC & High-Speed Worker Compatible)",
     "magic_bytes": "0x5155414E",
     "default_p2p_port": 19888,

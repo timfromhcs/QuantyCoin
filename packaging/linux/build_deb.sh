@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Build Debian/Ubuntu .deb package for QuantyCoin v4.0
+# Build Debian/Ubuntu .deb package for QuantyCoin v5.0
 set -euo pipefail
 
 PACKAGE_NAME="quantycoin"
-VERSION="4.0.0"
+VERSION="5.0.0"
 ARCH="amd64"
 DEB_DIR="dist/deb/${PACKAGE_NAME}_${VERSION}_${ARCH}"
 
@@ -21,7 +21,7 @@ Priority: optional
 Architecture: ${ARCH}
 Maintainer: QuantyCoin Core Contributors <timfromhcs@gmail.com>
 Description: QuantyCoin Layer-1 Quantum & AI Era Modular Blockchain Suite
- High-performance PoW full node daemon, BIP39 HD wallet, and multi-threaded miner.
+ Native Qt6 full node daemon, BIP39 HD wallet, and multi-threaded miner.
 EOF
 
 # Copy binaries

@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use QuantyCoin in your research, software, or cryptographic benchmarks, please cite it as below."
 title: "QuantyCoin: High-Performance Quantum & AI Era Layer-1 Blockchain"
-version: 4.0.0
+version: 5.0.0
 date-released: 2026-08-27
 authors:
   - family-names: "QuantyCoin Core Contributors"
@@ -21,6 +21,8 @@ keywords:
   - "segwit"
   - "lwma"
   - "stratum"
+  - "pyside6"
+  - "qt6"
   - "python-blockchain"
 license: "MIT"
-abstract: "QuantyCoin is a zero-mock, high-throughput Layer-1 proof-of-work blockchain ecosystem engineered with pure mathematical Secp256k1/Ed25519 cryptography, atomic UTXO reorganization state management, dynamic LWMA-1 difficulty adjustment, Stratum pool protocol, and multi-platform Cyberpunk desktop GUI suites."
+abstract: "QuantyCoin is a zero-mock, high-throughput Layer-1 proof-of-work blockchain ecosystem engineered with pure mathematical Secp256k1/Ed25519 cryptography, atomic UTXO reorganization state management, dynamic LWMA-1 difficulty adjustment, Stratum pool protocol, and native Qt6 Cyberpunk desktop GUI suites."

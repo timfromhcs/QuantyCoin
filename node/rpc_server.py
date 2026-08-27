@@ -207,7 +207,7 @@ class QuantyRPCServer:
     # RPC Handlers
     def _rpc_getinfo(self, params: list) -> Dict[str, Any]:
         return {
-            "version": "3.0.0",
+            "version": "5.0.0",
             "protocolversion": 70015,
             "blocks": self.chainstate.best_height,
             "bestblockhash": self.chainstate.best_hash_hex,

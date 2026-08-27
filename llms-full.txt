@@ -1,9 +1,9 @@
-# QuantyCoin (QTY) - Comprehensive Technical Specification & LLM Context
+# QuantyCoin (QTY) - Comprehensive Technical Specification & LLM Context (v5.0)
 
 ## 1. Project Identity
 - **Name**: QuantyCoin
 - **Ticker**: QTY
-- **Network**: QuantyCoin Mainnet (v4.0)
+- **Network**: QuantyCoin Mainnet (v5.0)
 - **Genesis Block Hash**: `00000630e8fea852dc1666700adde16da0db9624a8162dd161d7c10d6dbc3f00`
 - **Genesis Merkle Root**: `90a41f0dae5894ba6bd5e574ea4b0b6e1132d54b1f1e4c376fce4fcaf42df8bb`
 - **Genesis Timestamp**: `1771804800` ("2026: QuantyCoin - The High-Speed Quantum & AI Era Layer-1")
@@ -42,13 +42,9 @@
 - **Default P2P Port**: `19888`
 - **Default JSON-RPC / REST Port**: `19889`
 - **Default Stratum Mining Pool Port**: `3333`
-- **Default Suite Web GUI Port**: `8080`
-- **Default Node Web GUI Port**: `8081`
-- **Default Wallet Web GUI Port**: `8082`
-- **Default Miner Web GUI Port**: `8083`
 
 ## 5. JSON-RPC 2.0 API Methods
-- `getinfo`: Returns node version, block count, peer count, circulating supply.
+- `getinfo`: Returns node version ("5.0.0"), block count, peer count, circulating supply.
 - `getblockchaininfo`: Returns best block hash, height, cumulative chainwork, block index size.
 - `getblockcount`: Returns current tip block height integer.
 - `getbestblockhash`: Returns 64-character hex hash of active tip.
@@ -63,15 +59,11 @@
 - `getaddressbalance`: Parameters: `[address_str]`. Returns confirmed balance in QTY and Satoshis.
 - `getaddressutxos`: Parameters: `[address_str]`. Returns list of spendable UTXOs for address.
 
-## 6. Standalone Desktop GUI Applications
-- All GUIs use the Cyberpunk Obsidian Dark Theme:
-  - Background Obsidian: `#0A0D14`
-  - Quanty Cyan Accent: `#00F0FF`
-  - Neon Violet Accent: `#8A2BE2`
-  - Slate Grey Accent: `#1E2433`
-  - Neon Green / Pink Status Pills
+## 6. Native Desktop Qt6 Applications
+- **Palette**: Obsidian `#0A0D14`, Card `#121724`, Slate `#1E2433`, Cyan `#00F0FF`, Violet `#8A2BE2`, Green `#00FF88`, Pink `#FF007A`.
 - **Applications**:
-  1. `QuantyCoin-CombinedSuite-Setup-v4.0.exe` / `quanty_suite_app.py`
-  2. `QuantyCoin-Node-Setup-v4.0.exe` / `quanty_node_app.py`
-  3. `QuantyCoin-Wallet-Setup-v4.0.exe` / `quanty_wallet_app.py`
-  4. `QuantyCoin-Miner-Setup-v4.0.exe` / `quanty_miner_app.py`
+  1. `QuantyCoin-CombinedSuite-Setup-v5.0.exe` / `quanty_suite_app.py`
+  2. `QuantyCoin-FullWallet-Setup-v5.0.exe` / `quanty_wallet_full_app.py`
+  3. `QuantyCoin-LightningWallet-Setup-v5.0.exe` / `quanty_lightning_wallet_app.py`
+  4. `QuantyCoin-Node-Setup-v5.0.exe` / `quanty_node_app.py`
+  5. `QuantyCoin-Miner-Setup-v5.0.exe` / `quanty_miner_app.py`

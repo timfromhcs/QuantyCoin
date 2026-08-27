@@ -1,10 +1,10 @@
-# QuantyCoin (QTY) - Large Language Model (LLM) Index
+# QuantyCoin (QTY) - Large Language Model (LLM) Index (v5.0)
 
-> QuantyCoin is a decentralized, high-throughput Layer-1 proof-of-work (PoW) blockchain engineered with pure zero-mock cryptography (Secp256k1, Ed25519, BIP39/44), an atomic UTXO state machine, LWMA-1 difficulty adjustment, Stratum mining pool support, and standalone Cyberpunk darkmode desktop GUIs.
+> QuantyCoin is a decentralized, high-throughput Layer-1 proof-of-work (PoW) blockchain engineered with pure zero-mock cryptography (Secp256k1, Ed25519, BIP39/44), an atomic UTXO state machine, LWMA-1 difficulty adjustment, Stratum mining pool support, and native Qt6 Cyberpunk darkmode desktop applications.
 
 ## Core System Overview & Architecture
 - [Repository](https://github.com/timfromhcs/QuantyCoin): Official source repository on GitHub.
-- [Executive README](https://github.com/timfromhcs/QuantyCoin/blob/main/README.md): System architecture, tokenomics, and installation guides.
+- [Executive README](https://github.com/timfromhcs/QuantyCoin/blob/main/README.md): System architecture, tokenomics, native Qt apps, and quickstart guides.
 - [Public Genesis Metadata](https://github.com/timfromhcs/QuantyCoin/blob/main/public_genesis.json): Genesis block parameters, timestamp, and consensus rules.
 - [Full LLM Context](https://github.com/timfromhcs/QuantyCoin/blob/main/llms-full.txt): Comprehensive multi-file documentation for AI agents and code generators.
 
@@ -18,7 +18,7 @@
 - **Max Block Size**: 32 MB (33,554,432 bytes)
 - **Transaction Fee Distribution**: 50% Miner / 50% Community Treasury
 - **Address Format**: Native SegWit Bech32 (`qty1q...`) and Base58Check
-- **Network Ports**: P2P: 19888, JSON-RPC/REST: 19889, Stratum Pool: 3333, Web GUI: 8080-8083
+- **Network Ports**: P2P: 19888, JSON-RPC/REST: 19889, Stratum Pool: 3333
 - **Wire Magic Bytes**: `0x51 0x55 0x41 0x4E` ("QUAN")
 
 ## Package Structure
@@ -28,24 +28,24 @@
 - `node/`: Full Node Daemon (`quantyd`), Chainstate manager, fork-choice rule, multi-block reorganization engine, JSON-RPC 2.0 & REST HTTP server on port 19889.
 - `wallet/`: BIP39 HD Wallet (`quanty-wallet`), coin selection algorithms, transaction signing, ASCII & PNG QR code generation, remote RPC failover client.
 - `miner/`: Multi-threaded parallel CPU/GPU mining engine (`quanty-miner`), block template poller, live hashrate telemetry, Stratum V1/V2 server (port 3333).
-- `ui/`: Standalone and Combined Cyberpunk Dark Mode GUIs (`#0A0D14`, `#00F0FF`, `#8A2BE2`, `#1E2433`) for Node, Wallet, Miner, and All-in-One Suite.
+- `ui/`: Native Qt6 Desktop Applications (Sovereign Full Wallet with built-in node, Lightning SPV Wallet, Standalone Node, Standalone Miner, Master Suite) with Cyberpunk Dark Theme (`#0A0D14`, `#00F0FF`, `#8A2BE2`, `#00FF88`, `#FF007A`).
 - `tests/`: Multi-Node Stress Testsuite (Mempool Saturation 500+ TXs, Deep Reorg Recovery, Double Spend Rejection, P2P Chaos Engine), Docker testnet matrix.
 - `packaging/`: Windows NSIS & InnoSetup installers, Linux .deb & AppImage, macOS Universal .dmg, GitHub Actions release pipeline.
 
-## Primary CLI Commands
+## Primary Native Desktop Entrypoints
 ```bash
-# Start Full Node
-python quantyd_cli.py --port 19888 --rpcport 19889
+# Sovereign Full Wallet (Integrated Node)
+python quanty_wallet_full_app.py
 
-# Create BIP39 HD Wallet
-python quanty_wallet_cli.py create
+# Lightning Light Wallet (No Node, Remote SPV)
+python quanty_lightning_wallet_app.py
 
-# Query Address Balance
-python quanty_wallet_cli.py balance --address <qty1q...>
+# Standalone Full Node Manager
+python quanty_node_app.py
 
-# Start Solo Miner
-python quanty_miner_cli.py --address <qty1q...> --threads 4
+# Standalone Multi-Threaded Miner
+python quanty_miner_app.py
 
-# Launch All-in-One Cyberpunk Desktop GUI
+# Master Cyberpunk Suite
 python quanty_suite_app.py
 ```

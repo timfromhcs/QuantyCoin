@@ -71,7 +71,7 @@ class QuantyNode:
     def start(self, connect_peers: Optional[List[str]] = None) -> None:
         """Start all node services."""
         self.is_running = True
-        print(f"Starting QuantyCoin Node v3.0 on P2P:{self.p2p_port} RPC:{self.rpc_port}...")
+        print(f"Starting QuantyCoin Node v5.0 on P2P:{self.p2p_port} RPC:{self.rpc_port}...")
         self.p2p.start()
         self.rpc.start()
         print(f"Genesis Hash: {self.chainstate.best_hash_hex}")
@@ -113,5 +113,7 @@ def run_node_cli():
         node.stop()
 
 
+main = run_node_cli
+
 if __name__ == "__main__":
-    run_node_cli()
+    main()

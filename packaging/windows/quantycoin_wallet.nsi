@@ -1,6 +1,6 @@
-; QuantyCoin v4.0 Light Wallet NSIS Installer Script
-!define PRODUCT_NAME "QuantyCoin Light Wallet"
-!define PRODUCT_VERSION "4.0.0"
+; QuantyCoin v5.0 Sovereign Full Wallet NSIS Installer Script
+!define PRODUCT_NAME "QuantyCoin Full Wallet"
+!define PRODUCT_VERSION "5.0.0"
 !define PRODUCT_PUBLISHER "QuantyCoin Core Contributors"
 !define PRODUCT_WEB_SITE "https://quantycoin.org"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -27,7 +27,7 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_LANGUAGE "German"
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "..\..\dist\windows\QuantyCoin-Wallet-Setup-v4.0.exe"
+OutFile "..\..\dist\windows\QuantyCoin-FullWallet-Setup-v5.0.exe"
 InstallDir "$PROGRAMFILES64\QuantyCoin Wallet"
 
 Section "MainSection" SEC01
@@ -35,8 +35,8 @@ Section "MainSection" SEC01
   SetOverwrite ifnewer
   File /r "..\..\dist\bin\wallet\*.*"
   CreateDirectory "$SMPROGRAMS\QuantyCoin"
-  CreateShortCut "$SMPROGRAMS\QuantyCoin\QuantyCoin Wallet.lnk" "$INSTDIR\quanty-wallet-gui.exe"
-  CreateShortCut "$DESKTOP\QuantyCoin Wallet.lnk" "$INSTDIR\quanty-wallet-gui.exe"
+  CreateShortCut "$SMPROGRAMS\QuantyCoin\QuantyCoin Wallet.lnk" "$INSTDIR\quanty-wallet-full-gui.exe"
+  CreateShortCut "$DESKTOP\QuantyCoin Wallet.lnk" "$INSTDIR\quanty-wallet-full-gui.exe"
 SectionEnd
 
 Section -Post
