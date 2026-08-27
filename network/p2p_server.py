@@ -33,6 +33,7 @@ class P2PManager:
         self.on_new_tx_received: Optional[Callable[[bytes, PeerConnection], None]] = None
         self.get_local_height: Callable[[], int] = lambda: 0
         self.get_block_by_hash: Optional[Callable[[bytes], Optional[bytes]]] = None
+        self.get_block_by_height: Optional[Callable[[int], Optional[bytes]]] = None
         self.get_tx_by_hash: Optional[Callable[[bytes], Optional[bytes]]] = None
         
         self._server_sock: Optional[socket.socket] = None
@@ -144,6 +145,18 @@ class P2PManager:
                 if peer.peer_height > self.get_local_height():
                     peer.send_message("getblocks", struct.pack('<i', self.get_local_height()))
                 
+            elif command == "getblocks":
+                start_height = struct.unpack('<i', payload)[0] if len(payload) >= 4 else 0
+                inv_items = []
+                for h in range(start_height + 1, self.get_local_height() + 1):
+                    raw_b = self.get_block_by_height(h) if self.get_block_by_height else None
+                    if raw_b:
+                        from core.block import Block
+                        b, _ = Block.deserialize(raw_b)
+                        inv_items.append((INV_TYPE_BLOCK, b.hash))
+                if inv_items:
+                    peer.send_message("inv", build_inv_payload(inv_items))
+                    
             elif command == "inv":
                 items = parse_inv_payload(payload)
                 # Request missing blocks or txs with getdata

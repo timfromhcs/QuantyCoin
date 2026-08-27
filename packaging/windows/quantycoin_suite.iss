@@ -1,6 +1,6 @@
-; QuantyCoin v6.0 Combined Suite Inno Setup Installer Script
+; QuantyCoin v7.0 Combined Suite Inno Setup Installer Script
 #define MyAppName "QuantyCoin Combined Suite"
-#define MyAppVersion "6.0.0"
+#define MyAppVersion "7.0.0"
 #define MyAppPublisher "QuantyCoin Core Contributors"
 #define MyAppURL "https://quantycoin.org"
 #define MyAppExeName "QuantyCoinSuite.exe"
@@ -17,7 +17,7 @@ DefaultDirName={autopf}\QuantyCoin
 DisableProgramGroupPage=yes
 LicenseFile=..\..\COPYING
 OutputDir=..\..\dist\windows
-OutputBaseFilename=QuantyCoin-CombinedSuite-Setup-v6.0
+OutputBaseFilename=QuantyCoin-CombinedSuite-Setup-v7.0
 SetupIconFile=..\..\share\pixmaps\quantycoin.ico
 Compression=lzma2/ultra64
 SolidCompression=yes

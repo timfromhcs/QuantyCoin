@@ -1,69 +1,49 @@
-# QuantyCoin (QTY) - Comprehensive Technical Specification & LLM Context (v6.0)
+# QuantyCoin (QTY) — Comprehensive Technical Reference & Protocol Specification v7.0
 
-## 1. Project Identity
-- **Name**: QuantyCoin
-- **Ticker**: QTY
-- **Network**: QuantyCoin Mainnet (v6.0)
-- **Genesis Block Hash**: `00000630e8fea852dc1666700adde16da0db9624a8162dd161d7c10d6dbc3f00`
-- **Genesis Merkle Root**: `90a41f0dae5894ba6bd5e574ea4b0b6e1132d54b1f1e4c376fce4fcaf42df8bb`
-- **Genesis Timestamp**: `1771804800` ("2026: QuantyCoin - The High-Speed Quantum & AI Era Layer-1")
-- **Genesis Nonce**: `370773`
-- **Coinbase Payout Address**: `qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g`
-- **License**: MIT License (Preserved in COPYING & LICENSE)
+## 1. Executive Summary & Philosophy
+QuantyCoin (QTY) is an open-source, production-grade Layer-1 blockchain engineering project designed for instantaneous global settlement, post-quantum cryptographic security, and enterprise AI-era data throughput.
 
-## 2. Cryptographic Specifications
-1. **Hashing Algorithms**:
-   - `hash256(data)` = `SHA256(SHA256(data))`
-   - `hash160(data)` = `RIPEMD160(SHA256(data))`
-   - `keccak256(data)` = Keccak-256 standard
-   - `compute_merkle_root(hashes)` = Binary Merkle Tree with odd leaf duplication
-2. **Elliptic Curve Cryptography (ECC)**:
-   - **Curve**: Secp256k1 ($y^2 \equiv x^3 + 7 \pmod p$)
-   - **Deterministic Nonce**: RFC 6979 HMAC-SHA256
-   - **Signature Verification**: ECDSA with canonical Low-S BIP62 enforcement
-3. **Post-Quantum Digital Signatures**:
-   - **Scheme**: Ed25519 (RFC 8032)
-4. **Hierarchical Deterministic Key Derivation**:
-   - **Standard**: BIP39 (2048 English words) + BIP32 + BIP44
-   - **Derivation Path**: `m/44'/999'/0'/0/0` (Coin Type `999'`)
-   - **Address Formats**: Native SegWit Bech32 (`qty1q...`), Legacy Base58Check (`Q...`)
+## 2. Cryptographic Algorithms & Encodings
+- **Public Key Cryptography:** Secp256k1 ECDSA (RFC 6979 deterministic k) & Ed25519 (RFC 8032)
+- **Hash Functions:** Double SHA-256 (`hash256`), RIPEMD-160 (`hash160`), Keccak-256 (`keccak256`)
+- **Key Derivation:** BIP39 (12/24 word mnemonics, PBKDF2 HMAC-SHA512) and BIP32/BIP44 Hierarchical Deterministic trees (`m/44'/999'/account'/change/index`)
+- **Address Encodings:** Bech32 Native SegWit (HRP `qty`, witness version 0) and Base58Check (version byte `0x3A` for 'Q' prefix)
 
-## 3. Consensus Engine & Tokenomics
-- **Max Supply**: 21,000,000 QTY (21 Million QTY)
-- **Block Target Spacing**: 60 seconds
-- **Genesis Subsidy**: 50.00 QTY (5,000,000,000 Satoshis)
-- **Halving Frequency**: 2,100,000 blocks (~4 years)
-- **Difficulty Algorithm**: Dynamic Linear-Weighted Moving Average (LWMA-1) computed over a 144-block window
-- **Block Size**: 32 MB maximum (33,554,432 bytes)
-- **Fee Split**: 50% to Block Miner / 50% to Community Treasury Address (`qty1qspendenwallettreasury2026`)
+## 3. Blockchain State & Consensus Mechanics
+- **Hard Cap:** 21,000,000 QTY
+- **Block Time:** 60.0 seconds
+- **Difficulty Adjustment:** LWMA-1 (Linear-Weighted Moving Average across 144 blocks)
+- **Initial Subsidy:** 50.0 QTY ($5 \times 10^9$ Satoshis)
+- **Halving Cadence:** Every 2,100,000 blocks
+- **Block Size Hard Limit:** 32 MB
+- **Fee Split Protocol:** 50% Miner / 50% Protocol Treasury
 
-## 4. P2P Wire Protocol & Ports
-- **Magic Bytes**: `0x51 0x55 0x41 0x4E` (ASCII: `QUAN`)
-- **Default P2P Port**: `19888`
-- **Default JSON-RPC / REST Port**: `19889`
-- **Default Stratum Mining Pool Port**: `3333`
+## 4. P2P Wire Protocol Specification
+- **Magic Bytes:** `0x5155414E` (ASCII "QUAN")
+- **Header Length:** 24 bytes (4 bytes Magic, 12 bytes Command ASCII, 4 bytes Length uint32_le, 4 bytes Checksum uint32_le)
+- **Supported Wire Commands:** `version`, `verack`, `ping`, `pong`, `inv`, `getdata`, `getblocks`, `block`, `tx`
 
-## 5. JSON-RPC 2.0 API Methods
-- `getinfo`: Returns node version ("6.0.0"), block count, peer count, circulating supply.
-- `getblockchaininfo`: Returns best block hash, height, cumulative chainwork, block index size.
-- `getblockcount`: Returns current tip block height integer.
-- `getbestblockhash`: Returns 64-character hex hash of active tip.
-- `getblock`: Parameters: `[hash_hex]`. Returns decoded block header, transactions, and size.
-- `getblockhash`: Parameters: `[height_int]`. Returns block hash at height.
-- `getrawtransaction`: Parameters: `[txid_hex]`. Returns transaction inputs, outputs, and locktime.
-- `sendrawtransaction`: Parameters: `[hex_string]`. Validates, adds to mempool, and broadcasts.
-- `getmempoolinfo`: Returns mempool transaction count, total fees in Satoshis.
-- `getpeerinfo`: Returns list of active TCP connections with latency and user agent.
-- `getblocktemplate`: Returns template for mining workers with candidate transactions and target bits.
-- `submitblock`: Parameters: `[block_hex]`. Validates block structure, PoW, Merkle root, and connects to chain.
-- `getaddressbalance`: Parameters: `[address_str]`. Returns confirmed balance in QTY and Satoshis.
-- `getaddressutxos`: Parameters: `[address_str]`. Returns list of spendable UTXOs for address.
+## 5. JSON-RPC 2.0 API Reference (Port 19889)
+- `getinfo`: Returns node status, blockchain height, circulating supply, and peer metrics
+- `getblockchaininfo`: Returns best block hash, height, and cumulative chainwork
+- `getnetworkinfo`: Returns protocol version, user agent, connection count, and relay fees
+- `getblockcount`: Returns active tip block height
+- `getbestblockhash`: Returns 64-char hex hash of active tip
+- `getblock`: Returns decoded block header, transactions, and metrics
+- `getblockhash`: Returns block hash at specified height
+- `getrawtransaction`: Returns decoded transaction details
+- `sendrawtransaction`: Validates, adds to mempool, and broadcasts raw transaction hex
+- `getmempoolinfo`: Returns mempool transaction count and total fees
+- `getrawmempool`: Returns array of unconfirmed transaction IDs
+- `getpeerinfo`: Returns active peer connections and ping latencies
+- `getmininginfo`: Returns network hashrate, current difficulty, and block templates
+- `getblocktemplate`: Returns candidate mining block template
+- `submitblock`: Submits solved block to consensus validator
+- `generatetoaddress`: Mines specified number of blocks to payout address
+- `getaddressbalance`: Returns confirmed balance in QTY and Satoshis
+- `getaddressutxos`: Returns spendable UTXO list for address
+- `help`: Returns interactive command reference
 
-## 6. Native Desktop Qt6 Applications
-- **Palette**: Obsidian `#0A0D14`, Card `#121724`, Slate `#1E2433`, Cyan `#00F0FF`, Violet `#8A2BE2`, Green `#00FF88`, Pink `#FF007A`.
-- **Applications**:
-  1. `QuantyCoin-CombinedSuite-Setup-v6.0.exe` / `quanty_suite_app.py`
-  2. `QuantyCoin-FullWallet-Setup-v6.0.exe` / `quanty_wallet_full_app.py`
-  3. `QuantyCoin-LightningWallet-Setup-v6.0.exe` / `quanty_lightning_wallet_app.py`
-  4. `QuantyCoin-Node-Setup-v6.0.exe` / `quanty_node_app.py`
-  5. `QuantyCoin-Miner-Setup-v6.0.exe` / `quanty_miner_app.py`
+## 6. Functional Test Harness & CI/CD
+- Complete test runner (`tests/test_runner.py`) executing cryptographic unit tests, consensus validation, mining mechanics, BIP39 SegWit transactions, P2P network relay, and deep multi-block chain reorganizations.
+- 100% automated cross-platform native installer build matrix via `.github/workflows/release_v7.yml`.

@@ -61,7 +61,7 @@ class LightningSyncWorker(QtCore.QThread):
 class QuantyLightningWalletWindow(QtWidgets.QMainWindow):
     def __init__(self, remote_rpc_port: int = 19889):
         super().__init__()
-        self.setWindowTitle("QuantyCoin Lightning Light Wallet (Remote SPV v4.0)")
+        self.setWindowTitle("QuantyCoin Lightning Light Wallet (Remote SPV v7.0 Production)")
         self.resize(980, 640)
         self.setStyleSheet(CYBERPUNK_QSS)
 

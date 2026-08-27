@@ -1,9 +1,9 @@
-name: QuantyCoin Release v6.0 (Native Qt6 Desktop Suites, Sovereign Wallets & Native Daemons)
+name: QuantyCoin Release v7.0 (Native Qt6 Desktop Suites, Sovereign Wallets & Native Daemons)
 
 on:
   push:
     tags:
-      - 'v6.*'
+      - 'v7.*'
       - 'v*'
     branches:
       - main
@@ -41,6 +41,7 @@ jobs:
           python tests/test_crypto.py
           python tests/test_core.py
           python tests/test_p2p.py
+          python tests/test_runner.py
 
       - name: Compile Windows Native Executables via PyInstaller
         env:
@@ -58,23 +59,23 @@ jobs:
 
       - name: Build Windows Installers
         run: |
-          Copy-Item dist\bin\node\quanty-node-gui.exe dist\windows\QuantyCoin-Node-Setup-v6.0.exe
-          Copy-Item dist\bin\wallet\quanty-wallet-full-gui.exe dist\windows\QuantyCoin-FullWallet-Setup-v6.0.exe
-          Copy-Item dist\bin\lightning\quanty-lightning-wallet-gui.exe dist\windows\QuantyCoin-LightningWallet-Setup-v6.0.exe
-          Copy-Item dist\bin\miner\quanty-miner-gui.exe dist\windows\QuantyCoin-Miner-Setup-v6.0.exe
-          Copy-Item dist\bin\suite\QuantyCoinSuite.exe dist\windows\QuantyCoin-CombinedSuite-Setup-v6.0.exe
+          Copy-Item dist\bin\node\quanty-node-gui.exe dist\windows\QuantyCoin-Node-Setup-v7.0.exe
+          Copy-Item dist\bin\wallet\quanty-wallet-full-gui.exe dist\windows\QuantyCoin-FullWallet-Setup-v7.0.exe
+          Copy-Item dist\bin\lightning\quanty-lightning-wallet-gui.exe dist\windows\QuantyCoin-LightningWallet-Setup-v7.0.exe
+          Copy-Item dist\bin\miner\quanty-miner-gui.exe dist\windows\QuantyCoin-Miner-Setup-v7.0.exe
+          Copy-Item dist\bin\suite\QuantyCoinSuite.exe dist\windows\QuantyCoin-CombinedSuite-Setup-v7.0.exe
           Copy-Item dist\bin\quantyd.exe dist\windows\quantyd.exe
           Copy-Item dist\bin\quanty-wallet.exe dist\windows\quanty-wallet.exe
           Copy-Item dist\bin\quanty-miner.exe dist\windows\quanty-miner.exe
 
       - name: Create Portable Zip Archives
         run: |
-          Compress-Archive -Path dist\bin\* -DestinationPath dist\windows\QuantyCoin-v6.0.0-Windows-Portable.zip -Force
+          Compress-Archive -Path dist\bin\* -DestinationPath dist\windows\QuantyCoin-v7.0.0-Windows-Portable.zip -Force
 
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-release-v6.0
+          name: windows-release-v7.0
           path: dist/windows/*
 
   # ============================================================================
@@ -107,37 +108,40 @@ jobs:
           python tests/test_crypto.py
           python tests/test_core.py
           python tests/test_p2p.py
+          python tests/test_runner.py
 
-      - name: Build Linux Native Binaries
+      - name: Compile Linux Binaries via PyInstaller
         env:
           PYTHONPATH: .
         run: |
-          mkdir -p dist/bin dist/linux
-          python -m PyInstaller --onefile --paths . --name "quantyd" quantyd_cli.py --distpath dist/bin
-          python -m PyInstaller --onefile --paths . --name "quanty-wallet" quanty_wallet_cli.py --distpath dist/bin
-          python -m PyInstaller --onefile --paths . --name "quanty-miner" quanty_miner_cli.py --distpath dist/bin
-          python -m PyInstaller --onefile --paths . --name "quanty-suite" quanty_suite_app.py --distpath dist/bin
+          mkdir -p dist/bin/node dist/bin/wallet dist/bin/lightning dist/bin/miner dist/bin/suite dist/linux dist/deb
+          python3 -m PyInstaller --onefile --paths . --name "quanty-node-gui" quanty_node_app.py --distpath dist/bin/node
+          python3 -m PyInstaller --onefile --paths . --name "quanty-wallet-full-gui" quanty_wallet_full_app.py --distpath dist/bin/wallet
+          python3 -m PyInstaller --onefile --paths . --name "quanty-lightning-wallet-gui" quanty_lightning_wallet_app.py --distpath dist/bin/lightning
+          python3 -m PyInstaller --onefile --paths . --name "quanty-miner-gui" quanty_miner_app.py --distpath dist/bin/miner
+          python3 -m PyInstaller --onefile --paths . --name "QuantyCoinSuite" quanty_suite_app.py --distpath dist/bin/suite
+          python3 -m PyInstaller --onefile --paths . --name "quantyd" quantyd_cli.py --distpath dist/bin
+          python3 -m PyInstaller --onefile --paths . --name "quanty-wallet" quanty_wallet_cli.py --distpath dist/bin
+          python3 -m PyInstaller --onefile --paths . --name "quanty-miner" quanty_miner_cli.py --distpath dist/bin
 
-      - name: Build Debian .deb Package
+      - name: Package Debian (.deb) and Tarball
         run: |
-          chmod +x packaging/linux/build_deb.sh
-          ./packaging/linux/build_deb.sh
-
-      - name: Create Linux Tarball
-        run: |
-          tar -czvf dist/linux/QuantyCoin-v6.0.0-Linux-x86_64.tar.gz -C dist/bin .
+          chmod +x packaging/linux/build_deb.sh packaging/linux/build_appimage.sh
+          bash packaging/linux/build_deb.sh
+          tar -czf dist/linux/QuantyCoin-v7.0.0-Linux-x86_64.tar.gz -C dist/bin .
+          cp dist/deb/*.deb dist/linux/ || true
 
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-release-v6.0
+          name: linux-release-v7.0
           path: dist/linux/*
 
   # ============================================================================
-  # 3. MACOS BUILDER: Universal Binaries & .dmg Packages
+  # 3. MACOS BUILDER: Universal Binaries & DMG Packages
   # ============================================================================
   build-macos:
-    name: macOS Universal Binaries & .dmg
+    name: macOS Universal Binaries & DMG
     runs-on: macos-latest
     steps:
       - name: Checkout Source Code
@@ -148,7 +152,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install macOS Build Dependencies
+      - name: Install macOS Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller qrcode pillow pyside6
@@ -161,43 +165,70 @@ jobs:
           python tests/test_crypto.py
           python tests/test_core.py
           python tests/test_p2p.py
+          python tests/test_runner.py
 
-      - name: Build macOS Binaries & DMG
+      - name: Compile macOS Binaries via PyInstaller
         env:
           PYTHONPATH: .
         run: |
-          mkdir -p dist/bin dist/macos-pkg
-          python -m PyInstaller --onefile --paths . --name "quantyd" quantyd_cli.py --distpath dist/bin
-          python -m PyInstaller --onefile --paths . --name "quanty-suite" quanty_suite_app.py --distpath dist/bin
+          mkdir -p dist/bin/node dist/bin/wallet dist/bin/lightning dist/bin/miner dist/bin/suite dist/macos
+          python3 -m PyInstaller --onefile --paths . --name "quanty-node-gui" quanty_node_app.py --distpath dist/bin/node
+          python3 -m PyInstaller --onefile --paths . --name "quanty-wallet-full-gui" quanty_wallet_full_app.py --distpath dist/bin/wallet
+          python3 -m PyInstaller --onefile --paths . --name "quanty-lightning-wallet-gui" quanty_lightning_wallet_app.py --distpath dist/bin/lightning
+          python3 -m PyInstaller --onefile --paths . --name "quanty-miner-gui" quanty_miner_app.py --distpath dist/bin/miner
+          python3 -m PyInstaller --onefile --paths . --windowed --name "QuantyCoinSuite" quanty_suite_app.py --distpath dist/bin/suite
+          python3 -m PyInstaller --onefile --paths . --name "quantyd" quantyd_cli.py --distpath dist/bin
+          python3 -m PyInstaller --onefile --paths . --name "quanty-wallet" quanty_wallet_cli.py --distpath dist/bin
+          python3 -m PyInstaller --onefile --paths . --name "quanty-miner" quanty_miner_cli.py --distpath dist/bin
+
+      - name: Build macOS DMG and Tarball
+        run: |
           chmod +x packaging/macos/build_dmg.sh
-          ./packaging/macos/build_dmg.sh || true
-          tar -czvf dist/macos-pkg/QuantyCoin-v6.0.0-macOS-Universal.tar.gz -C dist/bin .
+          bash packaging/macos/build_dmg.sh || true
+          tar -czf dist/macos/QuantyCoin-v7.0.0-macOS-Universal.tar.gz -C dist/bin .
 
       - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-release-v6.0
-          path: dist/macos-pkg/*
+          name: macos-release-v7.0
+          path: dist/macos/*
 
   # ============================================================================
-  # 4. GITHUB RELEASE AUTOMATION (TAG TRIGGERS)
+  # 4. GITHUB RELEASE PUBLISHER: Tagged Multi-Platform Release
   # ============================================================================
   publish-release:
-    name: Publish Official GitHub Release v6.0
+    name: Publish Multi-Platform Release v7.0
     needs: [build-windows, build-linux, build-macos]
-    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     steps:
-      - name: Download All Platform Artifacts
+      - name: Download Windows Artifacts
         uses: actions/download-artifact@v4
         with:
-          path: release_assets
+          name: windows-release-v7.0
+          path: release-assets/windows
 
-      - name: Create GitHub Release v6.0
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-release-v7.0
+          path: release-assets/linux
+
+      - name: Download macOS Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-release-v7.0
+          path: release-assets/macos
+
+      - name: Create Official GitHub Release v7.0
         uses: softprops/action-gh-release@v2
         with:
-          name: "QuantyCoin Release v6.0 — Sovereign Native Qt6 Desktop Suite & Enterprise Layer-1"
+          tag_name: ${{ github.ref_name }}
+          name: "QuantyCoin Release v7.0 (Native Desktop GUI Suites, Sovereign Wallets & Native Daemons)"
           draft: false
           prerelease: false
           generate_release_notes: true
-          files: release_assets/**/*
+          files: |
+            release-assets/windows/*
+            release-assets/linux/*
+            release-assets/macos/*

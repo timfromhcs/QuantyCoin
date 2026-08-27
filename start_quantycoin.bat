@@ -1,7 +1,7 @@
 @echo off
-title QuantyCoin Core Suite v6.0 (Native Qt6 Desktop)
+title QuantyCoin Core Suite v7.0 (Native Qt6 Desktop)
 echo =========================================================
-echo       QuantyCoin (QTY) Native Desktop Suite Launcher v6.0
+echo       QuantyCoin (QTY) Native Desktop Suite Launcher v7.0
 echo =========================================================
 if exist "dist\bin\suite\QuantyCoinSuite.exe" (
     echo Starting QuantyCoin Native Desktop Suite...

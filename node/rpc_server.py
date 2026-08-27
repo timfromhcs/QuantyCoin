@@ -7,11 +7,17 @@ Zero-Mock Production Implementation
 import json
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from socketserver import ThreadingMixIn
 from typing import Dict, Any, Optional, Callable
 from urllib.parse import urlparse, parse_qs
 from core.genesis_constants import DEFAULT_RPC_PORT
 from core.transaction import Transaction
 from core.block import Block, BlockHeader
+
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Multi-Threaded HTTP Server for high concurrency JSON-RPC handling."""
+    daemon_threads = True
 
 
 class RPCServerHandler(BaseHTTPRequestHandler):
@@ -175,6 +181,7 @@ class QuantyRPCServer:
         self.rpc_methods: Dict[str, Callable[[list], Any]] = {
             "getinfo": self._rpc_getinfo,
             "getblockchaininfo": self._rpc_getblockchaininfo,
+            "getnetworkinfo": self._rpc_getnetworkinfo,
             "getblockcount": self._rpc_getblockcount,
             "getbestblockhash": self._rpc_getbestblockhash,
             "getblockhash": self._rpc_getblockhash,
@@ -187,13 +194,15 @@ class QuantyRPCServer:
             "getmininginfo": self._rpc_getmininginfo,
             "getblocktemplate": self._rpc_getblocktemplate,
             "submitblock": self._rpc_submitblock,
+            "generatetoaddress": self._rpc_generatetoaddress,
             "getaddressbalance": self._rpc_getaddressbalance,
-            "getaddressutxos": self._rpc_getaddressutxos
+            "getaddressutxos": self._rpc_getaddressutxos,
+            "help": self._rpc_help
         }
 
     def start(self) -> None:
         self._is_running = True
-        self.httpd = HTTPServer((self.host, self.port), RPCServerHandler)
+        self.httpd = ThreadedHTTPServer((self.host, self.port), RPCServerHandler)
         self.httpd.rpc_methods = self.rpc_methods
         self.httpd.chainstate = self.chainstate
         self.httpd.p2p = self.p2p
@@ -213,7 +222,7 @@ class QuantyRPCServer:
     # RPC Handlers
     def _rpc_getinfo(self, params: list) -> Dict[str, Any]:
         return {
-            "version": "5.0.0",
+            "version": "7.0.0",
             "protocolversion": 70015,
             "blocks": self.chainstate.best_height,
             "bestblockhash": self.chainstate.best_hash_hex,
@@ -222,6 +231,16 @@ class QuantyRPCServer:
             "mempool_size": self.chainstate.mempool.get_info()["size"],
             "circulating_supply": self.chainstate.utxo_set.total_circulation / 100_000_000,
             "testnet": False
+        }
+
+    def _rpc_getnetworkinfo(self, params: list) -> Dict[str, Any]:
+        return {
+            "version": "7.0.0",
+            "subversion": "/QuantyCore:7.0.0/",
+            "protocolversion": 70015,
+            "connections": self.p2p.peer_count if self.p2p else 0,
+            "relayfee": 0.00001000,
+            "warnings": ""
         }
 
     def _rpc_getblockchaininfo(self, params: list) -> Dict[str, Any]:
@@ -322,6 +341,64 @@ class QuantyRPCServer:
             self.p2p.broadcast_block(block.hash, raw_bytes)
         return "accepted"
 
+    def _rpc_generatetoaddress(self, params: list) -> List[str]:
+        """Mine n blocks instantly to specified address (for regtest / testing)."""
+        import time
+        from crypto import compute_merkle_root
+        from crypto.bip32_44 import address_to_scriptpubkey
+        from core.transaction import TxIn, TxOut
+
+        num_blocks = int(params[0]) if len(params) > 0 else 1
+        payout_address = str(params[1]) if len(params) > 1 else "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g"
+        
+        mined_hashes = []
+        for _ in range(num_blocks):
+            tmpl = self._rpc_getblocktemplate([])
+            height = tmpl["height"]
+            prev_hash = bytes.fromhex(tmpl["previousblockhash"])[::-1]
+            bits = int(tmpl["bits"], 16)
+            
+            script_pubkey = address_to_scriptpubkey(payout_address)
+            cb_msg = f"/QuantyGenerator:v7.0/H:{height}/".encode('utf-8')
+            cb_script = bytes([len(cb_msg)]) + cb_msg
+            
+            coinbase_tx = Transaction(
+                version=1,
+                vin=[TxIn(prev_txid=b'\x00'*32, prev_vout=0xFFFFFFFF, script_sig=cb_script)],
+                vout=[TxOut(value=tmpl["coinbasevalue"], script_pubkey=script_pubkey)],
+                locktime=0
+            )
+            
+            txs = [coinbase_tx]
+            for raw_hex in tmpl["transactions"]:
+                tx, _ = Transaction.deserialize(bytes.fromhex(raw_hex))
+                txs.append(tx)
+                
+            merkle_root = compute_merkle_root([tx.txid for tx in txs])
+            timestamp = int(time.time())
+            
+            header = BlockHeader(
+                version=1,
+                prev_block=prev_hash,
+                merkle_root=merkle_root,
+                timestamp=timestamp,
+                bits=bits,
+                nonce=0
+            )
+            header.mine()
+            
+            block = Block(header=header, transactions=txs)
+            accepted, reason = self.chainstate.process_block(block)
+            if not accepted:
+                raise RuntimeError(f"Generated block failed verification: {reason}")
+                
+            if self.p2p:
+                self.p2p.broadcast_block(block.hash, block.serialize())
+                
+            mined_hashes.append(block.hash_hex)
+            
+        return mined_hashes
+
     def _rpc_getaddressbalance(self, params: list) -> Dict[str, Any]:
         addr = params[0]
         balance_sat, utxo_count = self.chainstate.utxo_set.get_address_balance(addr)
@@ -335,3 +412,27 @@ class QuantyRPCServer:
     def _rpc_getaddressutxos(self, params: list) -> list:
         addr = params[0]
         return self.chainstate.utxo_set.get_address_utxos(addr)
+
+    def _rpc_help(self, params: list) -> Dict[str, str]:
+        """Returns documentation for all JSON-RPC methods."""
+        return {
+            "getinfo": "getinfo -> Returns general node, blockchain, and supply status.",
+            "getblockchaininfo": "getblockchaininfo -> Returns chain tip, cumulative chainwork, and index metadata.",
+            "getnetworkinfo": "getnetworkinfo -> Returns P2P protocol details, active connections, and relay fees.",
+            "getblockcount": "getblockcount -> Returns the integer height of the most-work fully-validated chain tip.",
+            "getbestblockhash": "getbestblockhash -> Returns the 64-character hex hash of the active tip.",
+            "getblock": "getblock <hash_hex> -> Returns decoded block header, transactions, and metrics.",
+            "getblockhash": "getblockhash <height_int> -> Returns the 64-character hex hash at specified height.",
+            "getrawtransaction": "getrawtransaction <txid_hex> -> Returns decoded transaction details.",
+            "sendrawtransaction": "sendrawtransaction <raw_hex> -> Validates, admits to mempool, and relays transaction.",
+            "getmempoolinfo": "getmempoolinfo -> Returns unconfirmed transaction counts and total mempool fees.",
+            "getrawmempool": "getrawmempool -> Returns array of all unconfirmed transaction IDs in mempool.",
+            "getpeerinfo": "getpeerinfo -> Returns array of connected P2P peers and network telemetry.",
+            "getmininginfo": "getmininginfo -> Returns network hashrate, current difficulty, and pooled transactions.",
+            "getblocktemplate": "getblocktemplate -> Returns candidate block template for mining workers.",
+            "submitblock": "submitblock <raw_block_hex> -> Submits solved block to consensus state engine.",
+            "generatetoaddress": "generatetoaddress <nblocks> <address> -> Mines n blocks instantly to specified address.",
+            "getaddressbalance": "getaddressbalance <address> -> Returns confirmed balance in QTY and Satoshis.",
+            "getaddressutxos": "getaddressutxos <address> -> Returns spendable UTXOs for destination address.",
+            "help": "help -> Returns this command index."
+        }

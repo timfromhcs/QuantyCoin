@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Build Universal macOS DMG Package for QuantyCoin v6.0
+# Build Universal macOS DMG package for QuantyCoin v7.0
 set -euo pipefail
 
-APP_NAME="QuantyCoin"
-VERSION="6.0.0"
+APP_NAME="QuantyCoinSuite"
+VERSION="7.0.0"
 DMG_NAME="QuantyCoin-v${VERSION}-macOS-Universal.dmg"
 
 echo "Building macOS .app bundle for v6.0..."

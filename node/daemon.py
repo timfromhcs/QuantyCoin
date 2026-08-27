@@ -35,6 +35,7 @@ class QuantyNode:
         # Link callbacks
         self.p2p.get_local_height = lambda: self.chainstate.best_height
         self.p2p.get_block_by_hash = self._get_raw_block_by_hash
+        self.p2p.get_block_by_height = self._get_raw_block_by_height
         self.p2p.get_tx_by_hash = self._get_raw_tx_by_hash
         self.p2p.on_new_block_received = self._on_p2p_block
         self.p2p.on_new_tx_received = self._on_p2p_tx
@@ -43,6 +44,10 @@ class QuantyNode:
 
     def _get_raw_block_by_hash(self, block_hash: bytes) -> Optional[bytes]:
         b = self.chainstate.get_block_by_hash(block_hash)
+        return b.serialize() if b else None
+
+    def _get_raw_block_by_height(self, height: int) -> Optional[bytes]:
+        b = self.chainstate.get_block_by_height(height)
         return b.serialize() if b else None
 
     def _get_raw_tx_by_hash(self, txid: bytes) -> Optional[bytes]:
@@ -71,7 +76,7 @@ class QuantyNode:
     def start(self, connect_peers: Optional[List[str]] = None) -> None:
         """Start all node services."""
         self.is_running = True
-        print(f"Starting QuantyCoin Node v5.0 on P2P:{self.p2p_port} RPC:{self.rpc_port}...")
+        print(f"Starting QuantyCoin Node v7.0 on P2P:{self.p2p_port} RPC:{self.rpc_port}...")
         self.p2p.start()
         self.rpc.start()
         print(f"Genesis Hash: {self.chainstate.best_hash_hex}")

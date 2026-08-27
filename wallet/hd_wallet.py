@@ -59,6 +59,9 @@ class HDWallet:
     def get_receiving_address(self, index: int = 0) -> str:
         return self.get_receiving_key(index).get_address()
 
+    def get_address(self, index: int = 0) -> str:
+        return self.get_receiving_address(index)
+
     def get_change_address(self, index: int = 0) -> str:
         return self.get_change_key(index).get_address()
 
@@ -156,6 +159,10 @@ class HDWallet:
             tx.sign_input(i, key.key, prev_script, prev_amount)
             
         return tx
+
+    def create_and_sign_transaction(self, utxos: List[Dict[str, Any]], destination_address: str, amount_sat: int, fee_sat: int = 10000, change_address: Optional[str] = None) -> Tuple[str, str]:
+        tx = self.build_transaction(destination_address, amount_sat, utxos, fee_sat, change_address)
+        return tx.serialize().hex(), tx.txid_hex
 
     def export_keystore(self, filepath: str) -> None:
         """Export wallet metadata to file (encrypted/json)."""

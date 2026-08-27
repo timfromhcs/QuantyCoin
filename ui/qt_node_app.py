@@ -58,7 +58,7 @@ class NodeRPCWorker(QtCore.QThread):
 class QuantyNodeWindow(QtWidgets.QMainWindow):
     def __init__(self, rpc_port: int = 19889, auto_start_daemon: bool = True):
         super().__init__()
-        self.setWindowTitle("QuantyCoin Full Node (v4.0.0 Production)")
+        self.setWindowTitle("QuantyCoin Full Node (v7.0.0 Production)")
         self.resize(1020, 680)
         self.setStyleSheet(CYBERPUNK_QSS)
 

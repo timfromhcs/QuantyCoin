@@ -26,9 +26,11 @@ class WalletRPCClient:
             "id": 1
         }).encode('utf-8')
         
-        hosts = [self.rpc_host] + [h for h in self.fallback_hosts if h != self.rpc_host]
+        hosts = [self.rpc_host]
+        if self.rpc_host not in ("127.0.0.1", "localhost"):
+            hosts += [h for h in self.fallback_hosts if h != self.rpc_host]
+            
         last_error = None
-        
         for host in hosts:
             url = f"http://{host}:{self.rpc_port}"
             req = urllib.request.Request(
@@ -37,7 +39,7 @@ class WalletRPCClient:
                 headers={"Content-Type": "application/json"}
             )
             try:
-                with urllib.request.urlopen(req, timeout=4) as response:
+                with urllib.request.urlopen(req, timeout=30) as response:
                     res_body = response.read().decode('utf-8')
                     res = json.loads(res_body)
                     if res.get("error"):
@@ -47,7 +49,7 @@ class WalletRPCClient:
                 last_error = e
                 continue
                 
-        raise ConnectionError(f"Failed to connect to any node RPC: {last_error}")
+        raise ConnectionError(f"Failed to connect to RPC at {self.rpc_host}:{self.rpc_port}: {last_error}")
 
     def get_info(self) -> Dict[str, Any]:
         return self._call("getinfo", [])
@@ -64,8 +66,17 @@ class WalletRPCClient:
     def send_raw_transaction(self, raw_tx_hex: str) -> str:
         return self._call("sendrawtransaction", [raw_tx_hex])
 
+    def get_network_info(self) -> Dict[str, Any]:
+        return self._call("getnetworkinfo", [])
+
     def get_block_template(self) -> Dict[str, Any]:
         return self._call("getblocktemplate", [])
 
     def submit_block(self, raw_block_hex: str) -> str:
         return self._call("submitblock", [raw_block_hex])
+
+    def generate_to_address(self, num_blocks: int, address: str) -> List[str]:
+        return self._call("generatetoaddress", [num_blocks, address])
+
+    def help(self) -> Dict[str, str]:
+        return self._call("help", [])

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build Standalone Linux AppImage for QuantyCoin v6.0
+# Build Universal Linux AppImage for QuantyCoin v7.0
 set -euo pipefail
 
 APP_NAME="QuantyCoin"
-VERSION="6.0.0"
+VERSION="7.0.0"
 APPDIR="dist/AppDir"
 
-echo "Assembling AppDir for v6.0..."
+echo "Assembling AppDir for v7.0..."
 mkdir -p "${APPDIR}/usr/bin"
 mkdir -p "${APPDIR}/usr/share/icons"
 

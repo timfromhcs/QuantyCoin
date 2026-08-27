@@ -134,7 +134,8 @@ class PeerConnection:
         return {
             "addr": f"{self.address}:{self.port}",
             "inbound": self.is_inbound,
-            "subver": self.user_agent,
+            "version": self.peer_version or 70015,
+            "subver": self.user_agent or "/QuantyCore:7.0.0/",
             "startingheight": self.peer_height,
             "pingtime": round(self.latency_ms, 2),
             "lastrecv": int(self.last_seen),
