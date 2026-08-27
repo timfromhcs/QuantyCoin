@@ -34,31 +34,39 @@ jobs:
           pip install pyinstaller qrcode
 
       - name: Run Cryptographic & Core Verification Tests
+        env:
+          PYTHONPATH: .
         run: |
           python tests/test_crypto.py
+          python tests/test_core.py
+          python tests/test_p2p.py
 
       - name: Compile Windows Executables via PyInstaller
+        env:
+          PYTHONPATH: .
         run: |
-          mkdir dist\bin\node dist\bin\wallet dist\bin\miner dist\bin\suite -Force
-          pyinstaller --onefile --noconsole --name "quanty-node-gui" ui/node_gui.py --distpath dist\bin\node
-          pyinstaller --onefile --noconsole --name "quanty-wallet-gui" ui/wallet_gui.py --distpath dist\bin\wallet
-          pyinstaller --onefile --noconsole --name "quanty-miner-gui" ui/miner_gui.py --distpath dist\bin\miner
-          pyinstaller --onefile --noconsole --name "QuantyCoinSuite" ui/suite_gui.py --distpath dist\bin\suite
-          pyinstaller --onefile --name "quantyd" node/daemon.py --distpath dist\bin
-          pyinstaller --onefile --name "quanty-wallet" wallet/cli.py --distpath dist\bin
-          pyinstaller --onefile --name "quanty-miner" miner/cli.py --distpath dist\bin
+          python -c "import os; [os.makedirs(d, exist_ok=True) for d in ['dist/bin/node', 'dist/bin/wallet', 'dist/bin/miner', 'dist/bin/suite', 'dist/windows']]"
+          pyinstaller --onefile --paths . --noconsole --name "quanty-node-gui" ui/node_gui.py --distpath dist/bin/node
+          pyinstaller --onefile --paths . --noconsole --name "quanty-wallet-gui" ui/wallet_gui.py --distpath dist/bin/wallet
+          pyinstaller --onefile --paths . --noconsole --name "quanty-miner-gui" ui/miner_gui.py --distpath dist/bin/miner
+          pyinstaller --onefile --paths . --noconsole --name "QuantyCoinSuite" ui/suite_gui.py --distpath dist/bin/suite
+          pyinstaller --onefile --paths . --name "quantyd" node/daemon.py --distpath dist/bin
+          pyinstaller --onefile --paths . --name "quanty-wallet" wallet/cli.py --distpath dist/bin
+          pyinstaller --onefile --paths . --name "quanty-miner" miner/cli.py --distpath dist/bin
 
-      - name: Build Windows Installers (Inno Setup & NSIS)
+      - name: Build Windows Installers
         run: |
-          mkdir dist\windows -Force
           Copy-Item dist\bin\node\quanty-node-gui.exe dist\windows\QuantyCoin-Node-Setup-v3.0.exe
           Copy-Item dist\bin\wallet\quanty-wallet-gui.exe dist\windows\QuantyCoin-Wallet-Setup-v3.0.exe
           Copy-Item dist\bin\miner\quanty-miner-gui.exe dist\windows\QuantyCoin-Miner-Setup-v3.0.exe
           Copy-Item dist\bin\suite\QuantyCoinSuite.exe dist\windows\QuantyCoin-CombinedSuite-Setup-v3.0.exe
+          Copy-Item dist\bin\quantyd.exe dist\windows\quantyd.exe
+          Copy-Item dist\bin\quanty-wallet.exe dist\windows\quanty-wallet.exe
+          Copy-Item dist\bin\quanty-miner.exe dist\windows\quanty-miner.exe
 
       - name: Create Portable Zip Archives
         run: |
-          Compress-Archive -Path dist\bin\* -DestinationPath dist\windows\QuantyCoin-v3.0.0-Windows-Portable.zip
+          Compress-Archive -Path dist\bin\* -DestinationPath dist\windows\QuantyCoin-v3.0.0-Windows-Portable.zip -Force
 
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
@@ -89,16 +97,22 @@ jobs:
           pip install pyinstaller qrcode
 
       - name: Run Cryptographic & Core Verification Tests
+        env:
+          PYTHONPATH: .
         run: |
           python tests/test_crypto.py
+          python tests/test_core.py
+          python tests/test_p2p.py
 
       - name: Build Linux CLI Binaries
+        env:
+          PYTHONPATH: .
         run: |
           mkdir -p dist/bin dist/linux
-          pyinstaller --onefile --name "quantyd" node/daemon.py --distpath dist/bin
-          pyinstaller --onefile --name "quanty-wallet" wallet/cli.py --distpath dist/bin
-          pyinstaller --onefile --name "quanty-miner" miner/cli.py --distpath dist/bin
-          pyinstaller --onefile --name "quanty-suite" ui/suite_gui.py --distpath dist/bin
+          pyinstaller --onefile --paths . --name "quantyd" node/daemon.py --distpath dist/bin
+          pyinstaller --onefile --paths . --name "quanty-wallet" wallet/cli.py --distpath dist/bin
+          pyinstaller --onefile --paths . --name "quanty-miner" miner/cli.py --distpath dist/bin
+          pyinstaller --onefile --paths . --name "quanty-suite" ui/suite_gui.py --distpath dist/bin
 
       - name: Build Debian .deb Package
         run: |
@@ -136,14 +150,20 @@ jobs:
           pip install pyinstaller qrcode
 
       - name: Run Cryptographic & Core Verification Tests
+        env:
+          PYTHONPATH: .
         run: |
           python tests/test_crypto.py
+          python tests/test_core.py
+          python tests/test_p2p.py
 
       - name: Build macOS Binaries & DMG
+        env:
+          PYTHONPATH: .
         run: |
           mkdir -p dist/bin dist/macos-pkg
-          pyinstaller --onefile --name "quantyd" node/daemon.py --distpath dist/bin
-          pyinstaller --onefile --name "quanty-suite" ui/suite_gui.py --distpath dist/bin
+          pyinstaller --onefile --paths . --name "quantyd" node/daemon.py --distpath dist/bin
+          pyinstaller --onefile --paths . --name "quanty-suite" ui/suite_gui.py --distpath dist/bin
           chmod +x packaging/macos/build_dmg.sh
           ./packaging/macos/build_dmg.sh || true
           tar -czvf dist/macos-pkg/QuantyCoin-v3.0.0-macOS-Universal.tar.gz -C dist/bin .
