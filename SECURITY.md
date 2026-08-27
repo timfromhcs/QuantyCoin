@@ -2,26 +2,18 @@
 
 ## Supported Versions
 
-QTY Core has not launched mainnet. Releases are tagged `vX.Y.Z-testnet`, and
-only the most recent release line receives security fixes.
+| Version | Supported          |
+| ------- | ------------------ |
+| 4.0.x   | :white_check_mark: |
+| 3.0.x   | :x:                |
+| < 3.0   | :x:                |
 
 ## Reporting a Vulnerability
 
-**Do not report security vulnerabilities through public GitHub issues.**
+We take the security of QuantyCoin and its decentralized ecosystem very seriously. If you discover a security vulnerability, consensus bug, or cryptographic flaw, please report it responsibly:
 
-Two private channels, in order of preference:
-
-1. **GitHub private vulnerability reporting** — the "Report a vulnerability"
-   button under this repository's Security tab. Preferred: the report stays
-   private, the thread is authenticated, and the advisory and CVE are issued
-   from the same place.
-2. **Email security@qty.tech** — for security reports only, not support.
-
-`doc-qty/SECURITY.md` documents the severity categories, response timelines
-and coordinated-disclosure process.
-
-## Encryption
-
-QTY Core does not publish PGP keys. Use GitHub private reporting if you need
-the exchange to stay confidential — it is private end to end and requires no
-key management. Email to the address above is unencrypted.
+1. **Do not create a public GitHub issue.**
+2. Send an encrypted or detailed report to the core security team at `timfromhcs@gmail.com`.
+3. Include detailed steps to reproduce the issue, proof-of-concept scripts, or crash logs.
+4. We will acknowledge receipt of your vulnerability report within 24 hours and provide a remediation timeline.
+5. Once a security patch is deployed in an official release, you will be credited in the release notes.
