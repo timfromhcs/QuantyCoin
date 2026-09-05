@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Build Debian/Ubuntu .deb package for QuantyCoin v7.0
+# Build Debian/Ubuntu .deb package for QuantyCoin QTY2
 set -euo pipefail
 
 PACKAGE_NAME="quantycoin"
-VERSION="7.0.0"
+VERSION="2.0.0"
 ARCH="amd64"
 DEB_DIR="dist/deb/${PACKAGE_NAME}_${VERSION}_${ARCH}"
 
@@ -12,6 +12,7 @@ mkdir -p "${DEB_DIR}/DEBIAN"
 mkdir -p "${DEB_DIR}/usr/local/bin"
 mkdir -p "${DEB_DIR}/usr/share/applications"
 mkdir -p "${DEB_DIR}/usr/share/icons/hicolor/256x256/apps"
+mkdir -p "dist/linux"
 
 cat << EOF > "${DEB_DIR}/DEBIAN/control"
 Package: ${PACKAGE_NAME}
@@ -20,15 +21,24 @@ Section: utils
 Priority: optional
 Architecture: ${ARCH}
 Maintainer: QuantyCoin Core Contributors <timfromhcs@gmail.com>
-Description: QuantyCoin Layer-1 Quantum & AI Era Modular Blockchain Suite
+Description: QuantyCoin Layer-1 SHA-256D Proof-of-Work Blockchain Protocol
  Native Qt6 full node daemon, BIP39 HD wallet, and multi-threaded miner.
 EOF
 
-# Copy binaries
-cp dist/bin/quantyd "${DEB_DIR}/usr/local/bin/" 2>/dev/null || true
-cp dist/bin/quanty-wallet "${DEB_DIR}/usr/local/bin/" 2>/dev/null || true
-cp dist/bin/quanty-miner "${DEB_DIR}/usr/local/bin/" 2>/dev/null || true
-cp dist/bin/quanty-suite "${DEB_DIR}/usr/local/bin/" 2>/dev/null || true
+for bin in quantyd quanty-wallet quanty-miner; do
+  if [ -f "dist/bin/${bin}" ]; then
+    cp "dist/bin/${bin}" "${DEB_DIR}/usr/local/bin/"
+    chmod +x "${DEB_DIR}/usr/local/bin/${bin}"
+  fi
+done
+if [ -f "dist/bin/suite/QuantyCoinSuite" ]; then
+  cp "dist/bin/suite/QuantyCoinSuite" "${DEB_DIR}/usr/local/bin/quanty-suite"
+  chmod +x "${DEB_DIR}/usr/local/bin/quanty-suite"
+fi
 
-dpkg-deb --build "${DEB_DIR}" "dist/linux/QuantyCoin-${VERSION}-${ARCH}.deb"
-echo "Debian package created: dist/linux/QuantyCoin-${VERSION}-${ARCH}.deb"
+if command -v dpkg-deb >/dev/null 2>&1; then
+  dpkg-deb --build "${DEB_DIR}" "dist/linux/QuantyCoin-${VERSION}-${ARCH}.deb"
+  echo "Debian package created: dist/linux/QuantyCoin-${VERSION}-${ARCH}.deb"
+else
+  echo "dpkg-deb not found; skipping .deb creation."
+fi

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Monochrome Single-Color Vector Mark (Pure Solid #FFFFFF / Adaptable) -->
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Outer Q-Torus -->
+    <path d="M 256 48
+             C 370.87 48 464 141.13 464 256
+             C 464 308.28 444.64 356.12 412.57 392.52
+             L 468 448
+             L 420 464
+             L 364.58 408.58
+             C 333.15 439.46 289.47 464 256 464
+             C 141.13 464 48 370.87 48 256
+             C 48 141.13 141.13 48 256 48 Z" 
+          stroke-width="36" />
+
+    <!-- Concentric Dash Ring -->
+    <circle cx="256" cy="256" r="128" stroke-width="12" stroke-dasharray="16 12" />
+    
+    <!-- Central Core Geometry -->
+    <polygon points="256,176 336,256 256,336 176,256" fill="#FFFFFF" stroke-width="0" />
+    
+    <!-- Dynamic Q-Tail -->
+    <path d="M 296 296 L 448 448 M 412 464 L 464 412" stroke-width="28" />
+  </g>
+  <circle cx="256" cy="256" r="32" fill="#000000" />
+  <circle cx="256" cy="256" r="14" fill="#FFFFFF" />
+</svg>

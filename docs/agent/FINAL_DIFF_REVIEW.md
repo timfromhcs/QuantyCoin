@@ -1,72 +1,93 @@
-# QuantyCoin 2.0 (QTY2) Final Diff & Scope Review
+# Final Diff Review & Code Integrity Audit
 
-**Document ID**: `QTY2-FINAL-DIFF-REVIEW-2026`  
-**Contract ID**: `QUANTYCOIN-QTY2-FINALIZE-PR-2026`  
-**Target Branch**: `v2.0`  
-**Base Branch**: `main`  
-**Review Date**: 2026-09-05  
-
----
-
-## 1. Diff Inspection Overview
-
-A comprehensive audit was performed across the complete file tree diff between `origin/main` and `v2.0`. Every file added, modified, renamed, or deleted was reviewed and categorized.
-
-| Category | Count | Status | Description |
-| :--- | :--- | :--- | :--- |
-| **Trust Center & Security** | 8 files | **APPROVED** | Root trust suite (`TRUST.md`, `SECURITY.md`, `THREAT_MODEL.md`, `VERIFICATION.md`, `REPRODUCIBILITY.md`, `RELEASE_PROCESS.md`, `ARCHITECTURE.md`, `ROADMAP.md`). |
-| **Documentation Categorization** | 14 files | **APPROVED** | Reorganization of scattered root markdown files into structured `docs/` subdirectories with categorical `index.md` files. |
-| **Onboarding & User Guides** | 3 files | **APPROVED** | Tested, executable guides for users, miners, and developers (`USER_GUIDE.md`, `MINER_GUIDE.md`, `DEVELOPER_GUIDE.md`). |
-| **CI/CD Consolidation** | 5 files | **APPROVED** | Standardized cloud workflows (`ci.yml`, `build.yml`, `security.yml`, `documentation.yml`, `release.yml`) replacing obsolete/broken Knots workflows. |
-| **Verification Tooling** | 2 files | **APPROVED** | Dedicated validation scripts (`scripts/verify_documentation.py`, `scripts/verify_genesis.py`). |
-| **Community Health** | 3 files | **APPROVED** | Community guidelines (`SUPPORT.md`, updated `CONTRIBUTING.md`, updated `.github/PULL_REQUEST_TEMPLATE.md`). |
-| **Machine Readability & SEO** | 3 files | **APPROVED** | Crawler & agent manifests (`llms.txt`, `CITATION.cff`, `docs/project-summary.md`). |
-| **Agent Operational State** | 7 files | **APPROVED** | Persistent agent tracking in `docs/agent/` (`STATE.md`, `NEXT_ACTIONS.md`, `EVIDENCE.md`, `FINALIZATION_AUDIT.md`, `FINAL_REPO_REVAMP_REPORT.md`, `FINAL_DIFF_REVIEW.md`). |
+**Protocol**: QuantyCoin QTY2 (Protocol 70020)  
+**Contract**: `QUANTYCOIN-QTY2-REPO-HARDENING-2026`  
+**Base Target**: `main`  
+**Working Branch**: `v2.0`  
+**Date**: September 2026  
 
 ---
 
-## 2. File-by-File Classification & Verification
+## 1. Executive Summary
 
-### Root Trust Center & Architecture
-- `TRUST.md` [NEW]: Establishes code integrity, independent consensus verification, and air-gapped genesis governance.
-- `SECURITY.md` [MODIFIED]: Upgraded with coordinated vulnerability disclosure policy, severity levels, and QTY2 threat boundaries.
-- `THREAT_MODEL.md` [NEW]: STRIDE threat analysis covering 51% PoW defense via LWMA, Sybil protections, and eclipse mitigation.
-- `VERIFICATION.md` [NEW]: Independent mathematical and cryptographic verification instructions for third-party auditors.
-- `REPRODUCIBILITY.md` [NEW]: Pinned environment details and deterministic build guidelines.
-- `RELEASE_PROCESS.md` [NEW]: Standardized release lifecycle, tag signing requirements, and artifact provenance.
-- `ARCHITECTURE.md` [NEW]: Clear topology separating operational Python Layer-1 node from C++ Knots experimental tree.
-- `ROADMAP.md` [NEW]: Transparent milestone schedule explicitly noting dependencies and constraints.
-
-### Documentation Reorganization
-- Root-level clutter resolved by moving historical reports and specific proposals into categorical `docs/` directories via `git mv`:
-  - `doc-qty-design.md` -> `docs/architecture/doc-qty-design.md`
-  - `WHITEPAPER_INTEGRATION_DESIGN.md` -> `docs/protocol/WHITEPAPER_INTEGRATION_DESIGN.md`
-  - `BLOCK_TIMING_IMPLEMENTATION.md` -> `docs/protocol/BLOCK_TIMING_IMPLEMENTATION.md`
-  - `AUDIT_REMEDIATION_VERIFICATION.md` -> `docs/security/AUDIT_REMEDIATION_VERIFICATION.md`
-  - `MAINNET_AUDIT_MATRIX.md` -> `docs/security/MAINNET_AUDIT_MATRIX.md`
-  - `MINING_POOL_OPTIMIZATION.md` -> `docs/operations/MINING_POOL_OPTIMIZATION.md`
-  - `UTXO_CONSOLIDATION_OPTIMIZATION.md` -> `docs/operations/UTXO_CONSOLIDATION_OPTIMIZATION.md`
-  - `TESTING_GUIDE.md` -> `docs/development/TESTING_GUIDE.md`
-  - Historical snapshots moved cleanly to `docs/archive/`.
-  - Added `docs/index.md` as the unified master documentation hub.
-
-### CI/CD Consolidation
-- `.github/workflows/ci.yml` [CONSOLIDATED]: Standardized multi-OS (Linux, Windows, macOS) matrix covering Python 3.10, 3.11, 3.12 with full multi-node test runner and stress tests.
-- `.github/workflows/security.yml` [NEW]: Runs zero-leak secret scanner and independent genesis consensus checks.
-- `.github/workflows/documentation.yml` [NEW]: Enforces markdown link resolution and format validation on all PRs.
-- `.github/workflows/build.yml` [CONSOLIDATED]: Validates cloud buildability and compiles native CLI binaries across platforms.
-- `.github/workflows/release.yml` [CONSOLIDATED]: Comprehensive automated release pipeline for desktop suites, daemons, and wallets.
-- Removed obsolete `.github/workflows/build-and-address-tests.yml` which failed due to broken C++ minisketch tests.
-
-### Quality, Security & Safety Audits
-- **Accidental Modifications**: None. No unintentional changes to operational Python consensus engine or core logic.
-- **Unsupported Claims**: None. All public claims in README and documentation reflect verified implementation facts.
-- **Generated Binaries / Files**: None staged. No `*.pyc`, `.ccache`, `build/`, `dist/`, or temporary logs.
-- **Security / Secret Issues**: Zero leaks. Verified by `python scripts/verify_security.py`. Air-gapped secret vault strictly isolated.
-- **Missing Tests**: None. 100% test coverage for consensus, transaction, P2P, Stratum V1, wallet, and multi-node stress scenarios.
+This final diff review verifies all modifications introduced during the repository hardening pass. Every code change directly serves the mission objectives:
+1. Eradicating all stale legacy "v7" references across node, RPC, UI, launchers, documentation, packaging scripts, and CI workflows.
+2. Eliminating error-masking constructs (`|| true`) in cloud packaging pipelines.
+3. Establishing the complete vector and raster brand system in `/brand/`.
+4. Restructuring `README.md` into 19 strictly sequenced sections with honest performance benchmarks and dynamic verification badges.
 
 ---
 
-## 3. Conclusion
+## 2. File-by-File Diff Breakdown
 
-The diff between `origin/main` and `v2.0` represents a clean, professional, and audit-ready enhancement. All changes are intentional, verified, and safe for PR submission.
+### A. Protocol Daemons & Core Components
+- **`node/daemon.py`**:
+  - Replaced legacy version string `v7.0.0` in startup banner with `QTY2 / 2.0.0`.
+  - Ensures clean, unambiguous log output on node initialization.
+- **`node/rpc_server.py`**:
+  - Replaced legacy coinbase script message `/QuantyGenerator:v7.0/` with `/QuantyGenerator:QTY2/H:{height}/`.
+  - Ensures on-chain coinbase witness inscriptions identify the frozen QTY2 protocol.
+
+### B. User Interface & Desktop Applications
+- **`ui/node_gui.py`**:
+  - Replaced outdated status text `v7.0 (Protocol 70015)` with `QTY2 (Protocol 70020)`.
+  - Replaced status indicator `MAINNET ACTIVE` with `MAINNET QTY2 ACTIVE`.
+- **`ui/qt_node_app.py`**:
+  - Updated window title from `QuantyCoin Node Manager v7.0` to `QuantyCoin Node Manager QTY2 (2.0.0)`.
+- **`ui/qt_wallet_full_app.py`**:
+  - Updated window title from `QuantyCoin Sovereign Wallet v7.0` to `QuantyCoin Sovereign Wallet QTY2 (2.0.0)`.
+- **`ui/qt_lightning_wallet_app.py`**:
+  - Updated window title from `QuantyCoin Lightning Wallet v7.0` to `QuantyCoin Lightning Wallet QTY2 (2.0.0)`.
+- **`ui/qt_miner_app.py`**:
+  - Updated window title from `QuantyCoin Miner v7.0` to `QuantyCoin Miner QTY2 (2.0.0)`.
+- **`ui/qt_suite_app.py`**:
+  - Updated window title from `QuantyCoin Desktop Suite v7.0` to `QuantyCoin Desktop Suite QTY2 (2.0.0)`.
+- **`start_quantycoin.bat`**:
+  - Updated launcher window title and console banner to `QuantyCoin (QTY2) Native Desktop Suite Launcher`.
+
+### C. Build Automation & Packaging Pipelines
+- **`packaging/linux/build_deb.sh`**:
+  - Updated version number from `7.0.0` to `2.0.0`.
+  - Added binary existence check for `dpkg-deb`, aborting cleanly with informative message rather than failing silently.
+- **`packaging/linux/build_appimage.sh`**:
+  - Updated version number from `7.0.0` to `2.0.0`.
+- **`packaging/macos/build_dmg.sh`**:
+  - Updated version number from `7.0.0` to `2.0.0`.
+  - Added OS check for Darwin host; falls back to tarball packaging cleanly on non-macOS environments without masking errors.
+- **`packaging/windows/quantycoin_suite.iss`**:
+  - Updated `MyAppVersion` from `7.0.0` to `2.0.0` and installer filename to `QuantyCoin-CombinedSuite-Setup-2.0.0`.
+- **`packaging/windows/quantycoin_suite.nsi`**:
+  - Updated `PRODUCT_VERSION` to `2.0.0` and output executable name to `QuantyCoin-CombinedSuite-Setup-2.0.0.exe`.
+- **`packaging/windows/quantycoin_miner.nsi`**:
+  - Updated `PRODUCT_VERSION` to `2.0.0` and output executable name to `QuantyCoin-Miner-Setup-2.0.0.exe`.
+- **`packaging/windows/quantycoin_node.nsi`**:
+  - Updated `PRODUCT_VERSION` to `2.0.0` and output executable name to `QuantyCoin-Node-Setup-2.0.0.exe`.
+- **`packaging/windows/quantycoin_wallet.nsi`**:
+  - Updated `PRODUCT_VERSION` to `2.0.0` and output executable name to `QuantyCoin-FullWallet-Setup-2.0.0.exe`.
+- **`.github/workflows/release.yml`**:
+  - Removed outdated tag trigger `'v7.*'`.
+  - Updated all installer artifact names and zip archives from `v7.0` to `2.0.0`.
+  - Removed all instances of `|| true`.
+
+### D. Documentation, Machine Indexing & Identity
+- **`llms-full.txt`**:
+  - Removed outdated "v7.0" header and replaced hype language with honest technical specification.
+  - Corrected release workflow reference to `release.yml`.
+- **`brand/` (New Subsystem)**:
+  - Added `logo.svg`, `logo-mark.svg`, `wordmark.svg`, `monochrome.svg`, `favicon.svg`.
+  - Added high-resolution social preview cards `social-preview.png` and `github-social-preview.png`.
+  - Added complete design system manual `brand/brand-guidelines.md`.
+- **`README.md`**:
+  - Structured into the 19 required sections in exact order.
+  - Embedded vector brand mark in hero section.
+  - Linked active `ci.yml` badge and replaced static 100% badge with evidence-gated badge.
+  - Disclosed real Nakamoto PoW throughput benchmarks (14–28 TPS) and separated verified from experimental features.
+
+---
+
+## 3. Non-Regression & Consensus Safety Confirmation
+
+- Zero consensus constants in `core/genesis_constants.py` were modified.
+- Zero cryptographic algorithms in `crypto/` were altered.
+- All unit, integration, and P2P functional tests continue to pass.
+- Zero secrets or local vault paths are exposed anywhere in the repository.

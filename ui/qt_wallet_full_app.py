@@ -70,7 +70,7 @@ class FullWalletSyncWorker(QtCore.QThread):
 class QuantyFullWalletWindow(QtWidgets.QMainWindow):
     def __init__(self, rpc_port: int = 19889, auto_start_daemon: bool = True):
         super().__init__()
-        self.setWindowTitle("QuantyCoin Full Wallet (Integrated Node v7.0 Production)")
+        self.setWindowTitle("QuantyCoin Full Wallet (Integrated Node QTY2 / 2.0.0)")
         self.resize(1060, 700)
         self.setStyleSheet(CYBERPUNK_QSS)
 

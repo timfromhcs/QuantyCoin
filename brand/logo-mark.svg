@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="qtyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#0369A1" />
+    </linearGradient>
+    <linearGradient id="coreGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0EA5E9" />
+      <stop offset="100%" stop-color="#7DD3FC" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" restoration="over" operator="over" />
+    </filter>
+  </defs>
+  
+  <!-- Outer Ring / Stylized Hexagonal Torus for Q -->
+  <path d="M 256 48
+           C 370.87 48 464 141.13 464 256
+           C 464 308.28 444.64 356.12 412.57 392.52
+           L 468 448
+           L 420 464
+           L 364.58 408.58
+           C 333.15 439.46 289.47 464 256 464
+           C 141.13 464 48 370.87 48 256
+           C 48 141.13 141.13 48 256 48 Z" 
+        fill="none" 
+        stroke="url(#qtyGradient)" 
+        stroke-width="36" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" />
+
+  <!-- Inner Concentric Node Grid -->
+  <circle cx="256" cy="256" r="128" fill="none" stroke="#0284C7" stroke-width="12" stroke-dasharray="16 12" opacity="0.6"/>
+  
+  <!-- Central Precision Core (Quantum Diamond / Genesis Block Matrix) -->
+  <polygon points="256,176 336,256 256,336 176,256" fill="url(#coreGradient)" opacity="0.95" />
+  
+  <!-- Dynamic Q-Tail / Cryptographic Ray -->
+  <path d="M 296 296 L 448 448 M 412 464 L 464 412" 
+        stroke="url(#coreGradient)" 
+        stroke-width="28" 
+        stroke-linecap="round" 
+        filter="url(#glow)" />
+  
+  <!-- PoW Validation Crosshairs -->
+  <circle cx="256" cy="256" r="32" fill="#FFFFFF" />
+  <circle cx="256" cy="256" r="16" fill="#0F172A" />
+  <circle cx="256" cy="176" r="8" fill="#38BDF8" />
+  <circle cx="336" cy="256" r="8" fill="#38BDF8" />
+  <circle cx="256" cy="336" r="8" fill="#38BDF8" />
+  <circle cx="176" cy="256" r="8" fill="#38BDF8" />
+</svg>

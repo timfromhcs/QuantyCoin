@@ -96,3 +96,13 @@
   - PR verification packet (`docs/agent/PR_VERIFICATION.md`).
   - Create reviewable pull request from `v2.0` into `main` (NEVER_AUTO_MERGE policy).
   - Final readiness report (`docs/agent/FINAL_PR_READINESS_REPORT.md`).
+
+- [x] **Step 14: Final Repository Hardening (QUANTYCOIN-QTY2-REPO-HARDENING-2026)**
+  - Full audit baseline established (`docs/agent/HARDENING_BASELINE.md`).
+  - Total eradication of stale legacy "v7" references in node, RPC, UI, launchers, documentation, packaging, and CI.
+  - Elimination of error masking (`|| true`) in cloud packaging and workflows.
+  - Complete Brand System established in `brand/` (5 SVGs, 2 PNG social previews, `brand-guidelines.md`).
+  - Root `README.md` restructured to 19 strictly sequenced sections with honest Nakamoto PoW throughput benchmarks (14-28 TPS) and dynamic badges.
+  - Independent verification: zero leaks (`verify_security.py`), genesis audit (`verify_genesis.py`), link validator (`verify_documentation.py`), full test suite (`test_runner.py`).
+  - Hardening reports generated: `docs/agent/CLOUD_BUILD_VERIFICATION.md`, `docs/agent/FINAL_DIFF_REVIEW.md`, `docs/agent/FINAL_HARDENING_REPORT.md`, `docs/agent/PR_VERIFICATION.md`.
+  - Push to `v2.0` and open PR to `main` with `NEVER_MERGE_MAIN` policy enforced.
