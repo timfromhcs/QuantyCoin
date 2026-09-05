@@ -17,6 +17,8 @@ from ui.qt_theme import CYBERPUNK_QSS
 from ui.qt_traffic_graph import RealTimeGraphWidget
 from miner.engine import MiningEngine
 from miner.stratum import StratumServer
+from core.genesis_constants import GENESIS_COINBASE_PAYOUT_ADDRESS
+
 
 
 class MinerTelemetryWorker(QtCore.QThread):
@@ -110,7 +112,7 @@ class QuantyMinerWindow(QtWidgets.QMainWindow):
         c_layout.addWidget(lbl_head)
 
         c_layout.addWidget(QtWidgets.QLabel("Coinbase Payout Address (qty1q...):"))
-        self.payout_in = QtWidgets.QLineEdit("qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g")
+        self.payout_in = QtWidgets.QLineEdit(GENESIS_COINBASE_PAYOUT_ADDRESS)
         c_layout.addWidget(self.payout_in)
 
         mid_layout = QtWidgets.QHBoxLayout()

@@ -19,6 +19,7 @@ from node.daemon import QuantyNode
 from wallet.rpc_client import WalletRPCClient
 from wallet.hd_wallet import HDWallet
 from core.transaction import Transaction
+from core.genesis_constants import GENESIS_COINBASE_PAYOUT_ADDRESS
 
 
 class QuantyTestNode:
@@ -105,7 +106,7 @@ class QuantyTestFramework:
 
     def generate(self, node_idx: int, num_blocks: int, address: Optional[str] = None) -> List[str]:
         """Mine num_blocks on node_idx."""
-        addr = address or "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g"
+        addr = address or GENESIS_COINBASE_PAYOUT_ADDRESS
         return self.nodes[node_idx].rpc.generate_to_address(num_blocks, addr)
 
     def sync_blocks(self, timeout: float = 30.0) -> None:

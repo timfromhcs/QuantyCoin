@@ -27,6 +27,8 @@ from node.daemon import QuantyNode
 from wallet.hd_wallet import HDWallet
 from wallet.rpc_client import WalletRPCClient
 from miner.engine import MiningEngine
+from core.genesis_constants import GENESIS_COINBASE_PAYOUT_ADDRESS
+
 
 SUITE_HTML_BODY = """
 <!-- UNIFIED STATUS RIBBON -->
@@ -364,7 +366,7 @@ class SuiteGUIHandler(BaseHTTPRequestHandler):
             if data.get("action") == "start":
                 if SuiteGUIHandler.miner:
                     SuiteGUIHandler.miner.stop()
-                payout = SuiteGUIHandler.wallet.get_receiving_address(0) if SuiteGUIHandler.wallet else "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g"
+                payout = SuiteGUIHandler.wallet.get_receiving_address(0) if SuiteGUIHandler.wallet else GENESIS_COINBASE_PAYOUT_ADDRESS
                 threads = int(data.get("threads", 4))
                 SuiteGUIHandler.miner = MiningEngine(payout_address=payout, threads=threads)
                 SuiteGUIHandler.miner.start()

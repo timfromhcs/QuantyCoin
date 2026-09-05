@@ -5,12 +5,12 @@
     "email": "timfromhcs@gmail.com",
     "github": "https://github.com/timfromhcs",
     "project": "QuantyCoin (QTY)",
-    "release": "v7.0.0",
-    "release_date": "2026-08-27"
+    "release": "v2.0.0",
+    "release_date": "2026-09-05"
   },
   "cryptographic_signatures": {
-    "primary_bech32_address": "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g",
-    "dev_treasury_address": "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g",
+    "primary_bech32_address": "qty1qh46xnlu649ug0yfpw7f93xn9dtg90z8hukfsy4",
+    "dev_treasury_address": "qty1qh46xnlu649ug0yfpw7f93xn9dtg90z8hukfsy4",
     "governance_model": "50% Community Miner / 50% Protocol Treasury"
   }
 }

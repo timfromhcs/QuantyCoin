@@ -13,6 +13,7 @@ from tests.test_functional_mining import MiningTest
 from tests.test_functional_wallet import WalletTest
 from tests.test_functional_p2p import P2PTest
 from tests.test_functional_reorg import ReorgTest
+from tests.test_functional_stratum import run_stratum_test
 
 
 def run_unit_tests() -> bool:
@@ -49,6 +50,11 @@ def run_functional_tests() -> bool:
         success = test.main()
         results.append((name, success))
         time.sleep(1.0)
+
+    # Stratum V1 Mining Protocol Test
+    stratum_ok = run_stratum_test(port=13335)
+    results.append(("Stratum V1 Protocol Test", stratum_ok))
+    time.sleep(1.0)
         
     print("\n========================================================")
     print("           QUANTYCOIN TEST SUITE RESULTS")

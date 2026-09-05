@@ -83,7 +83,18 @@ class Chainstate:
             nonce=GENESIS_NONCE
         )
         genesis_block = Block(header=genesis_header, transactions=[cb_tx])
-        
+
+        # Mandatory Consensus Runtime Assertions
+        if genesis_header.hash_hex != GENESIS_HASH:
+            raise RuntimeError(
+                f"[CONSENSUS CORRUPTION] Genesis block hash mismatch! "
+                f"Expected {GENESIS_HASH}, computed {genesis_header.hash_hex}."
+            )
+        if not genesis_header.verify_pow():
+            raise RuntimeError("[CONSENSUS CORRUPTION] Genesis block fails Proof-of-Work verification!")
+        if not genesis_block.verify_merkle_root():
+            raise RuntimeError("[CONSENSUS CORRUPTION] Genesis block Merkle root mismatch!")
+
         raw_genesis = genesis_block.serialize()
         gen_hash = genesis_header.hash
         

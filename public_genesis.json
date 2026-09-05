@@ -1,23 +1,23 @@
 {
-  "network": "QuantyCoin-Mainnet",
-  "version": "7.0.0",
-  "protocol_version": 70015,
+  "network": "QuantyCoin-2.0-Mainnet",
+  "version": "2.0.0",
+  "protocol_version": 70020,
+  "chain_id": "quantycoin-2.0",
   "magic_bytes": "0x5155414e",
   "genesis_block": {
-    "hash": "00000630e8fea852dc1666700adde16da0db9624a8162dd161d7c10d6dbc3f00",
+    "hash": "00000f7cecd0b1eafaab4d65183f7bd12713b67b6c1c4a30f6bf3f1b8efd30ba",
     "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
-    "merkle_root": "806ec9f464010376ba20d046c8eb5d050518dc9072b22ec7fe011cfa5912d095",
-    "timestamp": 1772186400,
+    "merkle_root": "ac6346e4b3ae1f3e4cfabaa09376ee83d268d12476d3e243a42d0e22cf79224f",
+    "timestamp": 1788600000,
     "bits": 504365055,
-    "nonce": 328135,
-    "target": "0x00000ffff0000000000000000000000000000000000000000000000000000000",
+    "nonce": 333641,
+    "target": "0xfffff000000000000000000000000000000000000000000000000000000",
+    "serialized_block": "0100000000000000000000000000000000000000000000000000000000000000000000004f2279cf220e2da443e2d37624d168d283ee7693a0bafa4c3e1faeb3e44663acc0de9b6affff0f1e491705000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff5304ffff001d01044b323032362d30392d30353a205175616e7479436f696e20322e30202d2053484132353644204c617965722d31204175746f6e6f6d6f757320426c6f636b636861696e2050726f746f636f6cffffffff0100f2052a01000000160014bd7469ff9aa9788791217792589a656ad05788f700000000",
     "coinbase": {
-      "txid": "806ec9f464010376ba20d046c8eb5d050518dc9072b22ec7fe011cfa5912d095",
+      "txid": "ac6346e4b3ae1f3e4cfabaa09376ee83d268d12476d3e243a42d0e22cf79224f",
       "value_qty": 50.0,
       "value_sat": 5000000000,
-      "payout_address": "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g",
-      "payout_script_pubkey": "0014efab9fa93e2b9ba2ea8c8535a39cbfa09a89d31f",
-      "coinbase_script_hex": "205175616e7479436f696e2047656e657369732032303236202d2054696d204865696e7269636873"
+      "payout_address": "qty1qh46xnlu649ug0yfpw7f93xn9dtg90z8hukfsy4"
     }
   },
   "tokenomics": {
@@ -27,6 +27,6 @@
     "target_block_time_seconds": 60,
     "max_block_size_bytes": 33554432,
     "difficulty_algorithm": "LWMA-1 (Linear-Weighted Moving Average)",
-    "fee_distribution": "50% Miner / 50% Treasury"
+    "coinbase_maturity": 100
   }
 }
