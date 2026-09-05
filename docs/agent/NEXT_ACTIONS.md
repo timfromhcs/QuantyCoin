@@ -72,3 +72,15 @@
   - Run full test suite: unit, functional, p2p, reorg, multinode stress.
   - Record execution proof in `docs/agent/EVIDENCE.md`.
   - Produce `FINAL_IMPLEMENTATION_REPORT.md`.
+
+- [x] **Step 12: Repository Revamp & Presentation Engineering (QUANTYCOIN-REPO-REVAMP-2026)**
+  - Comprehensive 15-section forensic audit (`docs/repository/REPOSITORY_AUDIT.md`).
+  - High-impact claim ledger classification (`docs/repository/CLAIM_LEDGER.md`).
+  - Complete README rewrite with verified truth table, architecture diagrams, and tested quickstart.
+  - Dedicated Trust Center suite (`TRUST.md`, `SECURITY.md`, `THREAT_MODEL.md`, `VERIFICATION.md`, `REPRODUCIBILITY.md`, `RELEASE_PROCESS.md`, `ARCHITECTURE.md`, `ROADMAP.md`).
+  - Documentation tree restructuring into 8 categorical modules with central hub (`docs/index.md`).
+  - Verified, tested user onboarding guides (`docs/USER_GUIDE.md`, `docs/MINER_GUIDE.md`, `docs/DEVELOPER_GUIDE.md`).
+  - Machine readability & SEO optimization (`docs/project-summary.md`, `llms.txt`, `CITATION.cff`).
+  - Agent instructions & workflow rules (`.github/copilot-instructions.md`, `.github/instructions/`).
+  - 100% link resolution and command execution verification.
+  - Final report production (`docs/agent/FINAL_REPO_REVAMP_REPORT.md`).

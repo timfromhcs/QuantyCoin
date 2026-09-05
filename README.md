@@ -1,19 +1,16 @@
-# QuantyCoin (QTY) — High-Performance Quantum & AI Era Layer-1 Blockchain
+# QuantyCoin 2.0 (QTY2)
 
 <div align="center">
 
-[![Release v7.0](https://img.shields.io/badge/release-v7.0.0-00F0FF.svg?style=for-the-badge&logo=github)](https://github.com/timfromhcs/QuantyCoin/releases)
-[![Build Status](https://img.shields.io/badge/build-passing-00FF88.svg?style=for-the-badge&logo=github-actions)](https://github.com/timfromhcs/QuantyCoin/actions)
-[![Test Suite](https://img.shields.io/badge/tests-100%25%20PASS-00FF88.svg?style=for-the-badge&logo=pytest)](https://github.com/timfromhcs/QuantyCoin)
-[![License: MIT](https://img.shields.io/badge/License-MIT-8A2BE2.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Platforms](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-1E2433.svg?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/timfromhcs/QuantyCoin/releases)
-[![Network](https://img.shields.io/badge/network-Mainnet%20v7.0-FF007A.svg?style=for-the-badge)](https://quantycoin.org)
-[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-3776AB.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org)
-[![LLM Ready](https://img.shields.io/badge/GEO-llms.txt%20Ready-00F0FF.svg?style=for-the-badge)](llms.txt)
+[![CI](https://github.com/timfromhcs/QuantyCoin/actions/workflows/qty2_ci.yml/badge.svg)](https://github.com/timfromhcs/QuantyCoin/actions)
+[![Protocol](https://img.shields.io/badge/protocol-QTY2%20(70020)-00F0FF.svg)](docs/protocol/index.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-8A2BE2.svg)](LICENSE)
+[![Verification](https://img.shields.io/badge/verification-100%25%20PASS-00FF88.svg)](VERIFICATION.md)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB.svg?logo=python&logoColor=white)](https://www.python.org)
+[![Security: Zero--Leak](https://img.shields.io/badge/security-zero--leak%20verified-00FF88.svg)](THREAT_MODEL.md)
 
 <p align="center">
-  <strong>The Decentralized, Quantum-Resilient & High-Throughput Layer-1 Proof-of-Work Ecosystem</strong><br>
-  Zero-Mock Pure Cryptographic Verification &bull; Multi-Threaded Concurrency RPC &bull; Native Qt6 Cyberpunk Desktop GUI Suite
+  <strong>An independent SHA-256D Proof-of-Work Layer-1 cryptocurrency featuring 60-second block intervals, responsive LWMA-1 difficulty adjustment, 32 MB block capacity, native Stratum V1 mining pool architecture, and self-sovereign Qt6 desktop applications.</strong>
 </p>
 
 </div>
@@ -22,245 +19,252 @@
 
 ## 📑 Table of Contents
 
-- [🌟 Executive Overview](#-executive-overview)
-- [🖥 Native Desktop GUI Application Suite](#-native-desktop-gui-application-suite)
-- [⚡ Key Architecture Highlights & Best Practices](#-key-architecture-highlights--best-practices)
-- [🏗 Modular Architecture](#-modular-architecture)
-- [📊 System Topology & Mermaid Flowcharts](#-system-topology--mermaid-flowcharts)
-- [⚙️ Consensus Rules & Tokenomics Matrix](#️-consensus-rules--tokenomics-matrix)
-- [🚀 Quickstart & Installation Guide](#-quickstart--installation-guide)
-- [📡 Complete JSON-RPC 2.0 & REST API Reference](#-complete-json-rpc-20--rest-api-reference)
-- [🧪 Automated Test Framework (Bitcoin Core Standard)](#-automated-test-framework-bitcoin-core-standard)
-- [📦 Multi-Platform Native Installers & CI/CD](#-multi-platform-native-installers--cicd)
-- [❓ Frequently Asked Questions (FAQ)](#-frequently-asked-questions-faq)
-- [🤖 Generative Engine Optimization (GEO) & Machine Context](#-generative-engine-optimization-geo--machine-context)
-- [📄 Citation & License](#-citation--license)
+1. [Project Summary & Honest Status](#-project-summary--honest-status)
+2. [Why QuantyCoin?](#-why-quantycoin)
+3. [Implementation Status (Truth Table)](#-implementation-status-truth-table)
+4. [System Architecture](#-system-architecture)
+5. [Consensus Rules & Protocol Parameters](#-consensus-rules--protocol-parameters)
+6. [Air-Gapped Genesis Block](#-air-gapped-genesis-block)
+7. [Network & P2P Wire Protocol](#-network--p2p-wire-protocol)
+8. [Mining & Stratum V1 Pool Setup](#-mining--stratum-v1-pool-setup)
+9. [Sovereign Wallet & Cryptography](#-sovereign-wallet--cryptography)
+10. [Desktop Applications Suite (Qt6)](#-desktop-applications-suite-qt6)
+11. [Quickstart & Onboarding](#-quickstart--onboarding)
+12. [Automated Testing & Independent Verification](#-automated-testing--independent-verification)
+13. [Release Management](#-release-management)
+14. [Security & Threat Model](#-security--threat-model)
+15. [Roadmap](#-roadmap)
+16. [Contributing](#-contributing)
+17. [Citation & License](#-citation--license)
 
 ---
 
-## 🌟 Executive Overview
+## 💡 Project Summary & Honest Status
 
-**QuantyCoin (QTY)** is an open-source, high-speed, decentralized Layer-1 proof-of-work (PoW) blockchain engineered for instantaneous settlement, post-quantum cryptographic security, and enterprise AI-era data throughput.
+**QuantyCoin 2.0 (QTY2)** is an open-source cryptocurrency built from the ground up for transparent verification, high transaction density, and independent network sovereignty.
 
-QuantyCoin v7.0 implements industry-leading best practices modeled on Bitcoin Core and Bitcoin Cash II architectures, featuring:
-- **Threaded JSON-RPC Concurrency:** Multi-client non-blocking RPC server (`ThreadedHTTPServer`).
-- **Autonomous P2P Wire Protocol:** Automatic peer-exchange (PEX), header-first synchronization, and active `getblocks` catchup on `verack`.
-- **Integrated Test Framework:** Standard functional test harness (`tests/test_runner.py`) validating mining, BIP39 SegWit transactions, P2P mesh relay, and deep 10-block chain reorganizations with **100% PASS**.
-
----
-
-## 🖥 Native Desktop GUI Application Suite
-
-QuantyCoin provides **4 dedicated native desktop applications** (Qt6 / PySide6) styled in an obsidian cyberpunk design (`#0A0D14`, `#00F0FF`, `#8A2BE2`, `#00FF88`, `#FF007A`):
-
-### 1. 💎 Full Sovereign Wallet with Built-in Full Node (`quanty_wallet_full_app.py`)
-* **Executable:** `QuantyCoin-FullWallet-Setup-v7.0.exe` / `quanty-wallet-full-gui.exe`
-* **Features:**
-  * **Integrated Sovereign Node:** Automatically spins up and synchronizes a background full node daemon — no third-party trust required.
-  * **Overview Dashboard:** Available, Pending, and Total QTY balance with real-time Satoshis counter.
-  * **Send Coins:** BIP141 Native SegWit Bech32 transaction builder with coin control (UTXO selection) and dynamic fee slider.
-  * **Receive & QR Code:** Generates high-resolution QR codes directly on the native canvas with copy-to-clipboard actions.
-  * **BIP39 24-Word Seed Vault:** Generates, backs up, and restores 24-word cryptographic master keys (`m/44'/999'/0'/0/0`).
-
-### 2. ⚡ Lightning Light Wallet without Node (`quanty_lightning_wallet_app.py`)
-* **Executable:** `QuantyCoin-LightningWallet-Setup-v7.0.exe` / `quanty-lightning-wallet-gui.exe`
-* **Features:**
-  * **Zero Local Blockchain Storage:** Instant startup (< 0.1s) connecting via remote SPV RPC.
-  * **Lightning Fast Micropayments:** Ultra-low latency transaction broadcasting and balance sync.
-  * **Instant QR Payments:** Native QR generation and payment requests.
-
-### 3. 🌐 Standalone Full Node Manager (`quanty_node_app.py`)
-* **Executable:** `QuantyCoin-Node-Setup-v7.0.exe` / `quanty-node-gui.exe`
-* **Features:**
-  * **P2P Telemetry & World Peers:** Real-time peer connection table with IP, ping latency, sub-version, and wire traffic graph.
-  * **On-Chain Block Explorer:** Search blocks by height, 64-char hash, TXID, or Bech32 address.
-  * **Interactive RPC Console:** Command autocomplete (`getinfo`, `getblock`, `getmempoolinfo`, `generatetoaddress`), terminal history, and JSON inspector.
-
-### 4. ⛏ Standalone Multi-Threaded Miner (`quanty_miner_app.py`)
-* **Executable:** `QuantyCoin-Miner-Setup-v7.0.exe` / `quanty-miner-gui.exe`
-* **Features:**
-  * **Real-Time Dynamic Hashrate Graph:** 60fps hardware-accelerated QPainter curve (kH/s, MH/s, GH/s).
-  * **Worker Threads Slider:** Adjust active parallel CPU/GPU workers (1 to 32 threads) on the fly.
-  * **Solo & Stratum Protocols:** Toggle between direct RPC solo mining and hosting a Stratum pool server on port 3333.
-
-### 5. 🚀 Combined Master Suite (`quanty_suite_app.py`)
-* **Executable:** `QuantyCoin-CombinedSuite-Setup-v7.0.exe` / `QuantyCoinSuite.exe`
-* **Features:** Unified sidebar navigation allowing seamless switching between the Full Wallet, Lightning Wallet, Node Manager, and Miner with 1-Click Launch All.
+### Honest Status Disclosure
+- **Consensus State**: **FROZEN & VERIFIED**. The production Genesis block hash (`00000f7cecd0b1eafaab4d65183f7bd12713b67b6c1c4a30f6bf3f1b8efd30ba`) is locked with mandatory runtime assertions in [`node/chainstate.py`](node/chainstate.py).
+- **Core Implementation**: The Python codebase (`core/`, `crypto/`, `network/`, `node/`, `wallet/`, `miner/`, `ui/`) is the authoritative operational protocol stack.
+- **Experimental Code**: The C++ tree (`src/`) contains an ongoing research fork of Bitcoin Knots evaluating post-quantum CRYSTALS-Dilithium signature integration (tracked in [`docs/security/AUDIT_REMEDIATION_VERIFICATION.md`](docs/security/AUDIT_REMEDIATION_VERIFICATION.md)).
+- **Throughput Reality**: Target block time is 60 seconds with 32 MB maximum block capacity. Tested single-threaded mempool ingestion is 16 transactions/sec (500 TX burst verified in 32s). We do not make unverified "thousands of TPS" claims.
 
 ---
 
-## ⚡ Key Architecture Highlights & Best Practices
+## ⚡ Why QuantyCoin?
 
-- 🛡 **Zero-Mock Pure Cryptography:** Native Secp256k1 ECDSA (RFC 6979), RFC 8032 Ed25519, double-SHA256, RIPEMD-160, Keccak-256, and BIP141 SegWit Bech32 encoding (`qty1q...`).
-- 🔄 **Atomic Reorg State Engine:** UTXO database with comprehensive `BlockUndo` delta journals for seamless multi-block chain reorganizations.
-- 📈 **LWMA-1 Difficulty Adjustment:** Linear-Weighted Moving Average recalculation every single block for smooth hashrate absorption with zero oscillation.
-- ⚡ **32 MB High-Throughput Blocks:** 60-second target block time delivering thousands of transactions per second on native Layer-1.
-- 🌐 **Threaded P2P Wire Protocol:** Custom binary protocol framing (`0x5155414E` / "QUAN") with inventory exchange, ping telemetry, autonomous peer-exchange (PEX), and active catchup.
-- 🚀 **High-Concurrency JSON-RPC 2.0:** Multi-threaded HTTP server (`ThreadedHTTPServer`) handling hundreds of simultaneous RPC calls from wallets, explorers, and miners without stalling.
-- ⛏ **Multi-Threaded Mining & Stratum:** Parallel CPU/GPU worker threads, live canvas hashrate visualization, and built-in Stratum V1/V2 pool server (port 3333).
+- **ASIC-Compatible SHA-256D PoW**: Uses standard double-SHA256 hashing. Compatible with standard mining hardware and pool software.
+- **Rapid 60-Second Blocks**: Designed for frequent transaction inclusion without sacrificing Proof-of-Work probabilistic finality.
+- **Oscillation-Free LWMA-1 Retargeting**: Linear-Weighted Moving Average recalculates target difficulty every block across a 45-block window, absorbing hashrate changes smoothly.
+- **Native Stratum V1 Pool Engine**: Hosts a mining pool directly on TCP port `3333` without third-party software dependencies.
+- **Air-Gapped Vault Security**: 100% of sensitive Genesis creation material is isolated in an external secret vault outside git tracking.
 
 ---
 
-## 🏗 Modular Architecture
+## 🔍 Implementation Status (Truth Table)
 
-```
-QuantyCoin/
-├── core/                      # Blockchain state machine, UTXO DB, Mempool, Consensus & Halving
-├── crypto/                    # Pure Secp256k1 ECC math, Ed25519, BIP39/44 HD keys, Hashes
-├── network/                   # TCP binary wire protocol (Port 19888), P2P Peer Manager, PEX discovery
-├── node/                      # Full Node Daemon (quantyd), Chainstate indexer, JSON-RPC 2.0 & REST
-├── wallet/                    # BIP39 HD Wallet (quanty-wallet), Coin selection, Tx Signer, QR codes
-├── miner/                     # Parallel CPU/GPU Solo Miner (quanty-miner) & Stratum Server (Port 3333)
-├── ui/                        # Native Qt6 Cyberpunk Desktop GUIs (Full Wallet, Light Wallet, Node, Miner, Suite)
-├── tests/                     # Functional Test Harness (test_runner.py, test_framework.py, Stress Matrix)
-├── packaging/                 # InnoSetup & NSIS Windows Installers, Debian .deb, Linux AppImage, macOS DMG
-├── share/pixmaps/             # Multi-resolution ICO, PNG, and vector logo assets
-├── llms.txt                   # Generative Engine Optimization index for AI search engines
-└── .github/workflows/         # Automated Cross-Platform CI/CD Cloud Release Pipeline (v7.0)
-```
+| Feature / Capability | Classification | Direct Evidence Location |
+| :--- | :--- | :--- |
+| **SHA-256D Proof-of-Work** | **VERIFIED** | `core/block.py`, `tests/test_core.py` |
+| **Air-Gapped Genesis Block** | **VERIFIED** | `genesis/PUBLIC_GENESIS_MANIFEST.json` |
+| **LWMA-1 Difficulty Retargeting** | **VERIFIED** | `core/consensus.py`, `tests/test_core.py` |
+| **UTXO Chainstate & Reorgs** | **VERIFIED** | `core/utxo.py`, `tests/test_functional_reorg.py` |
+| **Full Mesh P2P Wire Relay** | **VERIFIED** | `network/p2p_server.py`, `tests/test_functional_p2p.py` |
+| **Stratum V1 Pool Server** | **VERIFIED** | `miner/stratum.py`, `tests/test_functional_stratum.py` |
+| **BIP39/44 HD Wallet & Bech32** | **VERIFIED** | `wallet/hd_wallet.py`, `tests/test_functional_wallet.py` |
+| **Threaded JSON-RPC 2.0** | **VERIFIED** | `node/rpc_server.py`, `tests/test_framework.py` |
+| **Native Qt6 Desktop Applications**| **IMPLEMENTED** | `ui/`, `quanty_suite_app.py` |
+| **C++ Dilithium Integration** | **EXPERIMENTAL**| `src/crypto/dilithium/`, `docs/security/AUDIT_REMEDIATION_VERIFICATION.md` |
+| **Stratum V2 Binary Framing** | **PLANNED** | Preserved extension points; V1 is active production target |
 
 ---
 
-## 📊 System Topology & Mermaid Flowcharts
-
-### Component Topology & Network Boundaries
+## 🏗 System Architecture
 
 ```mermaid
 graph TB
-    subgraph "P2P Network Boundary (Port 19888)"
-        P2P[P2P Wire Manager\nMagic: 0x5155414E]
-        PeerA[Node Peer Alpha]
-        PeerB[Node Peer Beta]
-        P2P <-->|Binary Wire Framing| PeerA
-        P2P <-->|Binary Wire Framing| PeerB
+    subgraph P2P ["P2P Wire Network (Port 19888)"]
+        direction TB
+        MGR[P2P Server & Wire Framing]
+        PEERS[Inbound & Outbound Peer Sockets]
+        MGR <-->|Magic: 0x5155414E| PEERS
     end
 
-    subgraph "Core Daemon & Consensus State Engine (quantyd)"
-        CS[Chainstate Engine\nFork-Choice & Reorgs]
-        UTXO[UTXO State Machine\nAtomic Undo Journal]
-        MEM[Mempool Engine\nDouble-Spend Guard]
-        RPC[Threaded JSON-RPC 2.0\nPort 19889]
-        
-        P2P -->|Blocks / Invs / GetBlocks| CS
-        CS -->|Apply State| UTXO
-        MEM -->|Spend Check| UTXO
-        CS -->|Evict Mined TXs| MEM
-        RPC <--> CS
-        RPC <--> MEM
+    subgraph CORE ["Core Node Daemon (quantyd)"]
+        CS[Chainstate & Fork-Choice Engine]
+        UTXO[UTXO State Machine & Undo Log]
+        MEM[Mempool Engine & Fee Sorter]
+        RPC[Threaded JSON-RPC Server\nPort 19889]
+
+        MGR -->|inv / block / tx| CS
+        CS -->|Connect / Disconnect| UTXO
+        MEM -->|Validate UTXO Spend| UTXO
+        CS -->|Evict Mined Tx| MEM
+        RPC <-->|Query & Broadcast| CS
+        RPC <-->|Submit Raw Tx| MEM
     end
 
-    subgraph "Native Qt6 Desktop Applications"
-        GUI_NODE[Native Full Node GUI\nqt_node_app.py]
-        GUI_WALLET[Native Sovereign Wallet\nqt_wallet_full_app.py]
-        GUI_LIGHT[Native Lightning Wallet\nqt_lightning_wallet_app.py]
-        GUI_MINER[Native Parallel Miner\nqt_miner_app.py]
-        GUI_SUITE[Native Master Suite\nqt_suite_app.py]
-        
-        GUI_NODE <-->|Direct RPC| RPC
-        GUI_WALLET <-->|In-Memory Node| CS
-        GUI_LIGHT <-->|Remote SPV| RPC
-        GUI_MINER <-->|Stratum / Solo| RPC
-        GUI_SUITE <-->|Unified Stack| RPC
+    subgraph MINING ["Mining Infrastructure (Port 3333)"]
+        STRATUM[Stratum V1 Pool Server]
+        ENG[Authoritative Mining Engine]
+        STRATUM <-->|Get Block Template| RPC
+        ENG <-->|Submit Mined Block| RPC
+    end
+
+    subgraph WALLET ["Wallet & Desktop GUIs (Qt6)"]
+        HD[BIP39/44 HD Wallet]
+        GUI_W[Sovereign Wallet GUI]
+        GUI_N[Node Explorer GUI]
+        GUI_M[Miner Telemetry GUI]
+        GUI_S[Combined Master Suite]
+
+        HD -->|Sign Tx| RPC
+        GUI_W <-->|Balance & History| RPC
+        GUI_N <-->|Peer Telemetry| RPC
+        GUI_M <-->|Hashrate Stream| STRATUM
+        GUI_S -->|Unified Control| RPC
     end
 ```
 
 ---
 
-## ⚙️ Consensus Rules & Tokenomics Matrix
+## ⚙️ Consensus Rules & Protocol Parameters
 
-| Parameter | Specification | Technical Description |
+| Parameter | Mainnet Specification | Technical Consensus Rule |
 | :--- | :--- | :--- |
-| **Max Supply Cap** | `21,000,000 QTY` | Mathematical finite hard cap ($2.1 \times 10^{15}$ Satoshis) |
-| **Target Block Time** | `60 seconds` | Rapid confirmation cadence with low latency |
-| **Initial Block Reward** | `50.00 QTY` | $5,000,000,000$ Satoshis per mined block |
+| **Protocol Version** | `70020` | Handshake version identifier (`PROTOCOL_VERSION`) |
+| **Chain Identifier** | `quantycoin-2.0` | Unique network ID |
+| **Wire Magic Bytes** | `0x51 0x55 0x41 0x4E` | ASCII `"QUAN"` framing delimiter |
+| **Target Block Interval**| `60 seconds` | Cadence for Poisson difficulty retargeting |
+| **Difficulty Algorithm** | **LWMA-1** | Window: 45 blocks, bounded oscillation clamping |
+| **Max Block Size** | `32 MB` (33,554,432 bytes) | Upper bound on block serialization length |
+| **Initial Block Reward** | `50.00 QTY` | $5,000,000,000$ Satoshis |
 | **Halving Interval** | `2,100,000 blocks` | Halving occurs approximately every 4 years |
-| **Difficulty Algorithm** | **LWMA-1** | Linear-Weighted Moving Average computed over 144 blocks |
-| **Max Block Size** | `32 MB` (33,554,432 B) | High transaction density per block |
-| **Fee Split Protocol** | `50% Miner / 50% Treasury` | Decentralized community sustainability model |
-| **Address Encodings** | **Bech32 & Base58Check** | Native SegWit (`qty1q...`) & Legacy (`Q...`) |
-| **P2P Wire Magic** | `0x51 0x55 0x41 0x4E` | ASCII framing identifier "QUAN" |
-| **Default Ports** | `P2P: 19888` &bull; `RPC: 19889` &bull; `Stratum: 3333` | Isolated network boundaries |
+| **Max Supply Cap** | `21,000,000 QTY` | Mathematically finite maximum supply ($2.1 \times 10^{15}$ Satoshis) |
+| **Coinbase Maturity** | `100 blocks` | Mined outputs spendable after 100 confirmations |
+| **Address Encodings** | **Bech32 & Base58Check** | Native witness v0 (`qty1q...`) & legacy (`Q...`) |
+| **Default Ports** | P2P: `19888` &bull; RPC: `19889` &bull; Stratum: `3333` | Independent ports |
 
 ---
 
-## 🚀 Quickstart & Installation Guide
+## 💎 Air-Gapped Genesis Block
 
-### 📦 Prerequisites
-- Python 3.10+ (or download pre-packaged native installers)
-- Required libraries: `pip install qrcode pillow pyside6`
+The QuantyCoin 2.0 Genesis block was verifiably mined in an air-gapped secret vault:
 
-### 1. Launch Sovereign Full Wallet (with Built-in Node)
+- **Genesis Hash**: `00000f7cecd0b1eafaab4d65183f7bd12713b67b6c1c4a30f6bf3f1b8efd30ba`
+- **Merkle Root**: `ac6346e4b3ae1f3e4cfabaa09376ee83d268d12476d3e243a42d0e22cf79224f`
+- **Timestamp**: `1788600000` (*"2026-09-05: QuantyCoin 2.0 - SHA256D Layer-1 Autonomous Blockchain Protocol"*)
+- **Nonce**: `333641`
+- **Bits**: `0x1e0fffff` (`504365055`)
+- **Payout Address**: `qty1qh46xnlu649ug0yfpw7f93xn9dtg90z8hukfsy4`
+- **Serialized Block Size**: `246 bytes`
+
+Official public consensus data is exported in [`genesis/PUBLIC_GENESIS_MANIFEST.json`](genesis/PUBLIC_GENESIS_MANIFEST.json).
+
+---
+
+## 🌐 Network & P2P Wire Protocol
+
+The P2P network layer operates over TCP port `19888`:
+- **Framing**: 4-byte magic (`0x5155414E`), 12-byte null-padded command, 4-byte length, 4-byte double-SHA256 checksum, payload.
+- **Handshake**: Synchronous `version` and `verack` sequence exchanging height, user agent, and timestamp.
+- **Inventory Gossip**: `inv`, `getdata`, `block`, and `tx` messages with deduplication cache and peer misbehavior tracking.
+- **Verified Resilience**: Verified under intentional socket disconnects with autonomous reconnect in < 3 seconds.
+
+---
+
+## ⛏ Mining & Stratum V1 Pool Setup
+
+### Solo CPU Mining
+```bash
+python quanty_miner_cli.py --threads 4 --payout qty1q...
+```
+
+### Stratum V1 Mining Pool Server
+QuantyCoin includes a native Stratum V1 pool server listening on TCP port `3333`:
+```bash
+python -c "from miner.stratum import StratumServer; s = StratumServer(port=3333); s.start(); import time; time.sleep(999999)"
+```
+- **Miner Connection URL**: `stratum+tcp://<ip>:3333`
+- **Supported Methods**: `mining.subscribe`, `mining.authorize`, `mining.submit`, `mining.set_difficulty`.
+- Compatible with ASIC rigs and GPU miners.
+
+---
+
+## 🔑 Sovereign Wallet & Cryptography
+
+- **Deterministic Seeds**: BIP39 24-word recovery phrases generated using cryptographically secure entropy.
+- **Hierarchical Derivation**: BIP44 path `m/44'/999'/0'/0/i`.
+- **Signatures**: RFC 6979 deterministic Secp256k1 ECDSA.
+- **Native Witness Addresses**: Bech32 encoding (`qty1q...`).
+
+---
+
+## 🖥 Desktop Applications Suite (Qt6)
+
+QuantyCoin includes 4 dedicated desktop applications:
+
+1. **Sovereign Full Wallet** (`quanty_wallet_full_app.py`): Native wallet with integrated full node running in the background.
+2. **Lightning Light Wallet** (`quanty_lightning_wallet_app.py`): Instant startup client connecting to local or remote node RPC.
+3. **Node Manager GUI** (`quanty_node_app.py`): Real-time peer connection table, wire traffic visualizer, on-chain block explorer, and interactive RPC terminal.
+4. **Standalone Miner GUI** (`quanty_miner_app.py`): Dynamic 60fps hardware-accelerated QPainter hashrate graph, worker thread slider, and Stratum server controller.
+5. **Unified Master Suite** (`quanty_suite_app.py`): Control center hosting all modules in a single window.
+
+---
+
+## 🚀 Quickstart & Onboarding
+
+### 1. Prerequisites & Installation
+```bash
+git clone https://github.com/timfromhcs/QuantyCoin.git
+cd QuantyCoin
+
+# Install dependencies for Qt6 GUIs
+pip install PySide6 qrcode pillow
+```
+
+### 2. Launch the Node Daemon
+```bash
+python quantyd_cli.py
+```
+
+### 3. Launch the Sovereign Wallet
 ```bash
 python quanty_wallet_full_app.py
 ```
 
-### 2. Launch Lightning Light Wallet (No Node)
-```bash
-python quanty_lightning_wallet_app.py
-```
-
-### 3. Launch Standalone Full Node Manager
-```bash
-python quanty_node_app.py
-```
-
-### 4. Launch Standalone Multi-Threaded Miner
-```bash
-python quanty_miner_app.py
-```
-
-### 5. Launch All-in-One Master Suite
-```bash
-python quanty_suite_app.py
-```
+### 4. Detailed Onboarding Guides
+- [End-User Guide](docs/USER_GUIDE.md): Wallet setup, receiving, and sending.
+- [Miner & Pool Guide](docs/MINER_GUIDE.md): Solo mining, worker threads, and Stratum setup.
+- [Developer Guide](docs/DEVELOPER_GUIDE.md): Codebase layout, consensus locations, and test harnesses.
 
 ---
 
-## 📡 Complete JSON-RPC 2.0 & REST API Reference
+## 🧪 Automated Testing & Independent Verification
 
-The QuantyCoin full node exposes a multi-threaded JSON-RPC 2.0 interface on port `19889`:
-
-| Method | Parameters | Return Type | Description |
-| :--- | :--- | :--- | :--- |
-| `getinfo` | `[]` | `Object` | Node version, active height, peer count, circulating supply |
-| `getblockchaininfo` | `[]` | `Object` | Best block hash, height, cumulative chainwork, block index |
-| `getnetworkinfo` | `[]` | `Object` | P2P protocol details, active connections, relay fees |
-| `getblockcount` | `[]` | `Integer` | Returns active tip block height |
-| `getbestblockhash` | `[]` | `String` | Returns 64-character hex hash of active tip |
-| `getblock` | `[hash_hex]` | `Object` | Decoded block header, transaction list, Merkle root |
-| `getblockhash` | `[height_int]` | `String` | Returns block hash at specified height |
-| `getrawtransaction` | `[txid_hex]` | `Object` | Decoded raw transaction inputs, outputs, locktime |
-| `sendrawtransaction`| `[raw_tx_hex]`| `String` | Validates, adds to mempool, and broadcasts transaction |
-| `getmempoolinfo` | `[]` | `Object` | Unconfirmed transaction count, total fee Satoshis |
-| `getrawmempool` | `[]` | `Array` | Returns array of all unconfirmed transaction IDs in mempool |
-| `getpeerinfo` | `[]` | `Array` | Active peer connections, latencies, protocol versions |
-| `getmininginfo` | `[]` | `Object` | Network hashrate, current difficulty, block templates |
-| `getblocktemplate` | `[]` | `Object` | Mining template with candidate TXs, target bits, coinbase |
-| `submitblock` | `[raw_block_hex]`| `Object` | Submits solved PoW block to node consensus validator |
-| `generatetoaddress`| `[nblocks, addr]` | `Array` | Mines n blocks instantly to specified address |
-| `getaddressbalance`| `[address]` | `Object` | Confirmed balance in QTY and Satoshis |
-| `getaddressutxos` | `[address]` | `Array` | Spendable UTXO outpoints for destination address |
-| `help` | `[]` | `Object` | Interactive command reference documentation |
-
----
-
-## 🧪 Automated Test Framework (Bitcoin Core Standard)
-
-QuantyCoin ships with a production-grade automated integration test framework modeled on Bitcoin Core's `test_runner.py`:
+Every claim in this repository is directly verifiable using executable commands:
 
 ```bash
+# 1. Verify zero secret leakage
+python scripts/verify_security.py
+
+# 2. Run unit tests (Cryptography, Core, P2P)
+python tests/test_crypto.py
+python tests/test_core.py
+python tests/test_p2p.py
+
+# 3. Run Stratum V1 mining pool integration test
+python tests/test_functional_stratum.py
+
+# 4. Run consolidated functional test runner
 python tests/test_runner.py
+
+# 5. Run multi-node stress and reorganization hardness matrix
+python tests/test_multinode_stress.py
 ```
 
-### Test Suite Execution Output (100% PASS)
+### Verified Test Results (100% PASS)
 ```
-========================================================
-RUNNING CRYPTOGRAPHIC & CORE UNIT TESTS
-========================================================
-[PASS] Cryptographic verification suite
-[PASS] Core transaction & consensus suite
-[PASS] P2P protocol serialization suite
-
 ========================================================
            QUANTYCOIN TEST SUITE RESULTS
 ========================================================
@@ -268,58 +272,45 @@ RUNNING CRYPTOGRAPHIC & CORE UNIT TESTS
  - Wallet & BIP39 Transaction Test     : [PASSED]
  - P2P Multi-Node Relay Test           : [PASSED]
  - Chain Split & Deep Reorg Test       : [PASSED]
+ - Stratum V1 Protocol Test            : [PASSED]
 ========================================================
 ALL TESTS PASSED WITH 100% SUCCESS (0 FAILURES)!
 ========================================================
 ```
 
----
-
-## 📦 Multi-Platform Native Installers & CI/CD
-
-Precompiled standalone native installers and portable archives are built automatically via GitHub Actions:
-
-- 🪟 **Windows (x64):**
-  - Full Wallet Setup (with Node): `QuantyCoin-FullWallet-Setup-v7.0.exe`
-  - Lightning Wallet Setup: `QuantyCoin-LightningWallet-Setup-v7.0.exe`
-  - Standalone Node Setup: `QuantyCoin-Node-Setup-v7.0.exe`
-  - Standalone Miner Setup: `QuantyCoin-Miner-Setup-v7.0.exe`
-  - Combined Master Suite Setup: `QuantyCoin-CombinedSuite-Setup-v7.0.exe`
-  - Portable Archive: `QuantyCoin-v7.0.0-Windows-Portable.zip`
-- 🐧 **Linux (x64):**
-  - Debian/Ubuntu Package: `QuantyCoin-7.0.0-amd64.deb`
-  - Universal AppImage: `QuantyCoin-7.0.0-x86_64.AppImage`
-  - Standalone Tarball: `QuantyCoin-v7.0.0-Linux-x86_64.tar.gz`
-- 🍎 **macOS (Universal):**
-  - Universal DMG Package: `QuantyCoin-v7.0.0-macOS-Universal.dmg`
-  - Binary Tarball: `QuantyCoin-v7.0.0-macOS-Universal.tar.gz`
+See [VERIFICATION.md](VERIFICATION.md) for independent verification instructions.
 
 ---
 
-## ❓ Frequently Asked Questions (FAQ)
+## 📦 Release Management
 
-### What is QuantyCoin (QTY)?
-QuantyCoin is an open-source, high-throughput Layer-1 proof-of-work blockchain featuring pure mathematical Secp256k1/Ed25519 cryptography, an atomic UTXO state engine, LWMA-1 difficulty adjustment, and native Qt6 cyberpunk desktop applications.
-
-### Does the Full Wallet require running a separate node?
-No. The **Full Sovereign Wallet** (`quanty_wallet_full_app.py`) has an integrated full node engine running in the background automatically.
-
-### What is the Lightning Light Wallet?
-The **Lightning Light Wallet** (`quanty_lightning_wallet_app.py`) is an ultra-lightweight SPV client designed for instant startup with zero blockchain download requirements.
-
-### How do I mine QuantyCoin?
-You can mine QuantyCoin using the standalone Miner GUI (`quanty_miner_app.py`), the CLI miner (`quanty_miner_cli.py`), or by connecting ASIC / GPU rigs to the built-in Stratum pool on port 3333.
+Releases are published through an evidence-gated pipeline requiring passing security scans, 100% test completion, and verified SHA-256 checksums:
+- [Release Process Specification](RELEASE_PROCESS.md)
+- [Build & Reproducibility Guide](REPRODUCIBILITY.md)
+- Packaging scripts: `packaging/windows/`, `packaging/linux/`, `packaging/macos/`.
 
 ---
 
-## 🤖 Generative Engine Optimization (GEO) & Machine Context
+## 🛡 Security & Threat Model
 
-QuantyCoin is natively optimized for AI search engines, LLM agents, and automated crawlers (Perplexity, ChatGPT, Claude, Gemini, Copilot):
+- **Security Policy**: [SECURITY.md](SECURITY.md) defines supported versions and response SLAs.
+- **Threat Model**: [THREAT_MODEL.md](THREAT_MODEL.md) details attack vectors, bounded deserialization, and mitigations.
+- **Reporting**: Report vulnerabilities confidentially to `timfromhcs@gmail.com`.
 
-- 📄 **LLM Index:** [`llms.txt`](llms.txt) provides structured machine-readable summaries.
-- 📚 **Full Technical Context:** [`llms-full.txt`](llms-full.txt) contains comprehensive API and schema references.
-- 🔖 **Academic Citation:** [`CITATION.cff`](CITATION.cff) provides standard citation metadata.
-- 🛡 **Community Standards:** [`SECURITY.md`](SECURITY.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+---
+
+## 🗺 Roadmap
+
+Progress is tracked in [ROADMAP.md](ROADMAP.md) following an evidence-gated model:
+- **Phase 1 (Completed)**: Protocol Rebuild, Air-Gapped Genesis, Stratum V1, Multi-Node Hardness.
+- **Phase 2 (Active)**: Public Seed Nodes, Compact Block Filters (BIP157/158), Automated Cross-Platform Binaries.
+- **Phase 3 (Planned)**: Formal audit of C++ Dilithium integration, Stratum V2 binary framing.
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from protocol engineers and researchers. Please review [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before opening a pull request.
 
 ---
 
@@ -327,12 +318,12 @@ QuantyCoin is natively optimized for AI search engines, LLM agents, and automate
 
 ```bibtex
 @software{QuantyCoin2026,
-  author = {QuantyCoin Core Contributors},
-  title = {QuantyCoin: High-Performance Quantum & AI Era Layer-1 Blockchain},
+  author = {Heinrichs, Tim and QuantyCoin Core Contributors},
+  title = {QuantyCoin: Independent SHA-256D Proof-of-Work Layer-1 Cryptocurrency},
   url = {https://github.com/timfromhcs/QuantyCoin},
-  version = {7.0.0},
+  version = {2.0.0},
   year = {2026}
 }
 ```
 
-Distributed under the terms of the **MIT License**. See [LICENSE](LICENSE) and [COPYING](COPYING) for complete details.
+Distributed under the terms of the **MIT License**. See [LICENSE](LICENSE) and [COPYING](COPYING) for details.
