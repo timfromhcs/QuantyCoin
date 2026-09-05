@@ -1,0 +1,48 @@
+name: Security & Cryptographic Integrity
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - 'v2**'
+  pull_request:
+    branches:
+      - main
+      - master
+      - 'v2**'
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  zero-leak-audit:
+    name: Zero-Leak Git Policy & Secret Scanner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Zero-Leak Scanner
+        run: python scripts/verify_security.py
+
+  genesis-cryptographic-audit:
+    name: Genesis PoW & Consensus Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify Public Genesis Consensus
+        run: python scripts/verify_genesis.py
