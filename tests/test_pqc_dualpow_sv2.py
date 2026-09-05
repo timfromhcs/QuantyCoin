@@ -20,7 +20,7 @@ import unittest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from crypto import hash256, sha256, hash160, HDKey
-from crypto.mldsa import MLDSAKey, mldsa_keypair, mldsa_sign, mldsa_verify
+from crypto.mldsa import MLDSAKey, mldsa_keypair, mldsa_sign, mldsa_verify, SIGNATURE_BYTES, PUBLIC_KEY_BYTES
 from crypto.bip32_44 import (
     encode_segwit_address, decode_segwit_address,
     address_to_scriptpubkey, MAINNET_BECH32_HRP
@@ -346,8 +346,164 @@ class TestPQCAndDualPoW(unittest.TestCase):
         }]
         tx_hyb_spent = wallet.build_transaction(dest_addr, 20 * 100_000_000, mock_hyb_utxos)
         self.assertTrue(tx_hyb_spent.verify_input_signature(0, hyb_script, 50 * 100_000_000))
+
+        # 5. Quantum Vulnerability Audit & Automated Migration
+        legacy_addr = wallet.get_receiving_address(0)
+
+        legacy_script = address_to_scriptpubkey(legacy_addr)
+        mixed_utxos = [
+            {"txid": "22" * 32, "vout": 0, "value_sat": 15 * 100_000_000, "scriptPubKey": legacy_script.hex(), "address": legacy_addr},
+            {"txid": "33" * 32, "vout": 1, "value_sat": 25 * 100_000_000, "scriptPubKey": pq_script.hex(), "address": pq_addr_0},
+        ]
+        vuln_report = wallet.get_quantum_vulnerability_report(mixed_utxos)
+        self.assertTrue(vuln_report["has_vulnerable_utxos"])
+        self.assertEqual(vuln_report["vulnerable_count"], 1)
+        self.assertEqual(vuln_report["vulnerable_total_sat"], 15 * 100_000_000)
+        self.assertEqual(vuln_report["pqc_count"], 1)
+
+        # Build migration transaction sweeping legacy UTXO into ML-DSA custody
+        migration_tx = wallet.build_pqc_migration_transaction(mixed_utxos, target_mode="mldsa", fee_sat=10000)
+        self.assertEqual(len(migration_tx.vin), 1) # Only sweeps vulnerable UTXOs
+        self.assertEqual(len(migration_tx.vout), 1)
+        self.assertEqual(migration_tx.vout[0].value, 15 * 100_000_000 - 10000)
+        self.assertEqual(migration_tx.vout[0].script_pubkey, pq_script)
+        self.assertTrue(migration_tx.verify_input_signature(0, legacy_script, 15 * 100_000_000))
+
         print("[PASS] HDWallet Post-Quantum Key Derivation & Transaction Creation")
+
+    def test_07_reject_pseudo_crypto_and_malleated_signatures(self):
+        """Attacker crafts synthetic/length-padded signatures or corrupted public keys."""
+        k = MLDSAKey.from_seed(b"\x42" * 32)
+        msg = b"Adversarial transfer of 1,000,000 QTY to attacker"
+
+        # 1. Genuine signature passes
+        sig = k.sign(msg)
+        self.assertTrue(k.verify(msg, sig))
+
+        # 2. Fake signature with correct length but pseudo-crypto content must FAIL
+        fake_sig = b"\x00" * SIGNATURE_BYTES
+        self.assertFalse(k.verify(msg, fake_sig))
+
+        # 3. Single-bit malleated signature must FAIL
+        malleated_sig = bytearray(sig)
+        malleated_sig[len(malleated_sig) // 2] ^= 0x01
+        self.assertFalse(k.verify(msg, bytes(malleated_sig)))
+
+        # 4. Malleated public key must FAIL
+        malleated_pk = bytearray(k.public_key)
+        malleated_pk[100] ^= 0x01
+        self.assertFalse(mldsa_verify(msg, sig, bytes(malleated_pk)))
+
+        # 5. Wrong message must FAIL
+        self.assertFalse(k.verify(b"Legitimate transfer of 1 QTY", sig))
+        print("[PASS] Strict Rejection of Pseudo-Crypto & Malleated Signatures")
+
+    def test_08_cross_mode_replay_attack_prevention(self):
+        """Attacker attempts to replay an ECDSA signature on an ML-DSA input or vice-versa."""
+        secp = HDKey.from_seed(b"classical_key_seed_32_bytes!!_")
+        pqc = MLDSAKey.from_seed(b"pqc_key_seed_32_bytes_value!1234")
+
+
+        pqc_prog = sha256(pqc.public_key)
+        pqc_script = b'\x51\x20' + pqc_prog
+
+        tx = Transaction(
+            version=1,
+            vin=[TxIn(prev_txid=b'\x11'*32, prev_vout=0)],
+            vout=[TxOut(value=100_000_000, script_pubkey=b'\x00\x14'+b'\x22'*20)]
+        )
+
+        # Attacker tries to satisfy ML-DSA script with classical ECDSA witness
+        tx.sign_input(0, secp.key, pqc_script, 100_000_000)
+        self.assertFalse(tx.verify_input_signature(0, pqc_script, 100_000_000))
+
+        # Attacker tries to satisfy Hybrid script with only ML-DSA witness
+        hyb_prog = sha256(secp.get_public_key() + pqc.public_key)
+        hyb_script = b'\x52\x20' + hyb_prog
+
+        tx_hyb = Transaction(
+            version=1,
+            vin=[TxIn(prev_txid=b'\x33'*32, prev_vout=0)],
+            vout=[TxOut(value=100_000_000, script_pubkey=b'\x00\x14'+b'\x22'*20)]
+        )
+        tx_hyb.sign_input_mldsa(0, pqc.secret_key, pqc.public_key, hyb_script, 100_000_000)
+        self.assertFalse(tx_hyb.verify_input_signature(0, hyb_script, 100_000_000))
+        print("[PASS] Cross-Mode Signature Replay Attack Prevention")
+
+    def test_09_thermodynamic_chainwork_defeats_low_difficulty_spam(self):
+        """
+        Attacker creates a longer branch with many rapid low-difficulty blocks.
+        Honest branch has fewer blocks but higher thermodynamic chainwork.
+        Node MUST choose the honest branch with higher cumulative work, rejecting the longer chain.
+        """
+        temp_dir = tempfile.mkdtemp(prefix="quanty_adv_")
+        cs = Chainstate(datadir=temp_dir)
+        base_hash = cs.best_hash
+        base_height = cs.best_height
+
+        bits_high_work = 0x1e00ffff
+        target_high = bits_to_target(bits_high_work)
+
+        bits_low_work = 0x1f7fffff
+        target_low = bits_to_target(bits_low_work)
+
+        work_high = ( (1 << 256) // (target_high + 1) ) * LANE_WEIGHT_SHA256D
+        work_low = ( (1 << 256) // (target_low + 1) ) * LANE_WEIGHT_GENERAL_PURPOSE
+
+        self.assertGreater(work_high, work_low * 3)
+
+        # 1. Mine Honest Block 1 (high work)
+        cb1 = Transaction(
+            version=1,
+            vin=[TxIn(b'\x00'*32, 0xFFFFFFFF, script_sig=b'\x04HONEST_1')],
+            vout=[TxOut(get_block_subsidy(base_height + 1, POW_TYPE_SHA256D), b'\x00\x14'+b'\x01'*20)]
+        )
+        hdr1 = BlockHeader(
+            version=(POW_TYPE_SHA256D << 16) | 2,
+            prev_block=base_hash,
+            merkle_root=cb1.txid,
+            timestamp=int(time.time()),
+            bits=bits_high_work,
+            nonce=0
+        )
+        hdr1.mine()
+        blk1 = Block(header=hdr1, transactions=[cb1])
+        ok, reason = cs.process_block(blk1)
+        self.assertTrue(ok, f"Honest block 1 rejected: {reason}")
+        honest_tip_hash = cs.best_hash
+        self.assertEqual(cs.best_height, base_height + 1)
+
+        # 2. Mine 3 rapid blocks on Attacker branch from base_hash with low work
+        attacker_prev = base_hash
+        for i in range(3):
+            cb_att = Transaction(
+                version=1,
+                vin=[TxIn(b'\x00'*32, 0xFFFFFFFF, script_sig=f'\x04ATT_{i}'.encode())],
+                vout=[TxOut(get_block_subsidy(base_height + 1 + i, POW_TYPE_GENERAL_PURPOSE), b'\x00\x14'+b'\x02'*20)]
+            )
+            hdr_att = BlockHeader(
+                version=(POW_TYPE_GENERAL_PURPOSE << 16) | 2,
+                prev_block=attacker_prev,
+                merkle_root=cb_att.txid,
+                timestamp=int(time.time()) + (i * 10),
+                bits=bits_low_work,
+                nonce=0
+            )
+            hdr_att.mine()
+            blk_att = Block(header=hdr_att, transactions=[cb_att])
+            attacker_prev = blk_att.hash
+            ok, _ = cs.process_block(blk_att)
+            self.assertTrue(ok)
+
+        honest_cw = cs.block_index[honest_tip_hash].chainwork
+        attacker_cw = cs.block_index[attacker_prev].chainwork
+
+        self.assertGreater(honest_cw, attacker_cw)
+        self.assertEqual(cs.best_hash, honest_tip_hash)
+        self.assertEqual(cs.best_height, base_height + 1)
+        print("[PASS] Thermodynamic Chainwork Defeats Low-Difficulty Spam Attack")
 
 
 if __name__ == "__main__":
     unittest.main()
+

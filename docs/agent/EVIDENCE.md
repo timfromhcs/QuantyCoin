@@ -296,12 +296,15 @@ Every major milestone must have concrete, reproducible execution evidence record
   ========================================================
   RUNNING PQC, DUAL-POW & STRATUM V2 PROTOCOL TEST SUITE
   ========================================================
-  [PASS] PQC & Hybrid Signature Verification (NIST FIPS 204 ML-DSA-65 & Hybrid Bech32m)
+  [PASS] PQC & Hybrid Signature Verification (NIST FIPS 204 ML-DSA & Hybrid Bech32m)
   [PASS] Dual-PoW Lane A & Lane B Mining & Verification (SHA256D ASIC & Scrypt 1024 General Purpose)
   [PASS] Cumulative Thermodynamic Chainwork Calculations (W_A = 1, W_B = 2048)
   [PASS] Stratum V2 Binary Framing & Dual-Lane Multiplexing (Port 19445)
   [PASS] New Protocol RPC Endpoints (getmininglanes, getminingtargets, getchainwork, getnewpqaddress, getaddressinfo, getstratuminfo)
   [PASS] HDWallet Post-Quantum Key Derivation & Transaction Creation (qty1p... & qty1z...)
+  [PASS] Strict Rejection of Pseudo-Crypto & Malleated Signatures
+  [PASS] Cross-Mode Signature Replay Attack Prevention
+  [PASS] Thermodynamic Chainwork Defeats Low-Difficulty Spam Attack
 
   ========================================================
              QUANTYCOIN TEST SUITE RESULTS
@@ -320,5 +323,6 @@ Every major milestone must have concrete, reproducible execution evidence record
   - `python scripts/verify_security.py`: `[PASS] No secrets, private credentials or forbidden files detected.` (100% PASS, 0 leaks).
 - **Documentation Validator Proof**:
   - `python scripts/verify_documentation.py`: `[PASS] All markdown links resolve successfully. ALL DOCUMENTATION VALIDATION CHECKS PASSED (100%).`
+
 
 
