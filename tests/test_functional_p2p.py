@@ -4,6 +4,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from tests.test_framework import QuantyTestFramework
+from core.genesis_constants import PROTOCOL_VERSION
 
 
 class P2PTest(QuantyTestFramework):
@@ -18,7 +19,7 @@ class P2PTest(QuantyTestFramework):
         
         print("2. Verifying protocol version and user agents...")
         for p in peers_0:
-            assert p.get("version", 70015) == 70015
+            assert p.get("version", PROTOCOL_VERSION) == PROTOCOL_VERSION
             assert "Quanty" in p.get("subver", "QuantyCore")
             
         print("3. Mining blocks on Node 0 and checking propagation to Node 1 & 2...")

@@ -1,0 +1,16 @@
+{
+  "witness_v0_stack": [
+    "der_signature_plus_sighash_type",
+    "compressed_pubkey"
+  ],
+  "witness_v1_stack": [
+    "mldsa_signature_plus_sighash_type",
+    "mldsa_public_key"
+  ],
+  "witness_v2_stack": [
+    "der_signature_plus_sighash_type",
+    "compressed_pubkey",
+    "mldsa_signature_plus_sighash_type",
+    "mldsa_public_key"
+  ]
+}

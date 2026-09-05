@@ -1,6 +1,7 @@
 # QuantyCoin Build & Environment Reproducibility
 
-**Goal**: Ensure that any build or execution of QuantyCoin produces deterministic cryptographic outputs and identical behavior across platforms.
+**Goal**: Ensure that any build or execution of QuantyCoin produces deterministic cryptographic outputs and identical behavior across platforms.  
+**Protocol Version**: QTY4 (`70040`)  
 
 ---
 
@@ -29,7 +30,9 @@ pip install -r packaging/requirements.txt 2>/dev/null || pip install PySide6 pyt
 
 ## 3. Cryptographic Determinism Checks
 
+- **Pure Integer Monetary State**: Checked 64-bit integer class (`core.money.Amount`) eliminating floating-point rounding divergence across CPU architectures.
 - **ECDSA Signatures**: Deterministic RFC 6979 nonce generation ensures identical signatures for identical private key and message digest pairs.
+- **ML-DSA-44 Signatures**: Native NIST FIPS 204 C lattice acceleration (`libqtydilithium`) with deterministic verification.
 - **Transaction Hash (TxID)**: Double-SHA256 over canonical byte serialization.
 - **Merkle Root**: Binary tree double-SHA256 with duplicate-odd balancing matching standard Bitcoin Core convention.
-- **Genesis Block**: Bit-for-bit identical serialization (246 bytes) and hash across all operating systems.
+- **Genesis Block**: Bit-for-bit identical serialization (246 bytes) and hash across all operating systems (`scripts/verify_qty4_genesis_dual_path.py`).

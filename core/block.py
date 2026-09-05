@@ -167,6 +167,11 @@ class Block:
             if tx.is_coinbase():
                 return False, f"Transaction {i} is an illegal additional coinbase"
                 
+        for i, tx in enumerate(self.transactions):
+            valid, msg = tx.validate_structure()
+            if not valid:
+                return False, f"Transaction {i} structural validation failed: {msg}"
+
         if not self.verify_merkle_root():
             return False, "Merkle root mismatch"
             

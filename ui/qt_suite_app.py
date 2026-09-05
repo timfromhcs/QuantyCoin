@@ -37,7 +37,7 @@ class QuantyMasterSuiteWindow(QtWidgets.QMainWindow):
         # Shared Global Node Daemon
         self.global_node: Optional[QuantyNode] = None
         try:
-            self.global_node = QuantyNode(p2p_port=19888, rpc_port=19889)
+            self.global_node = QuantyNode(p2p_port=19444, rpc_port=19445)
             self.global_node.start()
         except Exception as e:
             print(f"Master suite node notice: {e}")
@@ -148,7 +148,7 @@ class QuantyMasterSuiteWindow(QtWidgets.QMainWindow):
 
     def launch_all(self):
         if not self.global_node:
-            self.global_node = QuantyNode(p2p_port=19888, rpc_port=19889)
+            self.global_node = QuantyNode(p2p_port=19444, rpc_port=19445)
             self.global_node.start()
         self.app_miner.start_mining()
         QtWidgets.QMessageBox.information(self, "Launched", "All QuantyCoin ecosystem services (Node, Wallets, Miner) are active!")

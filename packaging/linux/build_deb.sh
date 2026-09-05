@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Build Debian/Ubuntu .deb package for QuantyCoin QTY2
+# Build Debian/Ubuntu .deb package for QuantyCoin QTY4
 set -euo pipefail
 
 PACKAGE_NAME="quantycoin"
-VERSION="2.0.0"
+VERSION="4.0.0"
 ARCH="amd64"
 DEB_DIR="dist/deb/${PACKAGE_NAME}_${VERSION}_${ARCH}"
 
@@ -21,7 +21,7 @@ Section: utils
 Priority: optional
 Architecture: ${ARCH}
 Maintainer: QuantyCoin Core Contributors <timfromhcs@gmail.com>
-Description: QuantyCoin Layer-1 SHA-256D Proof-of-Work Blockchain Protocol
+Description: QuantyCoin Layer-1 Post-Quantum Dual-PoW Blockchain Protocol
  Native Qt6 full node daemon, BIP39 HD wallet, and multi-threaded miner.
 EOF
 

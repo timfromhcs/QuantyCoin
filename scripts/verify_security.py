@@ -11,6 +11,7 @@ from pathlib import Path
 # Patterns indicating potential sensitive material
 FORBIDDEN_NAME_PATTERNS = [
     r"quantysecrets",
+    r"quantycoinsecrets",
     r"\.secret$",
     r"\.secrets$",
     r"\.private$",
@@ -34,6 +35,7 @@ FORBIDDEN_CONTENT_PATTERNS = [
     (r"CREATOR MASTER PRIVATE KEY", "Genesis Creator private key leak"),
     (r"24-WORD BIP39 MNEMONIC SEED", "Mnemonic seed header leak"),
     (r"QuantySecrets[\\/]", "QuantySecrets vault path reference in source"),
+    (r"QuantyCoinSecrets[\\/]", "QuantyCoinSecrets vault path reference in source"),
 ]
 
 # Allowed files that may mention patterns purely for detection/documentation
@@ -46,7 +48,6 @@ WHITELISTED_FILES = {
     "docs/agent/DECISIONS.md",
     "docs/agent/OPEN_QUESTIONS.md",
     "scripts/verify_security.py",
-    "scripts/generate_and_verify_genesis.py",
     ".gitignore",
 }
 

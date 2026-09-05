@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "max_inputs": 10000,
+  "max_outputs": 10000,
+  "max_transaction_weight": 4000000,
+  "serialization_formats": {
+    "legacy": "inputs + outputs + locktime",
+    "witness": "version + marker(0x00) + flag(0x01) + inputs + outputs + witness_data + locktime"
+  },
+  "txid_digest": "double_sha256(legacy_serialization)",
+  "wtxid_digest": "double_sha256(witness_serialization)",
+  "locktime_rules": {
+    "threshold": 500000000,
+    "below_threshold": "block_height",
+    "at_or_above_threshold": "unix_timestamp"
+  }
+}

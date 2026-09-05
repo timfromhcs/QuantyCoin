@@ -13,7 +13,7 @@ from network.protocol import (
     parse_version_payload, build_inv_payload, parse_inv_payload,
     INV_TYPE_TX, INV_TYPE_BLOCK, HEADER_LENGTH
 )
-from core.genesis_constants import MAGIC_BYTES
+from core.genesis_constants import MAGIC_BYTES, PROTOCOL_VERSION
 
 
 def test_wire_framing():
@@ -34,7 +34,7 @@ def test_version_payload():
     payload = build_version_payload(best_height=100, local_nonce=9999, user_agent="/QuantyTest:1.0/")
     info = parse_version_payload(payload)
     
-    assert info["version"] == 70015
+    assert info["version"] == PROTOCOL_VERSION
     assert info["start_height"] == 100
     assert info["nonce"] == 9999
     assert info["user_agent"] == "/QuantyTest:1.0/"

@@ -1,28 +1,30 @@
-# QuantyCoin (QTY) — Protocol QTY3 Machine Index
-> Independent Post-Quantum Dual-PoW Layer-1 Cryptocurrency featuring SHA-256D ASIC and Scrypt CPU/GPU mining, NIST FIPS 204 ML-DSA-44 transaction authorization, thermodynamic cumulative chainwork, native Stratum V2 binary engine, and Qt6 desktop applications.
+# QuantyCoin (QTY) — Protocol QTY4 Machine Index
+> Independent Post-Quantum Dual-PoW Layer-1 Cryptocurrency featuring SHA-256D ASIC and Scrypt CPU/GPU mining, NIST FIPS 204 ML-DSA-44 transaction authorization, thermodynamic cumulative chainwork, pure 64-bit integer monetary arithmetic, native Stratum V2 binary engine, and Qt6 desktop applications.
 
 ## Core Technical Summary
-- **Protocol Version:** 70020 (QTY3 / v3.0.0 Mainnet)
-- **Chain Identifier:** quantycoin-2.0
-- **Genesis Block Hash:** 00000f7cecd0b1eafaab4d65183f7bd12713b67b6c1c4a30f6bf3f1b8efd30ba
+- **Protocol Version:** 70040 (QTY4 / v4.0.0 Mainnet)
+- **Chain Identifier:** quantycoin-4.0
+- **Genesis Block Hash:** 000004eb1e117df3168d6d27118982e0a23c236120183e8390a6bbb82ee6fde3
 - **Consensus:** Asymmetric Dual-PoW (Lane A SHA-256D ASIC & Lane B RFC 7914 Scrypt) with LWMA-1 difficulty adjustment (window: 45 blocks per lane)
 - **Fork Choice:** Cumulative Thermodynamic Chainwork ($W_A=1, W_B=2048$)
-- **Max Supply:** 21,000,000 QTY (2.1 x 10^15 Satoshis)
+- **Max Supply:** 21,000,000 QTY (2.1 x 10^15 Satoshis) enforced via checked 64-bit integer arithmetic (`core.money.Amount`)
 - **Target Block Time:** 60 seconds combined (120 seconds per lane)
-- **Block Reward:** Lane A: 50 QTY &bull; Lane B: 25 QTY, halving every 2,100,000 blocks (~4 years)
+- **Block Reward:** Lane A: 50 QTY &bull; Lane B: 25 QTY, halving every 2,100,000 blocks (~4 years) via pure integer right-shift
 - **Max Block Size:** 32 MB (33,554,432 bytes)
-- **Network Ports:** P2P: 19888, RPC: 19889, Stratum V1: 3333, Stratum V2: 3334
-- **Wire Magic:** `0x5155414E` ("QUAN")
+- **Network Ports:** P2P: 19444, RPC: 19445, Stratum V1: 3333, Stratum V2: 3334
+- **Wire Magic:** `0x51545934` ("QTY4")
 - **Post-Quantum Cryptography:** NIST FIPS 204 ML-DSA-44 native C lattice acceleration (`libqtydilithium`)
 - **Address Schemes:** Native SegWit Bech32 (`qty1q...`), Post-Quantum Bech32m (`qty1p...`), Hybrid Bech32m (`qty1z...`), Legacy Base58Check (`Q...`)
 - **Native Applications:** Sovereign Full Wallet, SPV Lightning Wallet, Node Manager GUI, Standalone Miner GUI, and Combined Master Suite (Qt6 / PySide6 for Windows & Linux).
 
 ## Authoritative Documentation & Links
-- [Project Summary & Specs](docs/project-summary.md)
-- [Trust Center & Verification Boundaries](TRUST.md)
+- [Protocol Status & Readiness](docs/STATUS.md)
+- [Consensus Assurance & Invariant Proofs](docs/CONSENSUS_ASSURANCE.md)
+- [Genesis Reproduction Guide](docs/GENESIS_REPRODUCTION.md)
+- [Security Assurance & Proof of Isolation](docs/SECURITY_ASSURANCE.md)
+- [Platform & Build Matrix](docs/BUILD_MATRIX.md)
 - [Independent Verification Guide](VERIFICATION.md)
 - [Technical Architecture](ARCHITECTURE.md)
-- [Protocol Specification](docs/protocol/index.md)
 - [Formal Threat Model](THREAT_MODEL.md)
 - [Security Policy & Disclosures](SECURITY.md)
 - [Technical Roadmap](ROADMAP.md)

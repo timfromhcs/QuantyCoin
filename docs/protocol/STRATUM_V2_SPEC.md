@@ -67,7 +67,7 @@ To support both ASIC and CPU/GPU mining lanes over Stratum V2, QuantyCoin extend
 - `min_version` (uint16): Minimum supported SV2 version (`2`).
 - `max_version` (uint16): Maximum supported SV2 version (`2`).
 - `flags` (uint32): Feature capability flags.
-- `network` (uint32): Network magic (`0x5155414E` for Mainnet QTY2).
+- `network` (uint32): Network magic (`0x51545934` for Mainnet QTY4).
 - **`pow_lane`** (uint8): Mining lane selection:
   - `0x00`: `SHA256D_ASIC`
   - `0x01`: `GENERAL_PURPOSE`

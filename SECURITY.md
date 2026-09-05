@@ -1,7 +1,7 @@
 # QuantyCoin Security Policy
 
 **Last Updated**: 2026-09-05  
-**Protocol Version**: QTY3 (`70020`)  
+**Protocol Version**: QTY4 (`70040`)  
 
 ---
 
@@ -9,9 +9,9 @@
 
 | Version | Protocol Version | Support Status | Notes |
 | :--- | :--- | :--- | :--- |
-| **3.0.x (QTY3)** | **70020** | :white_check_mark: **Supported (Current Production Baseline)** | Dual-PoW, ML-DSA-44 PQC, Stratum V2, active maintenance. |
-| **2.0.x (QTY2)** | **70020** | :white_check_mark: Supported (Consensus-Compatible Baseline) | Previous consensus iteration; upgrade recommended. |
-| < 2.0.0 | < 70020 | :x: Unsupported (Deprecated Genesis) | Pre-rebuild legacy iterations. Nodes should upgrade. |
+| **4.0.x (QTY4)** | **70040** | :white_check_mark: **Supported (Current Production Baseline)** | Pure integer consensus, Dual-PoW, ML-DSA-44 PQC, Stratum V2, active maintenance. |
+| **3.0.x (QTY3)** | **70020** | :warning: Deprecated (Protocol 70020 Baseline) | Superseded by QTY4 consensus rebuild. Nodes must upgrade. |
+| < 3.0.0 | < 70020 | :x: Unsupported (Deprecated Genesis) | Pre-rebuild legacy iterations. Incompatible chain identities. |
 
 ---
 

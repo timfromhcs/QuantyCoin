@@ -40,6 +40,8 @@ jobs:
           python tests/test_crypto.py
           python tests/test_core.py
           python tests/test_p2p.py
+          python scripts/verify_genesis.py
+          python tests/test_adversarial_qty4.py
           python tests/test_runner.py
 
       - name: Compile Windows Native Executables via PyInstaller
@@ -58,24 +60,23 @@ jobs:
 
       - name: Build Windows Installers
         run: |
-          Copy-Item dist\bin\node\quanty-node-gui.exe dist\windows\QuantyCoin-Node-Setup-2.0.0.exe
-          Copy-Item dist\bin\wallet\quanty-wallet-full-gui.exe dist\windows\QuantyCoin-FullWallet-Setup-2.0.0.exe
-          Copy-Item dist\bin\lightning\quanty-lightning-wallet-gui.exe dist\windows\QuantyCoin-LightningWallet-Setup-2.0.0.exe
-          Copy-Item dist\bin\miner\quanty-miner-gui.exe dist\windows\QuantyCoin-Miner-Setup-2.0.0.exe
-          Copy-Item dist\bin\suite\QuantyCoinSuite.exe dist\windows\QuantyCoin-CombinedSuite-Setup-2.0.0.exe
+          Copy-Item dist\bin\node\quanty-node-gui.exe dist\windows\QuantyCoin-Node-Setup-4.0.0.exe
+          Copy-Item dist\bin\wallet\quanty-wallet-full-gui.exe dist\windows\QuantyCoin-FullWallet-Setup-4.0.0.exe
+          Copy-Item dist\bin\lightning\quanty-lightning-wallet-gui.exe dist\windows\QuantyCoin-LightningWallet-Setup-4.0.0.exe
+          Copy-Item dist\bin\miner\quanty-miner-gui.exe dist\windows\QuantyCoin-Miner-Setup-4.0.0.exe
+          Copy-Item dist\bin\suite\QuantyCoinSuite.exe dist\windows\QuantyCoin-CombinedSuite-Setup-4.0.0.exe
           Copy-Item dist\bin\quantyd.exe dist\windows\quantyd.exe
           Copy-Item dist\bin\quanty-wallet.exe dist\windows\quanty-wallet.exe
           Copy-Item dist\bin\quanty-miner.exe dist\windows\quanty-miner.exe
 
       - name: Create Portable Zip Archives
         run: |
-          Compress-Archive -Path dist\bin\* -DestinationPath dist\windows\QuantyCoin-2.0.0-Windows-Portable.zip -Force
+          Compress-Archive -Path dist\bin\* -DestinationPath dist\windows\QuantyCoin-4.0.0-Windows-Portable.zip -Force
 
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-release-2.0.0
-          path: dist/windows/*
+          name: windows-release-4.0.0
           path: dist/windows/*
 
   # ============================================================================
@@ -100,6 +101,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller qrcode pillow pyside6
 
+      - name: Build Native Dilithium Library (Linux)
+        run: |
+          gcc -O3 -shared -fPIC -DDILITHIUM_MODE=2 \
+            -Isrc/crypto -Isrc/crypto/dilithium/ref \
+            src/crypto/dilithium_wrapper.c \
+            src/crypto/dilithium/ref/fips202.c \
+            src/crypto/dilithium/ref/ntt.c \
+            src/crypto/dilithium/ref/packing.c \
+            src/crypto/dilithium/ref/poly.c \
+            src/crypto/dilithium/ref/polyvec.c \
+            src/crypto/dilithium/ref/randombytes.c \
+            src/crypto/dilithium/ref/reduce.c \
+            src/crypto/dilithium/ref/rounding.c \
+            src/crypto/dilithium/ref/sign.c \
+            src/crypto/dilithium/ref/symmetric-shake.c \
+            -o src/crypto/libqtydilithium.so
+
       - name: Run Cryptographic & Core Verification Tests
         env:
           PYTHONPATH: .
@@ -108,6 +126,8 @@ jobs:
           python tests/test_crypto.py
           python tests/test_core.py
           python tests/test_p2p.py
+          python scripts/verify_genesis.py
+          python tests/test_adversarial_qty4.py
           python tests/test_runner.py
 
       - name: Compile Linux Binaries via PyInstaller
@@ -128,20 +148,20 @@ jobs:
         run: |
           chmod +x packaging/linux/build_deb.sh packaging/linux/build_appimage.sh
           bash packaging/linux/build_deb.sh
-          tar -czf dist/linux/QuantyCoin-2.0.0-Linux-x86_64.tar.gz -C dist/bin .
+          tar -czf dist/linux/QuantyCoin-4.0.0-Linux-x86_64.tar.gz -C dist/bin .
           if [ -d "dist/deb" ] && ls dist/deb/*.deb 1> /dev/null 2>&1; then cp dist/deb/*.deb dist/linux/; fi
 
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-release-2.0.0
+          name: linux-release-4.0.0
           path: dist/linux/*
 
   # ============================================================================
   # 3. GITHUB RELEASE PUBLISHER: Tagged Multi-Platform Release (Win & Linux)
   # ============================================================================
   publish-release:
-    name: Publish Multi-Platform Release 2.0.0
+    name: Publish Multi-Platform Release 4.0.0
     needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
@@ -149,13 +169,13 @@ jobs:
       - name: Download Windows Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: windows-release-2.0.0
+          name: windows-release-4.0.0
           path: release-assets/windows
 
       - name: Download Linux Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: linux-release-2.0.0
+          name: linux-release-4.0.0
           path: release-assets/linux
 
       - name: Create Official GitHub Release
@@ -169,5 +189,3 @@ jobs:
           files: |
             release-assets/windows/*
             release-assets/linux/*
-
-

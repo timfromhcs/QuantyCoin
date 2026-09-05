@@ -1,0 +1,31 @@
+{
+  "networks": {
+    "mainnet": {
+      "magic_bytes_hex": "51545934",
+      "magic_bytes_ascii": "QTY4",
+      "default_p2p_port": 19444,
+      "default_rpc_port": 19445,
+      "default_stratum_v1_port": 3333,
+      "default_stratum_v2_port": 3334,
+      "bech32_hrp": "qty"
+    },
+    "testnet": {
+      "magic_bytes_hex": "54515434",
+      "magic_bytes_ascii": "TQT4",
+      "default_p2p_port": 29444,
+      "default_rpc_port": 29445,
+      "default_stratum_v1_port": 13333,
+      "default_stratum_v2_port": 13334,
+      "bech32_hrp": "tqty"
+    },
+    "regtest": {
+      "magic_bytes_hex": "52515434",
+      "magic_bytes_ascii": "RQT4",
+      "default_p2p_port": 39444,
+      "default_rpc_port": 39445,
+      "default_stratum_v1_port": 23333,
+      "default_stratum_v2_port": 23334,
+      "bech32_hrp": "rqty"
+    }
+  }
+}

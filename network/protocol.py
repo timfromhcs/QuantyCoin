@@ -1,7 +1,7 @@
 """
 QuantyCoin Network Wire Protocol
 Binary Framing, Header Encoding, Checksum Validation & Message Definitions
-Zero-Mock Implementation (TCP Wire Protocol on Port 19888)
+Zero-Mock Implementation (TCP Wire Protocol on Port 19444)
 """
 
 import struct
@@ -59,10 +59,10 @@ def parse_header(header_bytes: bytes) -> Tuple[bytes, str, int, bytes]:
 # Message Payload Builders and Parsers
 # ==============================================================================
 
-def build_version_payload(best_height: int, local_nonce: int = 12345678, user_agent: str = "/QuantyCoin:3.0.0/") -> bytes:
+def build_version_payload(best_height: int, local_nonce: int = 12345678, user_agent: str = "/QuantyCoin:4.0.0/") -> bytes:
     """Build 'version' handshake payload."""
     res = bytearray()
-    res += struct.pack('<i', 70015) # Protocol version
+    res += struct.pack('<i', 70040) # Protocol version 70040 (QTY4)
     res += struct.pack('<Q', 1)     # Services (NODE_NETWORK = 1)
     res += struct.pack('<q', int(time.time()))
     res += b'\x00' * 26            # addr_recv

@@ -324,5 +324,37 @@ Every major milestone must have concrete, reproducible execution evidence record
 - **Documentation Validator Proof**:
   - `python scripts/verify_documentation.py`: `[PASS] All markdown links resolve successfully. ALL DOCUMENTATION VALIDATION CHECKS PASSED (100%).`
 
+---
+
+## 11. QTY4 Canonical Genesis Audit & GitHub Actions CI Verification
+- **Timestamp**: 2026-09-05T18:15:26+02:00
+- **Target PR**: PR #11 (`feature/qty4-consensus-rebuild` -> `main`)
+- **Canonical Genesis Verifier Execution** (`python scripts/verify_genesis.py`):
+  - Gate 1: Stale Artifact & Legacy Contamination Scan: PASS (0 stale files).
+  - Gate 2: Runtime Consensus Constants Verification: PASS (`PROTOCOL_VERSION=70040`, `CHAIN_ID=quantycoin-4.0`, `MAGIC=51545934`, `PORTS=19444/19445/3333/3334`, `GENESIS_HASH=000004eb1e117df3168d6d27118982e0a23c236120183e8390a6bbb82ee6fde3`, `MERKLE_ROOT=3526817e09d5a065247d15a45a7aa5cf351479e011d32ecfd752e94acfae55ea`).
+  - Gate 3: Manifest & Public Artifact Consistency Audit: PASS (`PUBLIC_GENESIS_MANIFEST.json`, `public_genesis.json`, `genesis_hash.txt`, `genesis_merkle_root.txt`).
+  - Gate 4: Path A Core State Machine Verification: PASS.
+  - Gate 5: Path B Independent Standalone Engine: PASS.
+  - Gate 6: Dual-Path Byte-for-Byte Cross Verification: PASS (Exact hash, Merkle root, 267 bytes raw block).
+  - Result: `ALL QTY4 GENESIS VERIFICATION GATES PASSED (100%)`.
+- **Zero-Leak Security Scanner Execution** (`python scripts/verify_security.py`):
+  - `[PASS] No secrets, private credentials or forbidden files detected.` (0 leaks).
+- **Adversarial & Unit Verification Suite**:
+  - `tests/test_adversarial_qty4.py`: PASS (10/10 attack vectors rejected).
+  - `tests/test_crypto.py`: PASS (100%).
+  - `tests/test_core.py`: PASS (100%).
+  - `tests/test_p2p.py`: PASS (100%).
+  - `tests/test_dualpow_security_simulation.py`: PASS (3/3 scenarios).
+  - `tests/test_runner.py`: PASS (100%).
+  - `tests/test_multinode_stress.py`: PASS (100%).
+- **GitHub Actions Cloud CI Matrix (100% PASS Across Windows & Linux)**:
+  - `Security & Cryptographic Integrity`: PASS (`Zero-Leak Git Policy & Secret Scanner`, `Genesis PoW & Consensus Verification`).
+  - `Documentation & Link Integrity`: PASS (`Markdown Links & Standards Audit`).
+  - `Cloud Build & Platform Verification`: PASS (`ubuntu-latest`, `windows-latest`).
+  - `CI (Test Matrix & Protocol Validation)`:
+    - Ubuntu-latest (Py 3.10, 3.11, 3.12): PASS (100%).
+    - Windows-latest (Py 3.10, 3.11, 3.12): PASS (100%).
+
+
 
 

@@ -1,0 +1,9 @@
+{
+  "bits_0x1e0fffff": {
+    "bits_hex": "1e0fffff",
+    "target_hex": "00000fffff000000000000000000000000000000000000000000000000000000",
+    "work_lane_a": 1048577,
+    "work_lane_b": 2147485696,
+    "weight_ratio_b_over_a": 2048
+  }
+}

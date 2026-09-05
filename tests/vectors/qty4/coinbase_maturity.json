@@ -1,0 +1,5 @@
+{
+  "maturity_blocks": 100,
+  "spend_at_99_conf_valid": false,
+  "spend_at_100_conf_valid": true
+}

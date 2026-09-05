@@ -16,9 +16,9 @@ COPY . /app/
 # Install python dependencies
 RUN pip install --no-cache-dir qrcode
 
-# Ports: P2P, RPC, Stratum, GUI Suite
-EXPOSE 19888 19889 3333 8080
+# Ports: P2P, RPC, Stratum V1, Stratum V2, GUI Suite
+EXPOSE 19444 19445 3333 3334 8080
 
 # Default command: Start QuantyCoin Node
 ENTRYPOINT ["python", "-m", "node.daemon"]
-CMD ["--port", "19888", "--rpcport", "19889"]
+CMD ["--port", "19444", "--rpcport", "19445"]

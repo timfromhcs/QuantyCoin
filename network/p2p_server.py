@@ -1,6 +1,6 @@
 """
 QuantyCoin P2P Network Manager & Discovery Service
-Listens on TCP Port 19888, Manages Peer Pool, PEX & Block/Tx Broadcasting
+Listens on TCP Port 19444, Manages Peer Pool, PEX & Block/Tx Broadcasting
 Zero-Mock Implementation
 """
 

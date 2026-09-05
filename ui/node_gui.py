@@ -74,10 +74,10 @@ NODE_HTML_BODY = """
       </div>
       <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; font-family: var(--font-mono);">
         <div><strong style="color: var(--text-muted);">Best Hash:</strong> <span id="val-besthash" style="color: var(--accent-cyan); word-break: break-all;">-</span></div>
-        <div><strong style="color: var(--text-muted);">Protocol:</strong> <span>QTY2 (Protocol 70020)</span></div>
-        <div><strong style="color: var(--text-muted);">Default P2P Port:</strong> <span>19888</span></div>
-        <div><strong style="color: var(--text-muted);">Default RPC Port:</strong> <span>19889</span></div>
-        <div><strong style="color: var(--text-muted);">Network:</strong> <span class="status-pill status-online">MAINNET QTY2 ACTIVE</span></div>
+        <div><strong style="color: var(--text-muted);">Protocol:</strong> <span>QTY4 (Protocol 70040)</span></div>
+        <div><strong style="color: var(--text-muted);">Default P2P Port:</strong> <span>19444</span></div>
+        <div><strong style="color: var(--text-muted);">Default RPC Port:</strong> <span>19445</span></div>
+        <div><strong style="color: var(--text-muted);">Network:</strong> <span class="status-pill status-online">MAINNET QTY4 ACTIVE</span></div>
       </div>
     </div>
 

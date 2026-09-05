@@ -170,11 +170,15 @@ build-linux/
 !src/qt/test/Makefile
 !src/test/Makefile
 
-# Zero-Leak Git Policy (QuantyCoin 2.0 / QTY2)
+# Zero-Leak Git Policy (QuantyCoin 4.0 / QTY4)
 QuantySecrets/
 quantysecrets/
 **/QuantySecrets/
 **/quantysecrets/
+QuantyCoinSecrets/
+quantycoinsecrets/
+**/QuantyCoinSecrets/
+**/quantycoinsecrets/
 *.secret
 *.secrets
 *.private

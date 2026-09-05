@@ -1,0 +1,13 @@
+{
+  "protocol_version": 70040,
+  "chain_id": "quantycoin-4.0",
+  "timestamp_str": "2026-09-05: QuantyCoin 4.0 (QTY4) - Post-Quantum Dual-PoW Layer-1 Autonomous Blockchain Protocol",
+  "timestamp": 1788614400,
+  "bits": 504365055,
+  "nonce": 2951011,
+  "reward_satoshis": 5000000000,
+  "payout_address": "qty1qu9ztelcfra7uz8agw9qnfej6h8x9tqtxhuaqpf",
+  "payout_script_hex": "0014e144bcff091f7dc11fa8714134e65ab9cc558166",
+  "expected_genesis_hash": "000004eb1e117df3168d6d27118982e0a23c236120183e8390a6bbb82ee6fde3",
+  "expected_merkle_root": "3526817e09d5a065247d15a45a7aa5cf351479e011d32ecfd752e94acfae55ea"
+}

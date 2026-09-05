@@ -1,0 +1,17 @@
+{
+  "sample_timestamps": [
+    1000,
+    1060,
+    1120,
+    1180,
+    1240,
+    1300,
+    1360,
+    1420,
+    1480,
+    1540,
+    1600
+  ],
+  "computed_mtp": 1300,
+  "strictly_greater_required": true
+}

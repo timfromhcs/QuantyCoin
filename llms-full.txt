@@ -1,7 +1,7 @@
-# QuantyCoin (QTY3) — Comprehensive Technical Reference & Protocol Specification
+# QuantyCoin (QTY4) — Comprehensive Technical Reference & Protocol Specification
 
 ## 1. Executive Summary & Philosophy
-QuantyCoin (QTY3) is an open-source, sovereign Layer-1 blockchain engineering project designed as an independent post-quantum cryptocurrency featuring asymmetric Dual Proof-of-Work mining (SHA-256D ASIC & RFC 7914 Scrypt CPU/GPU), NIST FIPS 204 ML-DSA-44 transaction authorization, thermodynamic cumulative chainwork, 60-second combined block intervals, responsive LWMA-1 difficulty adjustment, Stratum V2 binary framing, and self-sovereign Qt6 desktop applications.
+QuantyCoin (QTY4) is an open-source, sovereign Layer-1 blockchain engineering project designed as an independent post-quantum cryptocurrency featuring asymmetric Dual Proof-of-Work mining (SHA-256D ASIC & RFC 7914 Scrypt CPU/GPU), NIST FIPS 204 ML-DSA-44 transaction authorization, thermodynamic cumulative chainwork, 60-second combined block intervals, responsive LWMA-1 difficulty adjustment, pure 64-bit integer arithmetic, Stratum V2 binary framing, and self-sovereign Qt6 desktop applications.
 
 ## 2. Cryptographic Algorithms & Encodings
 - **Post-Quantum Cryptography:** NIST FIPS 204 ML-DSA-44 (CRYSTALS-Dilithium2) via native C lattice acceleration (`libqtydilithium`). Public key: 1,312 bytes; Signature: 2,420 bytes.
@@ -15,23 +15,23 @@ QuantyCoin (QTY3) is an open-source, sovereign Layer-1 blockchain engineering pr
   - Legacy P2PKH Base58Check (`Q...`)
 
 ## 3. Blockchain State & Consensus Mechanics
-- **Hard Cap:** 21,000,000 QTY
+- **Hard Cap:** 21,000,000 QTY (2.1 x 10^15 Satoshis via `core.money.Amount`)
 - **Block Time:** 60.0 seconds combined (120 seconds per lane)
 - **Mining Lanes:** Asymmetric Dual-PoW:
   - Lane A: SHA-256D ASIC (100% block reward / 50 QTY initial)
   - Lane B: RFC 7914 Scrypt 1024/1/1 General Purpose CPU/GPU (50% block reward / 25 QTY initial)
 - **Difficulty Adjustment:** Independent per-lane LWMA-1 (Linear-Weighted Moving Average across 45-block per-lane window)
 - **Fork Choice:** Cumulative Thermodynamic Chainwork ($W_A = 1, W_B = 2048$)
-- **Halving Cadence:** Every 2,100,000 blocks (~4 years)
+- **Halving Cadence:** Every 2,100,000 blocks (~4 years) via bitwise integer right-shift
 - **Block Size Hard Limit:** 32 MB
 - **Mining Servers:** Native Stratum V2 binary engine on port 3334 & Stratum V1 on port 3333
 
 ## 4. P2P Wire Protocol Specification
-- **Magic Bytes:** `0x5155414E` (ASCII "QUAN")
+- **Magic Bytes:** `0x51545934` (ASCII "QTY4")
 - **Header Length:** 24 bytes (4 bytes Magic, 12 bytes Command ASCII, 4 bytes Length uint32_le, 4 bytes Checksum uint32_le)
 - **Supported Wire Commands:** `version`, `verack`, `ping`, `pong`, `inv`, `getdata`, `getblocks`, `block`, `tx`
 
-## 5. JSON-RPC 2.0 API Reference (Port 19889)
+## 5. JSON-RPC 2.0 API Reference (Port 19445)
 - `getinfo`: Returns node status, blockchain height, circulating supply, and peer metrics
 - `getblockchaininfo`: Returns best block hash, height, and cumulative chainwork
 - `getnetworkinfo`: Returns protocol version, user agent, connection count, and relay fees
@@ -54,4 +54,5 @@ QuantyCoin (QTY3) is an open-source, sovereign Layer-1 blockchain engineering pr
 
 ## 6. Functional Test Harness & CI/CD
 - Complete test runner (`tests/test_runner.py`) executing cryptographic unit tests, consensus validation, mining mechanics, BIP39 SegWit transactions, P2P network relay, and deep multi-block chain reorganizations.
+- Dedicated adversarial test suite (`tests/test_adversarial_qty4.py`) rejecting hostile inputs, fuzzing, and corrupted frames.
 - 100% automated cross-platform native installer build matrix via `.github/workflows/release.yml`.
