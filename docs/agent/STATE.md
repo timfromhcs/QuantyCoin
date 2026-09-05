@@ -1,8 +1,8 @@
 # QuantyCoin Protocol Rebuild State: Post-Quantum & Dual-PoW
 
 **Branch**: `feature/qty3-pq-dualpow-sv2`  
-**Current Phase**: NIST FIPS 204 PQC, Asymmetric Dual-PoW Consensus & Native Stratum V2 Protocol Hardening  
-**Protocol Version**: QTY2 (70020)  
+**Current Phase**: QTY3 Post-Quantum Mainnet Transformation & Integration Verification  
+**Protocol Version**: QTY2/QTY3 (70020)  
 **Last Updated**: 2026-09-05  
 
 ---
