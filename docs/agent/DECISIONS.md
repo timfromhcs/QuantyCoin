@@ -51,3 +51,31 @@ All immutable protocol parameters and key architectural choices are recorded her
   - Binary framing (6-byte header) on port 3334 (`SV2_DEFAULT_PORT`).
   - Native channel multiplexing with dual-lane negotiation (`pow_lane` in `SetupConnection` and `OpenStandardMiningChannel`).
   - Real-time job distribution and share submission with low-latency `SetNewPrevHash`.
+
+---
+
+## QTY4 Hardening Addendum (2026-09-05, branch `feature/qty4-consensus-rebuild`)
+
+- **No consensus change**: all work below is verification/test/CI/supply-chain only.
+  `core/genesis_constants.py` and consensus parameters untouched.
+- **D1 - Canonical protocol truth gate**: new `scripts/verify_protocol_truth.py`
+  cross-checks all 6 `spec/qty4/*.json` files against runtime constants,
+  production subsidy/halving boundaries, target codec, network/address/witness
+  constants, fork-choice rule, and vector corpus presence. Fails closed on drift.
+- **D2 - Independent reference implementation**: new stdlib-only
+  `reference/qty4_reference.py` (no imports from `core/`/`crypto/`/`network/`),
+  differentially tested by `tests/test_reference_differential_qty4.py`
+  (compact, work, subsidy, money-range, MTP, varint, merkle/txid, header,
+  addresses, fork-choice). Catches duplicated-bug class failures.
+- **D3 - Deterministic fuzz smoke**: new `tests/test_fuzz_qty4.py`
+  (seeded, bounded, stdlib-only) covering headers, compact codec, transactions,
+  addresses, P2P frames, Stratum V2 frames, varint, plus production-vs-reference
+  differential fuzz. Failing inputs preserved under `tests/fuzz_corpus/`.
+- **D4 - Supply chain**: `scripts/generate_sbom.py` (deterministic SBOM +
+  SHA256SUMS, regenerated in CI as an uploaded artifact, `sbom/` git-ignored),
+  `.github/dependabot.yml` (pip + GitHub Actions weekly), and
+  `.github/workflows/codeql.yml` (CodeQL python analysis on push/PR/weekly).
+- **D5 - CI gates**: `ci.yml` now runs native-backend load check, protocol-truth,
+  reference-differential, and fuzz-smoke jobs; `build.yml` verifies the native
+  backend on both OSes and generates/uploads the SBOM; `security.yml` gains an
+  SBOM supply-chain job.

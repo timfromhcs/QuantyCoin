@@ -355,6 +355,35 @@ Every major milestone must have concrete, reproducible execution evidence record
     - Ubuntu-latest (Py 3.10, 3.11, 3.12): PASS (100%).
     - Windows-latest (Py 3.10, 3.11, 3.12): PASS (100%).
 
+---
+
+## 12. QTY4 Verification Hardening (protocol truth, reference, fuzz, supply chain)
+- **Timestamp**: 2026-09-05 (local, Windows, Python 3.14.6)
+- **Branch**: `feature/qty4-consensus-rebuild`
+- **Scope**: verification/test/CI/supply-chain only. Zero consensus changes
+  (`git diff` touches no file under `core/`, no spec JSON values).
+- **Results**:
+  - `python scripts/verify_security.py`: PASS (0 leaks).
+  - `python scripts/verify_genesis.py`: ALL 6 GATES PASS (dual-path byte identity).
+  - `python scripts/verify_protocol_truth.py`: ALL PROTOCOL TRUTH CHECKS PASSED.
+  - `python scripts/verify_documentation.py`: 103 links, 0 broken.
+  - `python scripts/verify_documentation_consistency.py`: PASS.
+  - `python scripts/generate_sbom.py`: 1288 components hashed (artifact git-ignored, CI-uploaded).
+  - `python tests/test_crypto.py` / `test_core.py` / `test_p2p.py`: PASS.
+  - `python tests/test_adversarial_qty4.py`: 10/10 OK.
+  - `python tests/test_reference_differential_qty4.py`: 10/10 OK.
+  - `python tests/test_fuzz_qty4.py` (seed 20260905, 2000 iters): ALL PASSED.
+  - `python tests/test_dualpow_security_simulation.py`: 3/3 PASS.
+  - `python tests/test_functional_stratum.py`: PASS.
+  - `python -c "from crypto.mldsa import get_native_lib"`: NATIVE ML-DSA OK (libqtydilithium.dll).
+  - `python tests/test_runner.py`: ALL TESTS PASSED (196.82s).
+  - `python tests/test_multinode_stress.py`: ALL 4 STRESS TESTS PASSED.
+- **CI deltas** (this change): `ci.yml` +protocol-truth, +reference-differential,
+  +fuzz-smoke, +native-backend check; `build.yml` +native check, +SBOM;
+  `security.yml` +SBOM job; new `codeql.yml`; new `dependabot.yml`.
+- **Note**: local Python is 3.14.6 (CI matrix covers 3.10-3.12); cloud run
+  verification pending push of this commit.
+
 
 
 

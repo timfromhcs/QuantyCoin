@@ -56,6 +56,9 @@ jobs:
             src/crypto/dilithium/ref/symmetric-shake.c \
             -o src/crypto/libqtydilithium.so
 
+      - name: Verify Native PQC Backend Loads
+        run: python -c "from crypto.mldsa import get_native_lib; get_native_lib(); print('NATIVE ML-DSA OK')"
+
       - name: Run Cryptographic & Core Unit Tests
         run: |
           python tests/test_crypto.py
@@ -67,6 +70,18 @@ jobs:
 
       - name: Run QTY4 Adversarial Hardening Test
         run: python tests/test_adversarial_qty4.py
+
+      - name: Run QTY4 Protocol Truth Validation
+        run: python scripts/verify_protocol_truth.py
+
+      - name: Run Production-vs-Reference Differential Tests
+        run: python tests/test_reference_differential_qty4.py
+
+      - name: Run Deterministic Fuzz Smoke (bounded)
+        env:
+          QTY4_FUZZ_ITERS: '2000'
+          QTY4_FUZZ_SEED: '20260905'
+        run: python tests/test_fuzz_qty4.py
 
       - name: Run Dual-PoW Security & Simulation
         run: python tests/test_dualpow_security_simulation.py

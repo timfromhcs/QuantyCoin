@@ -196,3 +196,6 @@ genesis/archive/private/
 bitcoin knots reference don't push with repo in the end/
 QUANTYCOIN_GENESIS_CREATOR_SECRETS_DO_NOT_SHARE.txt
 
+# Generated SBOM artifacts (reproduced deterministically in CI via scripts/generate_sbom.py)
+sbom/
+

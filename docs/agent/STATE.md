@@ -36,3 +36,7 @@
 | **Adversarial Hardening** | **VERIFIED** | 10 attack vectors verified in `tests/test_adversarial_qty4.py`. |
 | **Dual-PoW Simulation** | **VERIFIED** | 3 scenarios verified in `tests/test_dualpow_security_simulation.py`. |
 | **Completion Gate** | **PASS** | 100% verified across all mandatory contract checkpoints. |
+| **Protocol Truth Gate** | **VERIFIED** | `scripts/verify_protocol_truth.py` cross-checks all 6 `spec/qty4/*.json` vs runtime constants (2026-09-05 local PASS). |
+| **Reference Differential** | **VERIFIED** | Stdlib-only `reference/qty4_reference.py` vs `core/` agreement in `tests/test_reference_differential_qty4.py` (10/10 PASS). |
+| **Fuzz Smoke** | **VERIFIED** | Seeded bounded `tests/test_fuzz_qty4.py` over headers/compact/tx/address/P2P/SV2/varint + differential fuzz (PASS). |
+| **Supply Chain** | **VERIFIED** | `scripts/generate_sbom.py` (CI artifact), Dependabot weekly, CodeQL python analysis. |

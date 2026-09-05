@@ -58,7 +58,18 @@
 - [x] **Phase P17: Final Implementation Report**
   - Created `FINAL_IMPLEMENTATION_REPORT_QTY4.md`.
 
-- [ ] **Phase P18: Git Finalization, Staging & Push**
+- [x] **Phase P18: Git Finalization, Staging & Push**
   - Run `scripts/verify_security.py` (verify 0 leaks).
   - Commit all changes to `feature/qty4-consensus-rebuild`.
   - Push to origin and open pull request to `main`.
+
+- [x] **Phase P19: QTY4 Verification Hardening (protocol truth, reference, fuzz, supply chain)**
+  - `scripts/verify_protocol_truth.py`: canonical cross-check of all 6 specs vs runtime (PASS 2026-09-05).
+  - `reference/qty4_reference.py` + `tests/test_reference_differential_qty4.py`: 10/10 PASS.
+  - `tests/test_fuzz_qty4.py`: seeded bounded smoke PASS (seed 20260905, 2000 iters).
+  - `scripts/generate_sbom.py` + Dependabot + CodeQL workflow; CI gates extended
+    (protocol truth, reference differential, fuzz smoke, native-backend load, SBOM).
+  - Full local matrix re-verified: security, genesis dual-path, doc links,
+    protocol truth, crypto/core/p2p, adversarial 10/10, dual-PoW sim, stratum V1,
+    test_runner (100%), multinode stress 4/4 (100%).
+  - No consensus change: `core/genesis_constants.py` untouched.

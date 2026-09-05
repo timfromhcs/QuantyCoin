@@ -55,6 +55,9 @@ jobs:
             src/crypto/dilithium/ref/symmetric-shake.c \
             -o src/crypto/libqtydilithium.so
 
+      - name: Verify Native PQC Backend Loads
+        run: python -c "from crypto.mldsa import get_native_lib; get_native_lib(); print('NATIVE ML-DSA OK')"
+
       - name: Verify Code Compilation
         run: |
           python -m py_compile quantyd_cli.py quanty_node_app.py quanty_wallet_cli.py quanty_wallet_full_app.py quanty_miner_cli.py quanty_miner_app.py quanty_suite_app.py
@@ -67,6 +70,9 @@ jobs:
           python -m PyInstaller --onefile --paths . --name "quantyd" quantyd_cli.py --distpath dist/bin
           python -m PyInstaller --onefile --paths . --name "quanty-wallet" quanty_wallet_cli.py --distpath dist/bin
           python -m PyInstaller --onefile --paths . --name "quanty-miner" quanty_miner_cli.py --distpath dist/bin
+
+      - name: Generate SBOM & Integrity Manifest
+        run: python scripts/generate_sbom.py
 
       - name: Upload Smoke Artifacts
         uses: actions/upload-artifact@v4
