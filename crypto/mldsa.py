@@ -44,6 +44,46 @@ def _find_or_build_native_lib():
             except Exception:
                 continue
 
+    # 2. If native shared library is missing on Linux/Unix, attempt self-healing compilation if sources & C compiler exist
+    ref_dir = os.path.join(base_dir, "src", "crypto", "dilithium", "ref")
+    wrapper_src = os.path.join(base_dir, "src", "crypto", "dilithium_wrapper.c")
+    c_sources = [
+        wrapper_src,
+        os.path.join(ref_dir, "fips202.c"),
+        os.path.join(ref_dir, "ntt.c"),
+        os.path.join(ref_dir, "packing.c"),
+        os.path.join(ref_dir, "poly.c"),
+        os.path.join(ref_dir, "polyvec.c"),
+        os.path.join(ref_dir, "randombytes.c"),
+        os.path.join(ref_dir, "reduce.c"),
+        os.path.join(ref_dir, "rounding.c"),
+        os.path.join(ref_dir, "sign.c"),
+        os.path.join(ref_dir, "symmetric-shake.c"),
+    ]
+    if all(os.path.exists(s) for s in c_sources):
+        import shutil
+        import subprocess
+        cc = os.environ.get("CC") or shutil.which("gcc") or shutil.which("clang") or shutil.which("cc")
+        if cc:
+            target_so = os.path.join(base_dir, "src", "crypto", "libqtydilithium.so")
+            try:
+                cmd = [
+                    cc, "-O3", "-shared", "-fPIC", "-DDILITHIUM_MODE=2",
+                    f"-I{os.path.join(base_dir, 'src', 'crypto')}",
+                    f"-I{ref_dir}",
+                    *c_sources,
+                    "-o", target_so
+                ]
+                res = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                if res.returncode == 0 and os.path.exists(target_so):
+                    lib = ctypes.CDLL(target_so)
+                    _setup_lib_signatures(lib)
+                    _native_lib = lib
+                    _lib_loaded = True
+                    return _native_lib
+            except Exception:
+                pass
+
     _lib_loaded = True
     return None
 

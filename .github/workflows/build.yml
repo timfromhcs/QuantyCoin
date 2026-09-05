@@ -37,6 +37,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller qrcode pillow pyside6
 
+      - name: Build Native Dilithium Library (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          gcc -O3 -shared -fPIC -DDILITHIUM_MODE=2 \
+            -Isrc/crypto -Isrc/crypto/dilithium/ref \
+            src/crypto/dilithium_wrapper.c \
+            src/crypto/dilithium/ref/fips202.c \
+            src/crypto/dilithium/ref/ntt.c \
+            src/crypto/dilithium/ref/packing.c \
+            src/crypto/dilithium/ref/poly.c \
+            src/crypto/dilithium/ref/polyvec.c \
+            src/crypto/dilithium/ref/randombytes.c \
+            src/crypto/dilithium/ref/reduce.c \
+            src/crypto/dilithium/ref/rounding.c \
+            src/crypto/dilithium/ref/sign.c \
+            src/crypto/dilithium/ref/symmetric-shake.c \
+            -o src/crypto/libqtydilithium.so
+
       - name: Verify Code Compilation
         run: |
           python -m py_compile quantyd_cli.py quanty_node_app.py quanty_wallet_cli.py quanty_wallet_full_app.py quanty_miner_cli.py quanty_miner_app.py quanty_suite_app.py
