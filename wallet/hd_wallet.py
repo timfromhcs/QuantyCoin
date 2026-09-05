@@ -250,9 +250,91 @@ class HDWallet:
             
         return tx
 
+    def get_quantum_vulnerability_report(self, utxos: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Analyze a list of UTXOs and categorize them by quantum security status according to MIGRATION_SPEC.
+        Identifies vulnerable legacy classical ECDSA outputs vs quantum-resistant outputs.
+        """
+        vulnerable_utxos = []
+        pqc_utxos = []
+        hybrid_utxos = []
+        vulnerable_total_sat = 0
+        pqc_total_sat = 0
+        hybrid_total_sat = 0
+
+        for u in utxos:
+            addr = u.get("address", "")
+            script_hex = u.get("scriptPubKey", "")
+            script = bytes.fromhex(script_hex) if script_hex else b""
+            val = u.get("value_sat", 0)
+
+            if addr.startswith("qty1p") or (len(script) == 34 and script[:2] == b'\x51\x20'):
+                pqc_utxos.append(u)
+                pqc_total_sat += val
+            elif addr.startswith("qty1z") or (len(script) == 34 and script[:2] == b'\x52\x20'):
+                hybrid_utxos.append(u)
+                hybrid_total_sat += val
+            else:
+                # Classical ECDSA (p2wpkh, p2pkh, etc.)
+                vulnerable_utxos.append(u)
+                vulnerable_total_sat += val
+
+        total_funds = vulnerable_total_sat + pqc_total_sat + hybrid_total_sat
+        vulnerability_ratio = (vulnerable_total_sat / total_funds) if total_funds > 0 else 0.0
+
+        return {
+            "vulnerable_count": len(vulnerable_utxos),
+            "vulnerable_total_sat": vulnerable_total_sat,
+            "vulnerable_ratio": vulnerability_ratio,
+            "pqc_count": len(pqc_utxos),
+            "pqc_total_sat": pqc_total_sat,
+            "hybrid_count": len(hybrid_utxos),
+            "hybrid_total_sat": hybrid_total_sat,
+            "has_vulnerable_utxos": len(vulnerable_utxos) > 0,
+            "migration_recommended": len(vulnerable_utxos) > 0,
+            "warning_message": (
+                f"WARNING: {len(vulnerable_utxos)} UTXOs ({vulnerable_total_sat / 100_000_000:.8f} QTY) rely on "
+                "classical Secp256k1 ECDSA and are vulnerable to future Cryptographically Relevant Quantum Computers (CRQCs). "
+                "Migrate balances to ML-DSA (qty1p...) or Hybrid (qty1z...) addresses immediately."
+                if len(vulnerable_utxos) > 0 else "All UTXOs are protected by Post-Quantum lattice cryptography."
+            ),
+            "vulnerable_utxos": vulnerable_utxos
+        }
+
+    def build_pqc_migration_transaction(self, available_utxos: List[Dict[str, Any]], target_mode: str = "mldsa", fee_sat: int = 10000) -> Transaction:
+        """
+        Construct and sign an automated migration transaction consolidating all vulnerable classical UTXOs
+        into a single quantum-secure address (ML-DSA qty1p... or Hybrid qty1z...).
+        """
+        report = self.get_quantum_vulnerability_report(available_utxos)
+        vulnerable_utxos = report["vulnerable_utxos"]
+        if not vulnerable_utxos:
+            raise ValueError("No vulnerable classical UTXOs found to migrate.")
+
+        total_val = sum(u["value_sat"] for u in vulnerable_utxos)
+        if total_val <= fee_sat:
+            raise ValueError(f"Total vulnerable balance ({total_val} sat) is less than or equal to fee ({fee_sat} sat).")
+
+        # Select target post-quantum address
+        if target_mode.lower() in ("mldsa", "pq", "pqc"):
+            target_address = self.get_pq_address(0)
+        elif target_mode.lower() in ("hybrid", "dual"):
+            target_address = self.get_hybrid_address(0)
+        else:
+            raise ValueError(f"Unknown target migration mode: {target_mode}. Expected 'mldsa' or 'hybrid'.")
+
+        migrated_amount = total_val - fee_sat
+        return self.build_transaction(
+            destination_address=target_address,
+            amount_sat=migrated_amount,
+            available_utxos=vulnerable_utxos,
+            fee_sat=fee_sat
+        )
+
     def create_and_sign_transaction(self, utxos: List[Dict[str, Any]], destination_address: str, amount_sat: int, fee_sat: int = 10000, change_address: Optional[str] = None) -> Tuple[str, str]:
         tx = self.build_transaction(destination_address, amount_sat, utxos, fee_sat, change_address)
         return tx.serialize().hex(), tx.txid_hex
+
 
     def export_keystore(self, filepath: str) -> None:
         """Export wallet metadata to file (encrypted/json)."""

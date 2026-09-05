@@ -110,9 +110,9 @@
 - [x] **Step 15: NIST FIPS 204 PQC, Dual-PoW Consensus & Stratum V2 Protocol (QUANTYCOIN-QTY2-PQC-DUALPOW-SV2-2026)**
   - Baseline audit & parameter frozen: `docs/agent/PQC_DUALPOW_BASELINE.md`.
   - 5 Protocol Specifications authored: `PQC_SPEC.md`, `DUAL_POW_SPEC.md`, `CHAINWORK_SPEC.md`, `STRATUM_V2_SPEC.md`, `MIGRATION_SPEC.md`.
-  - Native C ML-DSA library compiled (`src/crypto/libqtydilithium.dll`) with standard SHAKE-256 fallback in `crypto/mldsa.py`.
+  - Native C ML-DSA library compiled (`src/crypto/libqtydilithium.dll`).
   - Upgraded `crypto/bip32_44.py` to BIP 350 Bech32m witness programs (`qty1p...`, `qty1z...`).
-  - Implemented multi-mode transaction authorization in `core/transaction.py` (Classical, ML-DSA-65, Hybrid).
+  - Implemented multi-mode transaction authorization in `core/transaction.py` (Classical, ML-DSA, Hybrid).
   - 80-byte block header preserved with upper-16-bit `pow_type` encoding in `core/block.py`.
   - Implemented independent per-lane LWMA-1 difficulty adjustment and thermodynamic cumulative chainwork ($W_A=1, W_B=2048$) in `core/consensus.py` and `node/chainstate.py`.
   - Native Stratum V2 binary framing and dual-lane channel multiplexing in `miner/stratum_v2.py`.
@@ -120,3 +120,13 @@
   - Extended RPC server with `getmininglanes`, `getminingtargets`, `getchainwork`, `getnewpqaddress`, `getaddressinfo`, `getstratuminfo`.
   - 100% verified test suite in `tests/test_pqc_dualpow_sv2.py` and integrated into `tests/test_runner.py`.
   - Security and documentation integrity verified (`verify_security.py` & `verify_documentation.py`).
+
+- [x] **Step 16: Post-Quantum Hardening, Pseudo-Crypto Elimination & Adversarial Gates (QUANTYCOIN-QTY3-PQ-DUALPOW-SV2-MAINNET)**
+  - Total elimination of insecure fallback pseudo-crypto (`_fallback_*`) in `crypto/mldsa.py`.
+  - Introduced `CryptographicBackendUnavailableError` ensuring fail-closed consensus behavior.
+  - Implemented automated legacy UTXO quantum vulnerability audit and migration transactions in `wallet/hd_wallet.py`.
+  - Added adversarial attack coverage in `tests/test_pqc_dualpow_sv2.py`: pseudo-crypto rejection, signature non-malleability, cross-mode replay prevention, and thermodynamic chainwork defense against low-difficulty grinding.
+  - Authoritative protocol freeze and security gate documentation established: `docs/agent/CONSENSUS_FREEZE.md` and `docs/agent/SECURITY_GATES.md`.
+  - Recorded Incident INC-004 in `docs/agent/FAILURES.md`.
+  - Verified 100% PASS across full test runner, zero leaks (`scripts/verify_security.py`), and 100% link resolution (`scripts/verify_documentation.py`).
+

@@ -418,23 +418,56 @@ class QuantyRPCServer:
         if not params:
             raise ValueError("Missing address parameter")
         addr = params[0]
-        hrp, prog, spec = None, None, None
         try:
             from crypto.bip32_44 import decode_segwit_address, base58check_decode
             if addr.startswith("qty1") or addr.startswith("quan1"):
                 ver, prog = decode_segwit_address(addr.split("1")[0], addr)
                 if ver == 0:
-                    return {"address": addr, "type": "p2wpkh_classical", "witness_version": 0, "quantum_secure": False}
+                    return {
+                        "address": addr,
+                        "type": "p2wpkh_classical",
+                        "witness_version": 0,
+                        "quantum_secure": False,
+                        "is_legacy_vulnerable": True,
+                        "migration_recommendation": "Sweep funds into ML-DSA (qty1p...) or Hybrid (qty1z...) address."
+                    }
                 elif ver == 1:
-                    return {"address": addr, "type": "p2pqpkh_mldsa", "witness_version": 1, "quantum_secure": True}
+                    return {
+                        "address": addr,
+                        "type": "p2pqpkh_mldsa",
+                        "witness_version": 1,
+                        "quantum_secure": True,
+                        "is_legacy_vulnerable": False,
+                        "migration_recommendation": "None (quantum-secure lattice cryptography)."
+                    }
                 elif ver == 2:
-                    return {"address": addr, "type": "p2hybrid", "witness_version": 2, "quantum_secure": True}
+                    return {
+                        "address": addr,
+                        "type": "p2hybrid",
+                        "witness_version": 2,
+                        "quantum_secure": True,
+                        "is_legacy_vulnerable": False,
+                        "migration_recommendation": "None (quantum-secure hybrid cryptography)."
+                    }
             else:
                 ver, p = base58check_decode(addr)
-                return {"address": addr, "type": "legacy_base58_p2pkh", "quantum_secure": False}
+                return {
+                    "address": addr,
+                    "type": "legacy_base58_p2pkh",
+                    "quantum_secure": False,
+                    "is_legacy_vulnerable": True,
+                    "migration_recommendation": "Sweep funds into ML-DSA (qty1p...) or Hybrid (qty1z...) address."
+                }
         except Exception as e:
             raise ValueError(f"Invalid address: {e}")
-        return {"address": addr, "type": "unknown", "quantum_secure": False}
+        return {
+            "address": addr,
+            "type": "unknown",
+            "quantum_secure": False,
+            "is_legacy_vulnerable": True,
+            "migration_recommendation": "Verify address format."
+        }
+
 
     def _rpc_getstratuminfo(self, params: list) -> Dict[str, Any]:
         """Return telemetry and connection endpoints for Stratum V1 and V2 services."""
