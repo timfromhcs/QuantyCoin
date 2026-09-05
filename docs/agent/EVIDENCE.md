@@ -383,6 +383,13 @@ Every major milestone must have concrete, reproducible execution evidence record
   `security.yml` +SBOM job; new `codeql.yml`; new `dependabot.yml`.
 - **Note**: local Python is 3.14.6 (CI matrix covers 3.10-3.12); cloud run
   verification pending push of this commit.
+- **Cloud result (commit 6c1764c, 2026-09-05)**: 5/5 workflows SUCCESS —
+  Security & Cryptographic Integrity (run 33978737751),
+  Documentation & Link Integrity (33978737789),
+  Cloud Build & Platform Verification (33978737802),
+  CodeQL Static Analysis (33978737843),
+  CI Test Matrix incl. new protocol-truth / reference-differential / fuzz-smoke /
+  native-backend steps on all 6 jobs ubuntu+windows × py3.10/3.11/3.12 (33978737891).
 
 
 
