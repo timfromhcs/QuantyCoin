@@ -30,14 +30,15 @@ All immutable protocol parameters and key architectural choices are recorded her
   - Legacy Base58 P2SH Prefix: `0x44` (Starts with 'T')
   - BIP32 HD Extended Public Key: `qpub` (`0x0488B21E`), Private: `qprv` (`0x0488ADE4`)
   - URI Scheme: `quantycoin:`
-- **Post-Quantum Cryptography Architecture (NIST FIPS 204 ML-DSA-65)**:
-  - NIST Category 3 (ML-DSA-65 / CRYSTALS-Dilithium) selected for 192-bit quantum security margin.
+- **Post-Quantum Cryptography Architecture (NIST FIPS 204 ML-DSA-44)**:
+  - NIST Category 2 (ML-DSA-44 / CRYSTALS-Dilithium2) selected for optimal L1 transaction throughput, compact 1312-byte public keys, and 2420-byte signatures.
   - Three distinct authorization modes:
     - Mode 0: `LEGACY_ECDSA` (Secp256k1, witness v0, prefix `qty1q...`)
-    - Mode 1: `HYBRID` (Secp256k1 + ML-DSA-65, witness v2, prefix `qty1z...`)
-    - Mode 2: `ML_DSA` (Pure ML-DSA-65, witness v1, prefix `qty1p...`)
+    - Mode 1: `HYBRID` (Secp256k1 + ML-DSA-44, witness v2, prefix `qty1z...`)
+    - Mode 2: `ML_DSA` (Pure ML-DSA-44, witness v1, prefix `qty1p...`)
   - Domain-separated sighash: `SHA256("QUANTYCOIN_PQC_SIGHASH_V1" || sig_type || BIP143_hash)`
-  - Native C library `libqtydilithium` with pure-Python SHAKE-256 fallback.
+  - Native C library `libqtydilithium` with strict fail-closed consensus (zero insecure pseudo-crypto fallbacks).
+
 
 - **Dual Proof-of-Work Mining Architecture**:
   - Header Format: Standard 80-byte header preserved (`pow_type` encoded in upper 16 bits of `version`).

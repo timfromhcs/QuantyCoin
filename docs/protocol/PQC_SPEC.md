@@ -28,8 +28,8 @@ The goal of this specification is to establish a standardized, deterministic pos
 | **Block Impact (at 1000 tx)**| ~3.8 MB | **~5.4 MB** | ~7.3 MB |
 
 ### 2.2 Selection Decision
-- **Primary Standard**: **ML-DSA-65** is selected as the default post-quantum digital signature algorithm.
-- **Rationale**: ML-DSA-65 provides Category 3 security (192-bit quantum security margin), which comfortably exceeds the attack horizon of Shor's and Grover's algorithms without the severe 4.6 KB signature overhead of ML-DSA-87. It fits smoothly within QuantyCoin's 32 MB block capacity.
+- **Primary Standard**: **ML-DSA-44** (NIST Category 2 / CRYSTALS-Dilithium2) is selected as the default production post-quantum digital signature algorithm.
+- **Rationale**: ML-DSA-44 provides NIST Category 2 quantum security margin (equivalent to AES-128 against quantum cryptanalysis) while maintaining a compact 1,312-byte public key and 2,420-byte signature. It offers ultra-fast verification (~0.12 ms) and signing (~0.35 ms) on consumer hardware, preserving rapid block verification throughput and accessible transaction fees on Layer-1.
 
 ---
 
@@ -40,8 +40,8 @@ QuantyCoin transactions support three explicit signature schemes:
 ```
 enum SignatureType : uint8_t {
     LEGACY_ECDSA = 0x00,  // Standard Secp256k1 ECDSA (RFC 6979)
-    HYBRID       = 0x01,  // Dual Secp256k1 ECDSA + NIST FIPS 204 ML-DSA-65
-    ML_DSA       = 0x02   // Pure NIST FIPS 204 ML-DSA-65
+    HYBRID       = 0x01,  // Dual Secp256k1 ECDSA + NIST FIPS 204 ML-DSA-44
+    ML_DSA       = 0x02   // Pure NIST FIPS 204 ML-DSA-44
 }
 ```
 
@@ -52,19 +52,19 @@ enum SignatureType : uint8_t {
 - Retained for legacy UTXO compatibility and lightweight hardware wallet devices.
 
 ### 3.2 Mode 1: `HYBRID` (Defense-in-Depth)
-- Requires both a classical Secp256k1 signature and an ML-DSA-65 signature.
+- Requires both a classical Secp256k1 signature and an ML-DSA-44 signature.
 - **Security Invariant**: Compromising the transaction requires breaking *both* the discrete logarithm problem on Secp256k1 *and* the Short Integer Solution / Learning With Errors lattice problem in ML-DSA.
 - Witness Stack:
   1. `ecdsa_signature` (DER + sighash byte)
   2. `ecdsa_pubkey` (33 bytes)
-  3. `mldsa_signature` (3,309 bytes)
-  4. `mldsa_pubkey` (1,952 bytes)
+  3. `mldsa_signature` (2,420 bytes + 1 byte sighash type)
+  4. `mldsa_pubkey` (1,312 bytes)
 
 ### 3.3 Mode 2: `ML_DSA` (Pure Quantum-Secure)
 - Direct post-quantum authorization.
 - Witness Stack:
-  1. `mldsa_signature` (3,309 bytes + 1 byte sighash type)
-  2. `mldsa_pubkey` (1,952 bytes)
+  1. `mldsa_signature` (2,420 bytes + 1 byte sighash type)
+  2. `mldsa_pubkey` (1,312 bytes)
 
 ---
 
@@ -73,16 +73,16 @@ enum SignatureType : uint8_t {
 ### 4.1 Native Post-Quantum Witness Program (Bech32m)
 All post-quantum addresses utilize BIP 350 Bech32m with Human Readable Part `qty` (Mainnet), `tqty` (Testnet), or `rqty` (Regtest).
 
-- **Witness Version 1 (Pure ML-DSA-65)**:
+- **Witness Version 1 (Pure ML-DSA-44)**:
   - ScriptPubKey: `0x51 0x20 <32-byte-hash>` (`OP_1 PUSH32 <hash>`)
   - The 32-byte hash is:
-    $$\text{pqc\_program} = \text{SHA256}(\text{ML-DSA-65 PubKey})$$
+    $$\text{pqc\_program} = \text{SHA256}(\text{ML-DSA-44 PubKey})$$
   - Address prefix: `qty1p...` (Bech32m encoded).
 
-- **Witness Version 2 (Hybrid ECDSA + ML-DSA-65)**:
+- **Witness Version 2 (Hybrid ECDSA + ML-DSA-44)**:
   - ScriptPubKey: `0x52 0x20 <32-byte-hash>` (`OP_2 PUSH32 <hash>`)
   - The 32-byte hash is:
-    $$\text{hybrid\_program} = \text{SHA256}(\text{Secp256k1 PubKey} \parallel \text{ML-DSA-65 PubKey})$$
+    $$\text{hybrid\_program} = \text{SHA256}(\text{Secp256k1 PubKey} \parallel \text{ML-DSA-44 PubKey})$$
   - Address prefix: `qty1z...` (Bech32m encoded).
 
 ---
@@ -111,4 +111,5 @@ $$\text{Witness Size} = \text{Total Size} - \text{Base Size}$$
 $$\text{Weight} = (\text{Base Size} \times 3) + \text{Total Size} = (\text{Base Size} \times 4) + \text{Witness Size}$$
 $$\text{Virtual Size (vsize)} = \left\lceil \frac{\text{Weight}}{4} \right\rceil$$
 
-For an ML-DSA-65 transaction (~5,300 bytes of witness), the virtual size is approximately 1,450 vB. At a minimum relay fee of 1 sat/vB, an ML-DSA transaction pays ~1,450 Satoshis (~0.00001450 QTY), preserving accessible network fees while accurately accounting for node memory and disk usage.
+For an ML-DSA-44 transaction (~3,732 bytes of witness), the virtual size is approximately 1,050 vB. At a minimum relay fee of 1 sat/vB, an ML-DSA transaction pays ~1,050 Satoshis (~0.00001050 QTY), preserving accessible network fees while accurately accounting for node memory and disk usage.
+

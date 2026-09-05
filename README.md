@@ -14,7 +14,7 @@
 [![Security: Zero-Leak](https://img.shields.io/badge/security-zero--leak%20verified-00FF88.svg)](THREAT_MODEL.md)
 
 <p align="center">
-  <strong>An independent Dual-PoW Layer-1 cryptocurrency featuring SHA-256D ASIC and General-Purpose CPU/GPU mining lanes, NIST FIPS 204 ML-DSA-65 post-quantum transaction authorization, 60-second combined block intervals, thermodynamic cumulative chainwork, native Stratum V2 protocol, and self-sovereign Qt6 desktop applications.</strong>
+  <strong>An independent Dual-PoW Layer-1 cryptocurrency featuring SHA-256D ASIC and General-Purpose CPU/GPU mining lanes, NIST FIPS 204 ML-DSA-44 post-quantum transaction authorization, 60-second combined block intervals, thermodynamic cumulative chainwork, native Stratum V2 protocol, and self-sovereign Qt6 desktop applications.</strong>
 </p>
 
 </div>
@@ -32,7 +32,7 @@
 7. [System Architecture](#7-system-architecture)
 8. [Consensus Rules & Protocol Parameters](#8-consensus-rules--protocol-parameters)
 9. [Air-Gapped Genesis Block](#9-air-gapped-genesis-block)
-10. [Mining & Stratum V1 Pool Setup](#10-mining--stratum-v1-pool-setup)
+10. [Mining & Stratum Mining Setup](#10-mining--stratum-mining-setup)
 11. [Sovereign Wallet & Desktop Applications](#11-sovereign-wallet--desktop-applications)
 12. [Automated Testing & Independent Verification](#12-automated-testing--independent-verification)
 13. [Release Management](#13-release-management)
@@ -45,12 +45,13 @@
 
 ## 1. Honest Status
 
-QuantyCoin 2.0 (`QTY2`) adheres to strict, evidence-based technical claims:
+QuantyCoin QTY3 adheres to strict, evidence-based technical claims:
 
 - **Consensus State**: **FROZEN & VERIFIED**. The production Genesis block hash (`00000f7cecd0b1eafaab4d65183f7bd12713b67b6c1c4a30f6bf3f1b8efd30ba`) is locked with mandatory runtime assertions in [`node/chainstate.py`](node/chainstate.py).
-- **Authoritative Stack**: The operational protocol engine is the native Python stack (`core/`, `crypto/`, `network/`, `node/`, `wallet/`, `miner/`, `ui/`).
-- **Throughput Reality**: Target block interval is 60 seconds with an upper block capacity limit of 32 MB. Tested single-threaded mempool ingestion is 16 transactions/sec (500 TX burst verified in 32s). Theoretical baseline PoW throughput for standard P2WPKH transactions is approximately 14–28 TPS on 1 MB equivalent payloads, scaling linearly under larger block templates. We do not make unsubstantiated "thousands of TPS" marketing claims.
-- **Cryptographic Security**: Mainnet L1 utilizes standard Secp256k1 ECDSA and Ed25519 signatures. Post-quantum signature schemes (CRYSTALS-Dilithium) are strictly experimental and confined to the research branch in `src/`, with zero active consensus impact on the production mainnet.
+- **Authoritative Stack**: The operational protocol engine is the native Python stack (`core/`, `crypto/`, `network/`, `node/`, `wallet/`, `miner/`, `ui/`) with native C acceleration for NIST FIPS 204 ML-DSA (`libqtydilithium`).
+- **Throughput Reality**: Target block interval is 60 seconds (120s per lane interleaved) with an upper block capacity limit of 32 MB. Tested single-threaded mempool ingestion is 16 transactions/sec (500 TX burst verified in 32s). Theoretical baseline PoW throughput for standard transactions is approximately 14–28 TPS on 1 MB equivalent payloads, scaling linearly under larger block templates. We do not make unsubstantiated "thousands of TPS" marketing claims.
+- **Cryptographic Security**: Mainnet Layer-1 supports three transaction authorization modes: `LEGACY_ECDSA` (Secp256k1), `HYBRID` (Secp256k1 + NIST FIPS 204 ML-DSA-44), and `ML_DSA` (Pure NIST FIPS 204 ML-DSA-44). Insecure pseudo-cryptographic fallbacks are strictly barred (fail-closed consensus via `CryptographicBackendUnavailableError`).
+- **Dual-PoW Liveness**: Lane A (`SHA256D_ASIC`) and Lane B (`GENERAL_PURPOSE` Scrypt 1024) independently sustain chain progression under partitioned LWMA-1 retargeting ($N=45$).
 - **Air-Gap Security**: All sensitive Genesis generation materials, private nonces, and uncompressed keys are completely isolated in an external air-gapped vault outside git version control.
 
 ---
@@ -74,7 +75,7 @@ Every feature listed below is verified by automated, executable test suites:
 | **SHA-256D ASIC Mining (Lane A)** | **VERIFIED** | `core/block.py`, `tests/test_pqc_dualpow_sv2.py` |
 | **CPU/GPU Scrypt Mining (Lane B)** | **VERIFIED** | `core/block.py`, `tests/test_pqc_dualpow_sv2.py` |
 | **Thermodynamic Cumulative Chainwork**| **VERIFIED** | `node/chainstate.py`, `docs/protocol/CHAINWORK_SPEC.md` |
-| **NIST FIPS 204 ML-DSA-65 Signatures**| **VERIFIED** | `crypto/mldsa.py`, `tests/test_pqc_dualpow_sv2.py` |
+| **NIST FIPS 204 ML-DSA-44 Signatures**| **VERIFIED** | `crypto/mldsa.py`, `tests/test_pqc_dualpow_sv2.py` |
 | **Hybrid Bech32m Authorization** | **VERIFIED** | `core/transaction.py`, `tests/test_pqc_dualpow_sv2.py` |
 | **Stratum V2 Binary Engine** | **VERIFIED** | `miner/stratum_v2.py`, `tests/test_pqc_dualpow_sv2.py` |
 | **Air-Gapped Genesis Block** | **VERIFIED** | `genesis/PUBLIC_GENESIS_MANIFEST.json` |
@@ -101,9 +102,10 @@ The following components represent active research and development:
 
 Future milestones scheduled in [`ROADMAP.md`](ROADMAP.md):
 
-- **Stratum V2 Binary Framing**: Next-generation binary protocol implementation with encrypted transport and miner-selected transaction templates.
 - **Hardware Wallet Integration**: USB HID interface for Ledger and Trezor hardware devices.
 - **Multi-Signature P2WSH Script Builder**: Native UI for threshold m-of-n multi-signature custody.
+- **Native Compiled Node Kernel**: High-performance compiled daemon for multi-gigabit throughput.
+
 
 ---
 
@@ -219,21 +221,35 @@ Full consensus constants are available in [`genesis/PUBLIC_GENESIS_MANIFEST.json
 
 ---
 
-## 10. Mining & Stratum V1 Pool Setup
+## 10. Mining & Stratum Mining Setup
 
-### Solo CPU Mining
+### Dual-PoW Mining CLI
+QuantyCoin features dual independent Proof-of-Work lanes. Select your target lane via `--lane`:
 ```bash
-python quanty_miner_cli.py --threads 4 --payout qty1qh46xnlu649ug0yfpw7f93xn9dtg90z8hukfsy4
+# Lane A: SHA-256D ASIC / High-Throughput Mining
+python quanty_miner_cli.py --lane sha256d --threads 4 --payout qty1qh46xnlu649ug0yfpw7f93xn9dtg90z8hukfsy4
+
+# Lane B: RFC 7914 Scrypt General-Purpose CPU/GPU Mining
+python quanty_miner_cli.py --lane general --threads 4 --payout qty1qh46xnlu649ug0yfpw7f93xn9dtg90z8hukfsy4
 ```
 
-### Stratum V1 Mining Pool Server
-QuantyCoin includes a native Stratum V1 pool server listening on TCP port `3333`:
-```bash
-python -c "from miner.stratum import StratumServer; s = StratumServer(port=3333); s.start(); import time; time.sleep(999999)"
-```
-- **Miner Connection URL**: `stratum+tcp://<ip>:3333`
-- **Supported Methods**: `mining.subscribe`, `mining.authorize`, `mining.submit`, `mining.set_difficulty`.
-- Compatible with ASIC rigs and standard mining clients.
+### Stratum Mining Servers
+
+1. **Stratum V2 Binary Pool Server (Port 3334)**:
+   High-efficiency binary framed protocol with dual-lane channel multiplexing:
+   ```bash
+   python -c "from miner.stratum_v2 import StratumV2Server; s = StratumV2Server(port=3334); s.start(); import time; time.sleep(999999)"
+   ```
+   - **Connection URL**: `sv2://<ip>:3334`
+   - **Features**: Dual-lane channel multiplexing (`pow_lane`), binary framing, low-latency `SetNewPrevHash`.
+
+2. **Stratum V1 Pool Server (Port 3333)**:
+   Standard legacy Stratum V1 JSON-RPC protocol:
+   ```bash
+   python -c "from miner.stratum import StratumServer; s = StratumServer(port=3333); s.start(); import time; time.sleep(999999)"
+   ```
+   - **Connection URL**: `stratum+tcp://<ip>:3333`
+
 
 ---
 

@@ -242,7 +242,7 @@ class QuantyRPCServer:
             "difficulty_sha256d": self.chainstate.get_next_work_required(POW_TYPE_SHA256D),
             "difficulty_general": self.chainstate.get_next_work_required(POW_TYPE_GENERAL_PURPOSE),
             "mining_lanes": ["SHA256D_ASIC", "GENERAL_PURPOSE"],
-            "pqc_status": "ACTIVE (NIST FIPS 204 ML-DSA-65 & HYBRID)",
+            "pqc_status": "ACTIVE (NIST FIPS 204 ML-DSA-44 & HYBRID)",
             "mempool_size": self.chainstate.mempool.get_info()["size"],
             "circulating_supply": self.chainstate.utxo_set.total_circulation / 100_000_000,
             "testnet": False
@@ -401,13 +401,13 @@ class QuantyRPCServer:
         }
 
     def _rpc_getnewpqaddress(self, params: list) -> Dict[str, Any]:
-        """Derive a new NIST FIPS 204 ML-DSA post-quantum address."""
+        """Derive a new NIST FIPS 204 ML-DSA-44 post-quantum address."""
         key = MLDSAKey.generate()
         prog = sha256(key.public_key)
         addr = encode_segwit_address(MAINNET_BECH32_HRP, 1, prog)
         return {
             "address": addr,
-            "type": "pqc_ml_dsa_65",
+            "type": "pqc_ml_dsa_44",
             "witness_version": 1,
             "public_key_hex": key.public_key.hex(),
             "witness_program_hex": prog.hex()

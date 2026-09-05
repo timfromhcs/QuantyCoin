@@ -19,17 +19,22 @@
 
 ---
 
-## Phase 2: Network Maturation & Tooling (ACTIVE :construction:)
+## Phase 2: Post-Quantum Security & Dual-PoW Consensus (COMPLETED :white_check_mark:)
 
-- [ ] **Public DNS Seed Nodes**: Deployment of geo-distributed seed infrastructure for zero-configuration bootstrap.
-- [ ] **Lightweight SPV Client Protocol**: Compact block filter serving (BIP157/BIP158) for mobile wallets.
-- [ ] **Automated Release Binaries**: Continuous multi-platform artifact generation (Windows installer, Debian `.deb`, AppImage, macOS `.dmg`).
-- [ ] **Public Testnet (TQUA)**: Public multi-party testnet deployment on ports 29888 / 29889.
+- [x] **NIST FIPS 204 ML-DSA Transaction Authorization**: Zero mock crypto, native C lattice acceleration (`libqtydilithium`), fail-closed verification.
+- [x] **Asymmetric Dual-PoW Mining**: Lane A (SHA-256D ASIC) and Lane B (RFC 7914 Scrypt General Purpose) with independent LWMA-1 difficulty adjustment.
+- [x] **Thermodynamic Cumulative Chainwork**: Canonical fork choice determined strictly by accumulated energy, defeating low-difficulty grinding attacks.
+- [x] **Stratum V2 Binary Engine**: 6-byte binary framing on port 3334 (`SV2_DEFAULT_PORT`) with dual-lane channel multiplexing and low-latency PrevHash.
+- [x] **Legacy UTXO Quantum Audit & Automated Migration**: Sovereign wallet tooling auditing vulnerable Secp256k1 coins and generating one-click migration transactions to ML-DSA (`qty1p...`) or Hybrid (`qty1z...`) addresses.
+- [x] **Adversarial Test Suite**: Rigorous verification against synthetic signatures, malleated keys, cross-mode replay, and rented-GPU spam.
 
 ---
 
-## Phase 3: Advanced Cryptography & Research (PLANNED :telescope:)
+## Phase 3: Network Maturation & Ecosystem Scaling (ACTIVE :construction:)
 
-- [ ] **Post-Quantum Signature Verification**: Completion and formal audit of CRYSTALS-Dilithium (ML-DSA) C++ integration.
-- [ ] **Stratum V2 Binary Framing**: Direct miner communication, encrypted channels, and decentralized job negotiation.
-- [ ] **Native Compiled Node Kernel**: High-performance Rust / C++ consensus validation daemon for multi-gigabit throughput.
+- [ ] **Public DNS Seed Nodes**: Deployment of geo-distributed seed infrastructure for zero-configuration bootstrap.
+- [ ] **Lightweight SPV Client Protocol**: Compact block filter serving (BIP157/BIP158) for mobile wallets.
+- [ ] **Automated Multi-Platform Release Binaries**: Continuous CI artifact generation (Windows installer, Debian `.deb`, AppImage, macOS `.dmg`).
+- [ ] **Public Testnet (TQUA)**: Public multi-party testnet deployment on ports 29888 / 29889.
+- [ ] **Native Compiled Node Kernel**: High-performance compiled consensus validation daemon for multi-gigabit throughput.
+
