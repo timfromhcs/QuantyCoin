@@ -300,7 +300,7 @@ Refer to [`VERIFICATION.md`](VERIFICATION.md) for full reproduction logs and cry
 Releases follow an evidence-gated verification pipeline requiring zero security alerts, passing test suites, and reproducible binary packages:
 - [Release Process Specification](RELEASE_PROCESS.md)
 - [Build & Reproducibility Guide](REPRODUCIBILITY.md)
-- Native packaging definitions: `packaging/windows/`, `packaging/linux/`, `packaging/macos/`.
+- Native packaging definitions: `packaging/windows/`, `packaging/linux/`.
 
 ---
 

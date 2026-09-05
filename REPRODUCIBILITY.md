@@ -10,7 +10,6 @@
 | :--- | :--- | :--- | :--- |
 | **Ubuntu / Debian Linux** | x86_64, aarch64 | Python 3.10, 3.11, 3.12, 3.13 | GCC 11+, Clang 14+ |
 | **Windows** | x86_64 | Python 3.10, 3.11, 3.12, 3.13 | MSVC 2022 / MinGW-w64 |
-| **macOS** | Apple Silicon (arm64), Intel (x86_64) | Python 3.10, 3.11, 3.12, 3.13 | Apple Clang 14+ |
 
 ---
 

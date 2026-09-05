@@ -30,9 +30,6 @@ A release may only be published if all the following gates pass:
 - `packaging/linux/build_deb.sh` generates `.deb` packages for Debian/Ubuntu.
 - `packaging/linux/build_appimage.sh` generates standalone Linux AppImages.
 
-### macOS
-- `packaging/macos/build_dmg.sh` packages `.dmg` drag-and-drop installer bundles.
-
 ---
 
 ## 3. Checksum Verification

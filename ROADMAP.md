@@ -34,7 +34,7 @@
 
 - [ ] **Public DNS Seed Nodes**: Deployment of geo-distributed seed infrastructure for zero-configuration bootstrap.
 - [ ] **Lightweight SPV Client Protocol**: Compact block filter serving (BIP157/BIP158) for mobile wallets.
-- [ ] **Automated Multi-Platform Release Binaries**: Continuous CI artifact generation (Windows installer, Debian `.deb`, AppImage, macOS `.dmg`).
+- [ ] **Automated Multi-Platform Release Binaries**: Continuous CI artifact generation (Windows installer, Portable zip, Debian `.deb`, AppImage, Tarball).
 - [ ] **Public Testnet (TQUA)**: Public multi-party testnet deployment on ports 29888 / 29889.
 - [ ] **Native Compiled Node Kernel**: High-performance compiled consensus validation daemon for multi-gigabit throughput.
 

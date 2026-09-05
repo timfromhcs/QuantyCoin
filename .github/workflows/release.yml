@@ -138,67 +138,11 @@ jobs:
           path: dist/linux/*
 
   # ============================================================================
-  # 3. MACOS BUILDER: Universal Binaries & DMG Packages
-  # ============================================================================
-  build-macos:
-    name: macOS Universal Binaries & DMG
-    runs-on: macos-latest
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
-
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install macOS Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller qrcode pillow pyside6
-
-      - name: Run Cryptographic & Core Verification Tests
-        env:
-          PYTHONPATH: .
-          QT_QPA_PLATFORM: offscreen
-        run: |
-          python tests/test_crypto.py
-          python tests/test_core.py
-          python tests/test_p2p.py
-          python tests/test_runner.py
-
-      - name: Compile macOS Binaries via PyInstaller
-        env:
-          PYTHONPATH: .
-        run: |
-          mkdir -p dist/bin/node dist/bin/wallet dist/bin/lightning dist/bin/miner dist/bin/suite dist/macos
-          python3 -m PyInstaller --onefile --paths . --name "quanty-node-gui" quanty_node_app.py --distpath dist/bin/node
-          python3 -m PyInstaller --onefile --paths . --name "quanty-wallet-full-gui" quanty_wallet_full_app.py --distpath dist/bin/wallet
-          python3 -m PyInstaller --onefile --paths . --name "quanty-lightning-wallet-gui" quanty_lightning_wallet_app.py --distpath dist/bin/lightning
-          python3 -m PyInstaller --onefile --paths . --name "quanty-miner-gui" quanty_miner_app.py --distpath dist/bin/miner
-          python3 -m PyInstaller --onefile --paths . --windowed --name "QuantyCoinSuite" quanty_suite_app.py --distpath dist/bin/suite
-          python3 -m PyInstaller --onefile --paths . --name "quantyd" quantyd_cli.py --distpath dist/bin
-          python3 -m PyInstaller --onefile --paths . --name "quanty-wallet" quanty_wallet_cli.py --distpath dist/bin
-          python3 -m PyInstaller --onefile --paths . --name "quanty-miner" quanty_miner_cli.py --distpath dist/bin
-
-      - name: Build macOS DMG and Tarball
-        run: |
-          chmod +x packaging/macos/build_dmg.sh
-          bash packaging/macos/build_dmg.sh
-          tar -czf dist/macos/QuantyCoin-2.0.0-macOS-Universal.tar.gz -C dist/bin .
-
-      - name: Upload macOS Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-release-2.0.0
-          path: dist/macos/*
-
-  # ============================================================================
-  # 4. GITHUB RELEASE PUBLISHER: Tagged Multi-Platform Release
+  # 3. GITHUB RELEASE PUBLISHER: Tagged Multi-Platform Release (Win & Linux)
   # ============================================================================
   publish-release:
     name: Publish Multi-Platform Release 2.0.0
-    needs: [build-windows, build-linux, build-macos]
+    needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     steps:
@@ -214,22 +158,16 @@ jobs:
           name: linux-release-2.0.0
           path: release-assets/linux
 
-      - name: Download macOS Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: macos-release-2.0.0
-          path: release-assets/macos
-
       - name: Create Official GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: "QuantyCoin QTY2 Release (Native Desktop GUI Suites, Sovereign Wallets & Daemons)"
+          name: "QuantyCoin Release (Windows & Linux Native Desktop GUI Suites, Sovereign Wallets & Daemons)"
           draft: false
           prerelease: false
           generate_release_notes: true
           files: |
             release-assets/windows/*
             release-assets/linux/*
-            release-assets/macos/*
+
 

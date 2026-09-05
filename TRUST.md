@@ -84,7 +84,7 @@ Detailed verification instructions are available in [VERIFICATION.md](VERIFICATI
 1. **Source Freeze**: Code is frozen on a dedicated release branch with zero uncommitted changes.
 2. **Security Gate**: `scripts/verify_security.py` verifies zero private keys, tokens, or vault paths are present.
 3. **Test Gate**: All unit and functional tests must report 100% PASS.
-4. **Reproducible Builds**: Packaged using native build scripts (`packaging/windows/`, `packaging/linux/`, `packaging/macos/`).
+4. **Reproducible Builds**: Packaged using native build scripts (`packaging/windows/`, `packaging/linux/`).
 5. **Release Manifest**: Cryptographic SHA-256 checksums are generated and published alongside all release artifacts.
 
 See [RELEASE_PROCESS.md](RELEASE_PROCESS.md) for complete details.
