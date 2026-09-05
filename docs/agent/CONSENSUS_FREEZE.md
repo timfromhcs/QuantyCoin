@@ -1,7 +1,7 @@
 # QuantyCoin Protocol Consensus Freeze: QTY2/QTY3 Transition
 
 **Document**: docs/agent/CONSENSUS_FREEZE.md
-**Protocol Version**: QTY2 (70020)
+**Protocol Version**: QTY3 (70020)
 **Status**: FROZEN & RATIFIED
 **Ratification Date**: 2026-09-05
 

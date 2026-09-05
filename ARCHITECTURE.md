@@ -1,14 +1,14 @@
 # QuantyCoin Technical Architecture Specification
 
-**Protocol Version**: QTY2 (`70020`)  
-**Network Identity**: QuantyCoin 2.0  
+**Protocol Version**: QTY3 (`70020`)  
+**Network Identity**: QuantyCoin 3.0  
 **Design Reference**: Independent PoW Layer-1 Protocol Architecture  
 
 ---
 
 ## 1. Architectural Overview
 
-QuantyCoin is an independent Layer-1 cryptocurrency built on double-SHA256 (SHA-256D) Proof-of-Work. It provides high transaction density with a 32 MB block capacity, responsive single-block LWMA-1 difficulty retargeting, a native Stratum V1 mining pool server, BIP39/44 HD wallets with Bech32 witness encoding, and a multi-threaded JSON-RPC interface.
+QuantyCoin is an independent Layer-1 cryptocurrency built on an asymmetric Dual Proof-of-Work mining architecture (Lane A SHA-256D ASIC & Lane B RFC 7914 Scrypt CPU/GPU). It incorporates native NIST FIPS 204 ML-DSA-44 post-quantum transaction authorization, cumulative thermodynamic chainwork, 32 MB block capacity, responsive per-lane LWMA-1 difficulty retargeting, native Stratum V2 binary framing (port 3334) and Stratum V1 (port 3333), multi-mode BIP39/44 HD wallets with Bech32m witness encodings (`qty1p...`, `qty1z...`), and a multi-threaded JSON-RPC interface.
 
 ```mermaid
 graph TB
@@ -20,7 +20,7 @@ graph TB
     end
 
     subgraph CORE ["Core Node Daemon (quantyd)"]
-        CS[Chainstate & Fork-Choice Engine]
+        CS[Chainstate & Fork-Choice Engine\nThermodynamic Work: W_A=1, W_B=2048]
         UTXO[UTXO State Machine & Undo Log]
         MEM[Mempool Engine & Fee Sorter]
         RPC[Threaded JSON-RPC Server\nPort 19889]
@@ -33,16 +33,18 @@ graph TB
         RPC <-->|Submit Raw Tx| MEM
     end
 
-    subgraph MINING ["Mining Infrastructure (Port 3333)"]
-        STRATUM[Stratum V1 Pool Server]
-        ENG[Authoritative Mining Engine]
-        STRATUM <-->|Get Block Template| RPC
+    subgraph MINING ["Mining Infrastructure (Ports 3333 & 3334)"]
+        SV2[Stratum V2 Binary Server\nPort 3334]
+        SV1[Stratum V1 Pool Server\nPort 3333]
+        ENG[Dual-PoW Mining Engine\nSHA-256D & Scrypt]
+        SV2 <-->|Dual-Lane Channels| RPC
+        SV1 <-->|Get Block Template| RPC
         ENG <-->|Submit Mined Block| RPC
     end
 
     subgraph WALLET ["Wallet & Desktop GUIs (Qt6)"]
-        HD[BIP39/44 HD Wallet]
-        GUI_W[Sovereign Wallet GUI]
+        HD[BIP39/44 HD Wallet\n+ ML-DSA-44 & Hybrid]
+        GUI_W[Sovereign Wallet GUI\n+ Quantum Migration]
         GUI_N[Node Explorer GUI]
         GUI_M[Miner Telemetry GUI]
         GUI_S[Combined Master Suite]
@@ -50,7 +52,7 @@ graph TB
         HD -->|Sign Tx| RPC
         GUI_W <-->|Balance & History| RPC
         GUI_N <-->|Peer Telemetry| RPC
-        GUI_M <-->|Hashrate Stream| STRATUM
+        GUI_M <-->|Hashrate Stream| SV2
         GUI_S -->|Unified Control| RPC
     end
 ```
@@ -64,49 +66,58 @@ graph TB
 | **Protocol Version** | `70020` | Version handshake identifier (`PROTOCOL_VERSION`) |
 | **Chain Identifier** | `quantycoin-2.0` | Independent chain identity (`CHAIN_ID`) |
 | **Network Magic (Mainnet)** | `0x5155414E` (`QUAN`) | 4-byte framing prefix on wire messages |
-| **Default Ports** | P2P: `19888`, RPC: `19889`, Stratum: `3333` | Dedicated ports; zero conflict with Bitcoin or legacy networks |
+| **Default Ports** | P2P: `19888`, RPC: `19889`, SV1: `3333`, SV2: `3334` | Dedicated ports; zero conflict with Bitcoin or legacy networks |
 | **Genesis Hash** | `00000f7cecd0b1eafaab4d65183f7bd12713b67b6c1c4a30f6bf3f1b8efd30ba` | Authoritative root of consensus |
 | **Genesis Merkle Root** | `ac6346e4b3ae1f3e4cfabaa09376ee83d268d12476d3e243a42d0e22cf79224f` | Single coinbase transaction Merkle leaf |
-| **Target Block Interval** | `60 seconds` | Expected time between blocks |
-| **Difficulty Algorithm** | **LWMA-1** | Linear-Weighted Moving Average across 45-block window |
+| **Target Block Interval** | `60 seconds` combined | Expected time between blocks (120s per lane) |
+| **Mining Lanes** | **Dual-PoW** | Lane A: SHA-256D (100% subsidy) &bull; Lane B: Scrypt (50% subsidy) |
+| **Difficulty Algorithm** | **LWMA-1** | Linear-Weighted Moving Average across 45-block window per lane |
+| **Fork Choice** | **Thermodynamic Chainwork** | Cumulative physical energy metric ($W_A=1, W_B=2048$) |
 | **Max Block Size** | `32 MB` (33,554,432 bytes) | Enforced maximum raw serialized block length |
-| **Genesis Reward** | `50 QTY` (5,000,000,000 Satoshis) | Initial subsidy per block |
+| **Genesis Reward** | `50 QTY` (5,000,000,000 Satoshis) | Initial subsidy per block (Lane A) |
 | **Halving Interval** | `2,100,000 blocks` (~4 years) | `subsidy = initial >> (height / interval)` |
 | **Max Supply Hard Cap** | `21,000,000 QTY` | Strictly finite supply |
 | **Coinbase Maturity** | `100 blocks` | Mined coins spendable only after 100 confirmations |
-| **Address Encodings** | Bech32 (`qty1q...`) & Base58Check (`Q...`) | Native witness version 0 & legacy P2PKH |
+| **Post-Quantum Cryptography** | **NIST FIPS 204 ML-DSA-44** | Native C lattice acceleration (`libqtydilithium`) |
+| **Address Encodings** | Bech32, Bech32m & Base58Check | Witness v0 (`qty1q...`), v1 ML-DSA (`qty1p...`), v2 Hybrid (`qty1z...`), Legacy (`Q...`) |
 
 ---
 
 ## 3. Subsystem Breakdown
 
 ### 1. `core/` (Consensus State Machine)
-- `block.py`: 80-byte header serialization, double-SHA256 PoW evaluation, and Merkle tree verification.
-- `transaction.py`: Full SegWit witness serialization, TxID computation, and ECDSA signature validation.
-- `consensus.py`: LWMA-1 difficulty adjustment algorithm and block subsidy halving matrix.
+- `block.py`: 80-byte header serialization with upper-16-bit `pow_type` encoding, dual-PoW evaluation, and Merkle tree verification.
+- `transaction.py`: Multi-mode witness serialization (Classical, ML-DSA-44, Hybrid), TxID computation, and fail-closed verification.
+- `consensus.py`: Independent per-lane LWMA-1 difficulty adjustment algorithm, thermodynamic chainwork weights, and subsidy halving.
 - `utxo.py`: In-memory UTXO map with undo logs for rollback support.
 - `mempool.py`: Ingestion, fee prioritization, ancestor tracking, and double-spend detection.
 
-### 2. `network/` (P2P Gossip Network)
+### 2. `crypto/` (Cryptographic Engine)
+- `mldsa.py`: NIST FIPS 204 ML-DSA-44 key generation, signing, and verification backed by native `libqtydilithium` (zero pseudo-crypto fallbacks).
+- `bip32_44.py`: Extended key derivation and Bech32/Bech32m address encoding for witness versions 0, 1, and 2.
+
+### 3. `network/` (P2P Gossip Network)
 - `protocol.py`: Wire message framing, command encoding, and checksum validation.
 - `peer.py`: Individual peer socket state machine with keepalive ping/pong.
 - `p2p_server.py`: Server socket listener, peer exchange (PEX), and broadcast router.
 
-### 3. `node/` (Daemon & RPC)
-- `chainstate.py`: Active chain tip tracking, fork resolution, and deep reorg coordination.
-- `rpc_server.py`: Multi-threaded JSON-RPC 2.0 HTTP server on port 19889.
+### 4. `node/` (Daemon & RPC)
+- `chainstate.py`: Active chain tip tracking, thermodynamic fork-choice resolution, and deep reorg coordination.
+- `rpc_server.py`: Multi-threaded JSON-RPC 2.0 HTTP server on port 19889 with dual-PoW, chainwork, PQC, and migration RPC methods.
 - `daemon.py`: Full node orchestrator lifecycle management.
 
-### 4. `miner/` (Proof-of-Work & Pool Server)
-- `engine.py`: CPU/GPU multi-worker mining engine with real-time hashrate calculation.
+### 5. `miner/` (Proof-of-Work & Pool Server)
+- `engine.py`: Dual-lane CPU/GPU mining engine (SHA-256D and Scrypt) with real-time telemetry.
 - `stratum.py`: TCP Stratum V1 server on port 3333.
+- `stratum_v2.py`: Native Stratum V2 binary framing engine on port 3334 with dual-lane channel multiplexing.
+- `cli.py`: Unified miner CLI with `--lane sha256d` and `--lane general`.
 
-### 5. `wallet/` (Sovereign Key Management)
-- `hd_wallet.py`: BIP39 mnemonic seed generation and BIP44 hierarchical derivation.
+### 6. `wallet/` (Sovereign Key Management)
+- `hd_wallet.py`: BIP39 mnemonic seed generation, BIP44 derivation, multi-mode transaction creation, and automated quantum migration.
 - `rpc_client.py`: Client connection interface to node RPC server.
 
-### 6. `ui/` (Native Qt6 Desktop Applications)
+### 7. `ui/` (Native Qt6 Desktop Applications)
 - `qt_node_app.py`: Standalone Node Manager with telemetry, explorer, and RPC console.
-- `qt_wallet_full_app.py`: Sovereign wallet with integrated full node daemon.
-- `qt_miner_app.py`: Standalone Miner GUI with live hashrate visualizer.
+- `qt_wallet_full_app.py`: Sovereign wallet with integrated full node daemon and quantum audit.
+- `qt_miner_app.py`: Standalone Miner GUI with live hashrate visualizer and dual-lane controls.
 - `qt_suite_app.py`: Unified control center hosting all 4 modules.

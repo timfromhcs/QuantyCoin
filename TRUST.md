@@ -1,14 +1,14 @@
 # QuantyCoin Trust Center
 
 **Last Updated**: 2026-09-05  
-**Protocol Version**: QTY2 (`70020`)  
+**Protocol Version**: QTY3 (`70020`)  
 **Core Policy**: Verification Over Marketing  
 
 ---
 
 ## 1. What is QuantyCoin?
 
-QuantyCoin (QTY) is an independent, open-source Layer-1 cryptocurrency combining authoritative SHA-256D Proof-of-Work mining, rapid 60-second block intervals, responsive LWMA-1 difficulty retargeting, 32 MB block capacity, native Stratum V1 mining pool architecture, BIP39/44 HD wallets with Bech32 native witness addresses, and a multi-node P2P gossip network.
+QuantyCoin (QTY) is an independent, open-source Layer-1 cryptocurrency combining asymmetric Dual Proof-of-Work mining (Lane A SHA-256D ASIC & Lane B RFC 7914 Scrypt CPU/GPU), NIST FIPS 204 ML-DSA-44 post-quantum transaction authorization, cumulative thermodynamic chainwork, rapid 60-second combined block intervals, responsive LWMA-1 difficulty retargeting, 32 MB block capacity, native Stratum V2 binary framing and V1 mining pool architecture, BIP39/44 multi-mode HD wallets, and self-sovereign Qt6 desktop suites.
 
 ---
 
@@ -18,12 +18,16 @@ The following components are implemented, tested, and verifiably reproducible di
 
 | Subsystem | Verified State | Test / Verification Command |
 | :--- | :--- | :--- |
-| **SHA-256D Consensus** | **100% PASS** | `python tests/test_core.py` |
-| **Genesis Block Integrity** | **100% PASS** | Runtime assertion in `node/chainstate.py` matching `genesis/PUBLIC_GENESIS_MANIFEST.json` |
+| **Dual-PoW Consensus (SHA-256D & Scrypt)** | **100% PASS** | `python -m unittest tests/test_pqc_dualpow_sv2.py` |
+| **Thermodynamic Chainwork ($W_A=1, W_B=2048$)**| **100% PASS** | `python -m unittest tests/test_pqc_dualpow_sv2.py` |
+| **NIST FIPS 204 ML-DSA-44 Signatures** | **100% PASS** | `python -m unittest tests/test_pqc_dualpow_sv2.py` |
+| **Stratum V2 Binary Framing (Port 3334)** | **100% PASS** | `python -m unittest tests/test_pqc_dualpow_sv2.py` |
+| **Legacy UTXO Quantum Migration** | **100% PASS** | `python -m unittest tests/test_pqc_dualpow_sv2.py` |
+| **Genesis Block Integrity** | **100% PASS** | `python scripts/verify_genesis.py` |
 | **P2P Wire Framing** | **100% PASS** | `python tests/test_p2p.py` |
 | **Stratum V1 Pool Engine** | **100% PASS** | `python tests/test_functional_stratum.py` |
 | **Mining & Subsidy** | **100% PASS** | `python tests/test_functional_mining.py` |
-| **BIP39/44 HD Wallet & Tx Signing** | **100% PASS** | `python tests/test_functional_wallet.py` |
+| **BIP39/44 Multi-Mode HD Wallet** | **100% PASS** | `python tests/test_functional_wallet.py` |
 | **Full Mesh 3-Node P2P Relay** | **100% PASS** | `python tests/test_functional_p2p.py` |
 | **10-Block Deep Reorganization** | **100% PASS** | `python tests/test_functional_reorg.py` |
 | **Mempool Ingestion & Double-Spend Defense** | **100% PASS** | `python tests/test_multinode_stress.py` |
@@ -33,9 +37,8 @@ The following components are implemented, tested, and verifiably reproducible di
 
 ## 3. What is Experimental
 
-- **C++ Dilithium Integration**: Post-quantum signature integration in the C++ reference tree (`src/crypto/dilithium/`) is in active research and audit remediation (`docs/security/AUDIT_REMEDIATION_VERIFICATION.md`). The active Python Layer-1 baseline currently utilizes classical Secp256k1 ECDSA.
-- **Stratum V2 Protocol**: Stratum V1 is fully verified; Stratum V2 is preserved as an architectural extension point.
-- **Compact Block Relay (BIP152)**: Full inventory/getdata block relay is authoritative; compact blocks are slated for post-stabilization activation.
+- **C++ Dilithium Integration**: Experimental C++ research code in `src/crypto/dilithium/` is maintained for academic reference (`docs/security/AUDIT_REMEDIATION_VERIFICATION.md`). The active Layer-1 consensus engine uses the native C lattice library (`libqtydilithium`).
+- **Compact Block Relay (BIP152)**: Full inventory/getdata block relay is authoritative; compact block filtering is slated for subsequent ecosystem phases.
 
 ---
 

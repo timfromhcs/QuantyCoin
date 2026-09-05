@@ -1,7 +1,7 @@
 # QuantyCoin Security Policy
 
 **Last Updated**: 2026-09-05  
-**Protocol Version**: QTY2 (`70020`)  
+**Protocol Version**: QTY3 (`70020`)  
 
 ---
 
@@ -9,7 +9,8 @@
 
 | Version | Protocol Version | Support Status | Notes |
 | :--- | :--- | :--- | :--- |
-| **2.0.x (QTY2)** | **70020** | :white_check_mark: **Supported (Current Production Baseline)** | Active security fixes and consensus maintenance. |
+| **3.0.x (QTY3)** | **70020** | :white_check_mark: **Supported (Current Production Baseline)** | Dual-PoW, ML-DSA-44 PQC, Stratum V2, active maintenance. |
+| **2.0.x (QTY2)** | **70020** | :white_check_mark: Supported (Consensus-Compatible Baseline) | Previous consensus iteration; upgrade recommended. |
 | < 2.0.0 | < 70020 | :x: Unsupported (Deprecated Genesis) | Pre-rebuild legacy iterations. Nodes should upgrade. |
 
 ---

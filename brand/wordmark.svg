@@ -5,7 +5,7 @@
     
     <!-- Protocol Badge -->
     <rect x="480" y="38" width="68" height="28" rx="6" fill="#0284C7" fill-opacity="0.2" stroke="#38BDF8" stroke-width="1.5" />
-    <text x="514" y="57" font-size="14" font-weight="800" fill="#38BDF8" text-anchor="middle" letter-spacing="1px">QTY2</text>
+    <text x="514" y="57" font-size="14" font-weight="800" fill="#38BDF8" text-anchor="middle" letter-spacing="1px">QTY3</text>
     
     <!-- Subtitle descriptor -->
     <text x="14" y="110" font-size="13" font-weight="600" fill="#94A3B8" letter-spacing="3px">OPEN-SOURCE LAYER-1 PROTOCOL</text>

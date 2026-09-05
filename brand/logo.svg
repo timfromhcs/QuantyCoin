@@ -57,9 +57,9 @@
     
     <!-- Protocol Badge -->
     <rect x="645" y="62" width="68" height="28" rx="6" fill="#0284C7" fill-opacity="0.2" stroke="#38BDF8" stroke-width="1.5" />
-    <text x="679" y="81" font-size="14" font-weight="800" fill="#38BDF8" text-anchor="middle" letter-spacing="1px">QTY2</text>
+    <text x="679" y="81" font-size="14" font-weight="800" fill="#38BDF8" text-anchor="middle" letter-spacing="1px">QTY3</text>
     
     <!-- Subtitle / Architecture descriptor -->
-    <text x="198" y="142" font-size="15" font-weight="600" fill="#94A3B8" letter-spacing="2.5px">INDEPENDENT SHA-256D LAYER-1</text>
+    <text x="198" y="142" font-size="15" font-weight="600" fill="#94A3B8" letter-spacing="2.5px">POST-QUANTUM DUAL-POW LAYER-1</text>
   </g>
 </svg>

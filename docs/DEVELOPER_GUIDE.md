@@ -1,6 +1,6 @@
 # QuantyCoin Developer & Architecture Onboarding Guide
 
-This guide is designed for systems engineers, protocol researchers, and contributors looking to understand, build, and test QuantyCoin 2.0 (QTY2).
+This guide is designed for systems engineers, protocol researchers, and contributors looking to understand, build, and test QuantyCoin 3.0 (QTY3).
 
 ---
 
@@ -9,16 +9,16 @@ This guide is designed for systems engineers, protocol researchers, and contribu
 ```
 QuantyCoin/
 ├── core/             # Consensus state machine, UTXO set, Mempool, Block & Tx models
-├── crypto/           # Pure Secp256k1 (RFC 6979), Ed25519, BIP39/44 HD keys, Hashes
+├── crypto/           # Secp256k1, NIST FIPS 204 ML-DSA-44 lattice PQC, BIP39/44 HD keys, Hashes
 ├── network/          # TCP binary wire framing, P2P peer manager, PEX gossip
 ├── node/             # Full Node daemon (quantyd), Chainstate indexer, JSON-RPC 2.0
-├── wallet/           # HD Wallet key derivation, coin selection, transaction signer
-├── miner/            # SHA-256D engine, block templates, Stratum V1 pool server
-├── ui/               # Native Qt6 Cyberpunk Desktop applications
-├── tests/            # Automated test framework, functional tests, stress matrix
+├── wallet/           # HD Wallet key derivation, coin selection, multi-mode signer, quantum audit
+├── miner/            # Dual-PoW engine (SHA-256D & Scrypt), Stratum V1 and Stratum V2 binary servers
+├── ui/               # Native Qt6 Desktop applications (Windows & Linux)
+├── tests/            # Automated test framework, functional tests, stress matrix, PQC gates
 ├── genesis/          # PUBLIC_GENESIS_MANIFEST.json and consensus freeze parameters
-├── docs/             # Technical documentation architecture
-└── packaging/        # NSIS, InnoSetup, Debian deb, AppImage, and DMG packaging
+├── docs/             # Technical documentation architecture and specifications
+└── packaging/        # NSIS, InnoSetup, Debian deb, AppImage, and Tarball packaging
 ```
 
 ---
@@ -43,17 +43,21 @@ python scripts/verify_security.py
 
 ## 3. Where Consensus Lives
 
-All authoritative consensus rules live in `core/`:
+All authoritative consensus rules live in `core/` and `crypto/`:
 - **`core/block.py`**:
-  - `BlockHeader.serialize()`: Canonical 80-byte header format.
-  - `BlockHeader.verify_pow()`: Validates double-SHA256 hash against compact target bits.
+  - `BlockHeader.serialize()`: Canonical 80-byte header format with upper-16-bit `pow_type` encoding.
+  - `BlockHeader.verify_pow()`: Validates Lane A (SHA-256D) and Lane B (Scrypt 1024) Proof-of-Work against compact target bits.
   - `Block.verify_merkle_root()`: Validates transaction tree root.
 - **`core/transaction.py`**:
   - `Transaction.serialize()`: Strict BIP141 witness serialization.
-  - `Transaction.sign_input()`: RFC 6979 deterministic ECDSA signing.
+  - `Transaction.sign_input()`: Multi-mode authorization (`LEGACY_ECDSA`, pure `ML_DSA`, and `HYBRID`).
+  - Domain-separated sighash: `SHA256("QUANTYCOIN_PQC_SIGHASH_V1" || sig_type || BIP143_hash)`.
+- **`crypto/mldsa.py`**:
+  - Native NIST FIPS 204 ML-DSA-44 lattice cryptography via `libqtydilithium` (fail-closed consensus).
 - **`core/consensus.py`**:
-  - `calculate_next_work_required_lwma()`: 45-block single-block difficulty retargeting.
-  - `get_block_subsidy()`: 50 QTY halving schedule every 2,100,000 blocks.
+  - `calculate_next_work_required_lwma()`: Independent per-lane 45-block single-block difficulty retargeting.
+  - `LANE_WEIGHT_SHA256D = 1`, `LANE_WEIGHT_GENERAL_PURPOSE = 2048`: Thermodynamic chainwork weights.
+  - `get_block_subsidy()`: Asymmetric block subsidies (Lane A: 50 QTY, Lane B: 25 QTY).
 - **`core/genesis_constants.py`**:
   - Authoritative frozen consensus constants (`GENESIS_HASH`, `MAGIC_BYTES`, `TARGET_BLOCK_TIME`).
 
