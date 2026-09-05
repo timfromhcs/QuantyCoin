@@ -55,7 +55,7 @@ class MinerTelemetryWorker(QtCore.QThread):
 class QuantyMinerWindow(QtWidgets.QMainWindow):
     def __init__(self, rpc_port: int = 19889):
         super().__init__()
-        self.setWindowTitle("QuantyCoin Multi-Threaded Miner (v7.0 Production)")
+        self.setWindowTitle("QuantyCoin Multi-Threaded Miner (QTY2 / 2.0.0)")
         self.resize(1000, 660)
         self.setStyleSheet(CYBERPUNK_QSS)
 

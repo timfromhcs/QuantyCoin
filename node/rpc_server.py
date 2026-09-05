@@ -360,7 +360,7 @@ class QuantyRPCServer:
             bits = int(tmpl["bits"], 16)
             
             script_pubkey = address_to_scriptpubkey(payout_address)
-            cb_msg = f"/QuantyGenerator:v7.0/H:{height}/".encode('utf-8')
+            cb_msg = f"/QuantyGenerator:QTY2/H:{height}/".encode('utf-8')
             cb_script = bytes([len(cb_msg)]) + cb_msg
             
             coinbase_tx = Transaction(

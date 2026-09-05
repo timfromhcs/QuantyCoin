@@ -1,60 +1,68 @@
-# QuantyCoin 2.0 (QTY2) Cloud Build & Matrix Verification
+# Cloud Build & CI/CD Hardening Verification Report
 
-**Document ID**: `QTY2-CLOUD-BUILD-VERIFICATION-2026`  
-**Contract ID**: `QUANTYCOIN-QTY2-FINALIZE-PR-2026`  
-**Audit Date**: 2026-09-05  
-**Target Branch**: `v2.0`  
-**Base Branch**: `main`  
-**Latest Run ID**: `33956695355`  
-**Status**: **100% PASS**  
+**Protocol Version**: QTY2 (Protocol 70020)  
+**Verification Date**: September 2026  
+**Scope**: GitHub Actions CI/CD Workflows, Cross-Platform Packaging, Masked Failure Elimination  
 
 ---
 
-## 1. Cloud Build Architecture & Toolchain
+## 1. Executive Summary
 
-The QuantyCoin QTY2 project is engineered for self-contained, air-gap compliant cloud execution. Public cloud workflows do not rely on local developer paths, pre-generated secret nonces, or external uncommitted vaults.
+This audit evaluated all GitHub Actions automation workflows, build packaging scripts across Windows, Linux, and macOS, and verified the complete elimination of error masking patterns (such as `|| true`).
 
-| Component | Cloud Toolchain | Isolation Guarantee |
-| :--- | :--- | :--- |
-| **Python Runtime** | Python 3.10, 3.11, 3.12 | Native virtualenv via `actions/setup-python@v5` |
-| **GUI Framework** | Qt6 (PySide6) | Offscreen headless testing via `QT_QPA_PLATFORM=offscreen` |
-| **P2P & Stratum** | Native asynchronous sockets | Self-contained loopback socket binds on dynamic/test ports |
-| **Packaging** | PyInstaller 6.x | Single-binary executable bundle generation across platforms |
-| **Secret Boundary**| `scripts/verify_security.py` | Strict enforcement of zero private keys/nonces in repository |
+All release pipelines now target **QuantyCoin 2.0 (QTY2)** exclusively, and legacy "v7" identifiers have been cleanly eradicated.
 
 ---
 
-## 2. GitHub Actions Cloud Execution Evidence (Run 33956695355)
+## 2. Canonical Workflow Matrix
 
-The matrix execution completed with 100% success across all 10 cloud runner jobs:
+The repository features 5 canonical workflows in `.github/workflows/`:
 
-| Runner OS | Python Version | Duration | Test Suite Coverage | Result |
+| Workflow File | Purpose | Triggers | Masked Errors | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **Ubuntu 22.04** | 3.11 | 7s | Zero-Leak Git Policy & Secret Scanner | **PASS** |
-| **Ubuntu 22.04** | 3.10 | 2m 45s | Crypto, Core, P2P, Stratum, Test Runner, Stress Matrix | **PASS** |
-| **Ubuntu 22.04** | 3.11 | 2m 21s | Crypto, Core, P2P, Stratum, Test Runner, Stress Matrix | **PASS** |
-| **Ubuntu 22.04** | 3.12 | 1m 55s | Crypto, Core, P2P, Stratum, Test Runner, Stress Matrix | **PASS** |
-| **Windows Server 2022** | 3.10 | 3m 12s | Crypto, Core, P2P, Stratum, Test Runner, Stress Matrix | **PASS** |
-| **Windows Server 2022** | 3.11 | 2m 44s | Crypto, Core, P2P, Stratum, Test Runner, Stress Matrix | **PASS** |
-| **Windows Server 2022** | 3.12 | 3m 07s | Crypto, Core, P2P, Stratum, Test Runner, Stress Matrix | **PASS** |
-| **macOS 14 (Apple Silicon)**| 3.10 | 9m 59s | Crypto, Core, P2P, Stratum, Test Runner, Stress Matrix | **PASS** |
-| **macOS 14 (Apple Silicon)**| 3.11 | 9m 31s | Crypto, Core, P2P, Stratum, Test Runner, Stress Matrix | **PASS** |
-| **macOS 14 (Apple Silicon)**| 3.12 | 9m 37s | Crypto, Core, P2P, Stratum, Test Runner, Stress Matrix | **PASS** |
+| `ci.yml` | Unit tests, consensus checks, cryptographic verification, security scan | Push (`main`, `v2.0`), PR | None (`0`) | **VERIFIED** |
+| `build.yml` | Cross-platform binary builds (Ubuntu, Windows, macOS) | Push (`main`, `v2.0`), PR | None (`0`) | **VERIFIED** |
+| `security.yml` | Zero-leak secret scanner, dependency audit, file permission validation | Push (`main`, `v2.0`), PR, Daily Cron | None (`0`) | **VERIFIED** |
+| `documentation.yml` | Markdown link validation, `llms.txt`, citation consistency | Push (`main`, `v2.0`), PR | None (`0`) | **VERIFIED** |
+| `release.yml` | Multi-platform native installers (.exe, .deb, .dmg, .zip, .tar.gz) | Tagged releases (`v*`), Dispatch | None (`0`) | **VERIFIED** |
 
 ---
 
-## 3. Self-Contained Test & Build Verifications
+## 3. Forensic Elimination of Error Masking (`|| true`)
 
-1. **Deterministic Genesis Verification**:
-   - `scripts/verify_genesis.py` executes standalone in cloud environments.
-   - Verifies genesis hash `00000f7cecd0b1eafaab4d65183f7bd12713b67b6c1c4a30f6bf3f1b8efd30ba`, Merkle root `ac6346e4b3ae1f3e4cfabaa09376ee83d268d12476d3e243a42d0e22cf79224f`, and PoW target `0x1e0fffff`.
-   - Leaves zero temporary files.
+Prior inspection revealed potential masked errors in Linux packaging and macOS DMG generation. These have been eliminated and replaced with explicit existence checks and proper exit code propagation:
 
-2. **Documentation & Link Integrity**:
-   - `scripts/verify_documentation.py` checks 84 relative links across 59 markdown documents.
-   - 100% pass with zero broken references.
+1. **Debian Packaging (`packaging/linux/build_deb.sh`)**:
+   - Replaced unconditioned commands with `command -v dpkg-deb` detection.
+   - Scripts abort cleanly if build prerequisites are missing during dedicated package steps.
+2. **macOS DMG Packaging (`packaging/macos/build_dmg.sh`)**:
+   - Replaced masked `hdiutil` invocation with explicit host OS check (`[[ "$OSTYPE" == "darwin"* ]]`).
+   - Generates production `.dmg` on Darwin hosts and clean `.tar.gz` fallback on non-Darwin platforms without fabricating empty files.
+3. **Workflow Command Chains (`.github/workflows/release.yml`)**:
+   - Removed `|| true` from `.deb` copy step and replaced with directory / glob test:
+     `if [ -d "dist/deb" ] && ls dist/deb/*.deb 1> /dev/null 2>&1; then cp dist/deb/*.deb dist/linux/; fi`
+   - Removed `|| true` from `bash packaging/macos/build_dmg.sh`.
 
-3. **Multi-Node Convergence**:
-   - 3-node full-mesh P2P relay tested under multi-node stress.
-   - 500 signed transactions ingested without memory leaks or race conditions.
-   - Deep reorg across competing chain branches verified to converge deterministically.
+---
+
+## 4. Packaging Version Realignment (QTY2 / 2.0.0)
+
+All installer definitions have been updated to the frozen 2.0.0 protocol baseline:
+
+- `packaging/windows/quantycoin_suite.iss`: `MyAppVersion "2.0.0"`, `OutputBaseFilename QuantyCoin-CombinedSuite-Setup-2.0.0`
+- `packaging/windows/quantycoin_suite.nsi`: `PRODUCT_VERSION "2.0.0"`, `OutFile QuantyCoin-CombinedSuite-Setup-2.0.0.exe`
+- `packaging/windows/quantycoin_miner.nsi`: `PRODUCT_VERSION "2.0.0"`, `OutFile QuantyCoin-Miner-Setup-2.0.0.exe`
+- `packaging/windows/quantycoin_node.nsi`: `PRODUCT_VERSION "2.0.0"`, `OutFile QuantyCoin-Node-Setup-2.0.0.exe`
+- `packaging/windows/quantycoin_wallet.nsi`: `PRODUCT_VERSION "2.0.0"`, `OutFile QuantyCoin-FullWallet-Setup-2.0.0.exe`
+- `packaging/linux/build_deb.sh`: Package version `2.0.0`
+- `packaging/linux/build_appimage.sh`: Package version `2.0.0`
+- `packaging/macos/build_dmg.sh`: Package version `2.0.0`
+
+---
+
+## 5. Artifact Packaging Validation Standard
+
+Artifacts produced by CI must meet the following cryptographic requirements:
+- **Non-zero file size**: Must be > 10 KB.
+- **Executable format validation**: PE32+ for Windows, ELF 64-bit for Linux, Mach-O 64-bit for macOS.
+- **Checksum manifest**: Mandatory generation of `SHA256SUMS` signed or validated during release stages.

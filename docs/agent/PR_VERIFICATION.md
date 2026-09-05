@@ -1,44 +1,63 @@
-# QuantyCoin 2.0 (QTY2) Pull Request Verification & Reviewer Packet
+# Pull Request Verification & Review Specification
 
-**Document ID**: `QTY2-PR-VERIFICATION-2026`  
-**Contract ID**: `QUANTYCOIN-QTY2-FINALIZE-PR-2026`  
+**PR Title**: `QTY2: harden CI/CD, repository trust, branding and documentation`  
 **Base Branch**: `main`  
 **Head Branch**: `v2.0`  
-**Merge Policy**: `NEVER_AUTO_MERGE` (Explicit Agent Rule R006)  
-**Verification Date**: 2026-09-05  
+**Merge Policy**: **NEVER_MERGE_MAIN (Review Only)**  
 
 ---
 
-## 1. Pull Request Metadata
+## 1. Pull Request Description
 
-- **Title**: `QuantyCoin QTY2: repository trust, documentation, verification and cloud-build finalization`
-- **Source**: `timfromhcs/QuantyCoin:v2.0`
-- **Target**: `timfromhcs/QuantyCoin:main`
-- **Scope**: Documentation architecture, Trust Center, reproducible cloud CI/CD, community health, and verification tooling.
-- **Merge Prohibition**: In accordance with rule R006, this pull request must NEVER be auto-merged or merged by an autonomous agent. Merge decisions are reserved solely for human maintainers.
+### Summary of Changes
+This pull request delivers the comprehensive repository-quality, CI/CD, release packaging, branding, trust, and documentation hardening pass for **QuantyCoin QTY2 (Protocol 70020)**.
+
+### Key Changes
+1. **Legacy "v7" Eradication**:
+   - Cleaned up obsolete version labels and headers across node daemon, RPC server coinbase tags, Qt6 desktop apps, Windows launchers, packaging scripts, and GitHub Actions workflows.
+   - Standardized all binaries, installers, and archives on version `2.0.0` (QTY2).
+2. **Error Masking Removal**:
+   - Replaced all instances of `|| true` in build scripts (`packaging/linux/build_deb.sh`, `packaging/macos/build_dmg.sh`) and `.github/workflows/release.yml` with explicit environmental checks.
+3. **Official Brand System**:
+   - Created `/brand/` directory with 5 scalable SVGs (`logo.svg`, `logo-mark.svg`, `wordmark.svg`, `monochrome.svg`, `favicon.svg`).
+   - Generated high-resolution social preview cards (`social-preview.png` 1200x630, `github-social-preview.png` 1280x640).
+   - Authored formal design manual in `brand/brand-guidelines.md`.
+4. **README Structure & Honesty Hardening**:
+   - Strictly conformed to the 19 required sections.
+   - Embedded vector logo in hero section.
+   - Updated CI badge to canonical `ci.yml` and replaced static test badges with dynamic evidence-gated verification badges.
+   - Added honest Nakamoto PoW throughput disclosures (14–28 TPS on standard transactions, 16 TX/s mempool ingestion benchmark).
+5. **Machine-Readable Indexing**:
+   - Synchronized `llms-full.txt` and verified `llms.txt` and `CITATION.cff`.
 
 ---
 
-## 2. Pre-PR Completion Gate Matrix
+## 2. Evidence-Gated Verification Checklist
 
-| Checkpoint | Status | Evidence Reference |
-| :--- | :--- | :--- |
-| **Current Branch Verified** | **PASS** | Active on `v2.0` |
-| **Base History Aligned** | **PASS** | `v2.0` is direct descendant of `origin/main` |
-| **Zero-Leak Security Scan** | **PASS** | `python scripts/verify_security.py` passes with 0 leaks |
-| **Genesis Consensus Audit** | **PASS** | `python scripts/verify_genesis.py` passes with 100% match |
-| **Documentation & Link Audit**| **PASS** | `python scripts/verify_documentation.py` validates 84 links |
-| **Unit & Functional Tests** | **PASS** | 100% pass locally and in GitHub Actions across 3 OS platforms |
-| **CI/CD Consolidation** | **PASS** | 5 standard workflows (`ci.yml`, `build.yml`, `security.yml`, `documentation.yml`, `release.yml`) |
-| **Community Health Files** | **PASS** | `SUPPORT.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `.github/` templates |
-| **Clean Working Tree** | **PASS** | No untracked temporary files, binaries, or credentials |
+- [x] **Zero-Leak Security Audit**: `python scripts/verify_security.py` -> 0 leaks.
+- [x] **Genesis Cryptographic Audit**: `python scripts/verify_genesis.py` -> 100% PASS.
+- [x] **Documentation Integrity**: `python scripts/verify_documentation.py` -> 85/85 markdown links resolve.
+- [x] **Unit & P2P Test Suite**: `python tests/test_crypto.py`, `python tests/test_core.py`, `python tests/test_p2p.py` -> PASS.
+- [x] **Mining & Stratum Integration**: `python tests/test_functional_stratum.py` -> PASS.
+- [x] **Multi-Node Hardness & Reorg**: `python tests/test_multinode_stress.py` -> PASS.
+- [x] **Air-Gap Compliance**: No secrets, uncompressed keys, or vault paths in git tracking.
+- [x] **Merge Policy**: Never auto-merge into `main`.
 
 ---
 
-## 3. Reviewer Checklist for Maintainers
+## 3. Reviewer Instructions
 
-Maintainers reviewing this pull request should verify:
-1. **Air-Gapped Isolation**: Confirm that all secret generator inputs, private keys, and mining nonces remain strictly external to the git tree.
-2. **Consensus Invariance**: Confirm that no consensus rules or frozen parameters in `core/genesis_constants.py` have been modified.
-3. **CI Matrix Green**: Inspect the GitHub Actions runs for `CI`, `Security`, `Documentation`, and `Cloud Build`.
-4. **Documentation Accuracy**: Browse `README.md`, `TRUST.md`, `docs/index.md`, and `docs/` to confirm structure.
+Maintainers can reproduce all verification checks locally:
+```bash
+# Verify security boundaries
+python scripts/verify_security.py
+
+# Verify genesis cryptographic integrity
+python scripts/verify_genesis.py
+
+# Verify documentation links
+python scripts/verify_documentation.py
+
+# Run functional test runner
+python tests/test_runner.py
+```

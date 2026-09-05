@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="favGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+  </defs>
+  <!-- Background Disc for High Contrast Favicon -->
+  <rect width="64" height="64" rx="14" fill="#0F172A" />
+  
+  <!-- Outer Q-Ring -->
+  <circle cx="31" cy="31" r="21" fill="none" stroke="url(#favGrad)" stroke-width="7" />
+  
+  <!-- Central Diamond Core -->
+  <polygon points="31,21 41,31 31,41 21,31" fill="#38BDF8" />
+  <circle cx="31" cy="31" r="4" fill="#FFFFFF" />
+  
+  <!-- Q-Tail -->
+  <line x1="38" y1="38" x2="55" y2="55" stroke="#38BDF8" stroke-width="7" stroke-linecap="round" />
+</svg>

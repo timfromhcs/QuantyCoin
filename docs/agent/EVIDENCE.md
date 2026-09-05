@@ -178,3 +178,53 @@ Every major milestone must have concrete, reproducible execution evidence record
   - Implemented `scripts/verify_documentation.py` (84 links verified, 0 broken).
   - Implemented `scripts/verify_genesis.py` (100% independent genesis check with 0 secret dependencies).
 - **PR Preparation Status**: Ready for reviewable pull request submission from `v2.0` into `main`.
+
+---
+
+## 12. Final Repository Hardening Evidence (QUANTYCOIN-QTY2-REPO-HARDENING-2026)
+- **Timestamp**: 2026-09-05T11:22:00+02:00
+- **Auditor**: Autonomous Protocol Rebuild Agent
+- **Target Branch**: `v2.0`
+- **Base Branch**: `main`
+- **Verification Evidence**:
+  - **Zero-Leak Security Scanner (`scripts/verify_security.py`)**:
+    ```
+    QUANTYCOIN ZERO-LEAK SECURITY SCANNER
+    [PASS] No secrets, private credentials or forbidden files detected.
+    ```
+  - **Genesis Cryptographic Audit (`scripts/verify_genesis.py`)**:
+    ```
+    QTY2 INDEPENDENT GENESIS CRYPTOGRAPHIC AUDIT
+    [PASS] Manifest validated: PUBLIC_GENESIS_MANIFEST.json
+    [PASS] Manifest validated: public_genesis.json
+    [PASS] Chainstate genesis assertions verified.
+    [PASS] Block header PoW & Merkle root calculation verified.
+           Genesis Hash: 00000f7cecd0b1eafaab4d65183f7bd12713b67b6c1c4a30f6bf3f1b8efd30ba
+           Merkle Root:  ac6346e4b3ae1f3e4cfabaa09376ee83d268d12476d3e243a42d0e22cf79224f
+           Difficulty:   0x1e0fffff
+    GENESIS INDEPENDENT AUDIT PASSED WITH 100% SUCCESS
+    ```
+  - **Documentation Link Integrity (`scripts/verify_documentation.py`)**:
+    ```
+    Scanning 64 markdown files for link integrity...
+    Validated 85 local relative links across repository.
+    [PASS] All markdown links resolve successfully.
+    [PASS] llms.txt validated.
+    [PASS] CITATION.cff validated.
+    ALL DOCUMENTATION VALIDATION CHECKS PASSED (100%)
+    ```
+  - **Legacy "v7" Eradication**:
+    - Audited and updated `node/daemon.py`, `node/rpc_server.py`, `ui/node_gui.py`, all Qt6 apps, `start_quantycoin.bat`, `llms-full.txt`, and packaging scripts.
+    - Verified 0 remaining stale v7 references across active codebase.
+  - **Error Masking Elimination**:
+    - Removed all `|| true` constructs in `packaging/linux/build_deb.sh`, `packaging/macos/build_dmg.sh`, and `.github/workflows/release.yml`.
+  - **Brand System Asset Delivery**:
+    - Vector SVGs generated: `brand/logo.svg`, `brand/logo-mark.svg`, `brand/wordmark.svg`, `brand/monochrome.svg`, `brand/favicon.svg`.
+    - Raster cards generated: `brand/social-preview.png` (1200x630, 44,805 bytes), `brand/github-social-preview.png` (1280x640, 44,694 bytes).
+    - Design manual: `brand/brand-guidelines.md`.
+  - **README Presentation Hardening**:
+    - Strictly conformed to the 19 required sections.
+    - Embedded official `brand/logo.svg`.
+    - Honest Nakamoto PoW throughput benchmarks documented (14-28 TPS, 16 TX/s mempool benchmark).
+    - Dynamic verification badges linked.
+

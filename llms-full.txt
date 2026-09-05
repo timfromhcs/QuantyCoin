@@ -1,7 +1,7 @@
-# QuantyCoin (QTY) — Comprehensive Technical Reference & Protocol Specification v7.0
+# QuantyCoin (QTY2) — Comprehensive Technical Reference & Protocol Specification
 
 ## 1. Executive Summary & Philosophy
-QuantyCoin (QTY) is an open-source, production-grade Layer-1 blockchain engineering project designed for instantaneous global settlement, post-quantum cryptographic security, and enterprise AI-era data throughput.
+QuantyCoin (QTY2) is an open-source, sovereign Layer-1 blockchain engineering project designed as an independent SHA-256D Proof-of-Work cryptocurrency with 60-second block intervals, dynamic LWMA-1 difficulty adjustment, native SegWit Bech32 addresses, and desktop GUI applications.
 
 ## 2. Cryptographic Algorithms & Encodings
 - **Public Key Cryptography:** Secp256k1 ECDSA (RFC 6979 deterministic k) & Ed25519 (RFC 8032)
@@ -46,4 +46,4 @@ QuantyCoin (QTY) is an open-source, production-grade Layer-1 blockchain engineer
 
 ## 6. Functional Test Harness & CI/CD
 - Complete test runner (`tests/test_runner.py`) executing cryptographic unit tests, consensus validation, mining mechanics, BIP39 SegWit transactions, P2P network relay, and deep multi-block chain reorganizations.
-- 100% automated cross-platform native installer build matrix via `.github/workflows/release_v7.yml`.
+- 100% automated cross-platform native installer build matrix via `.github/workflows/release.yml`.

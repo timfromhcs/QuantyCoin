@@ -17,6 +17,9 @@ When an error, test failure, regression, or leak is encountered, it must be docu
 - **Root Cause**: `tests/test_multinode_stress.py` used the deprecated hardcoded pre-v2 genesis timestamp `1771804800` instead of importing `GENESIS_TIMESTAMP` (`1788600000`).
 - **Fix**: Replaced hardcoded values with `GENESIS_TIMESTAMP` imported from `core.genesis_constants`.
 - **Regression Test**: Rerun `tests/test_multinode_stress.py`. All 4 tests passed 100%.
-
-
+### Incident INC-003: Stale v7 Artifact Names & Masked Failures in Cloud Packaging
+- **Observed**: Packaging scripts and `.github/workflows/release.yml` retained `v7.0` naming and utilized `|| true` to swallow missing platform tools (`dpkg-deb`, `hdiutil`).
+- **Root Cause**: Incremental development across prior iterations had left hardcoded legacy version labels and defensive suppression constructs in packaging scripts.
+- **Fix**: Updated all InnoSetup (.iss), NSIS (.nsi), Debian, and macOS packaging scripts to protocol version `2.0.0` and replaced `|| true` with conditional tool existence checks.
+- **Regression Test**: Run `scripts/verify_documentation.py`, `scripts/verify_security.py`, and inspect release workflow syntax.
 

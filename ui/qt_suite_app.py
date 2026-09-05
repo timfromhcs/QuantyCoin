@@ -25,7 +25,7 @@ from miner.engine import MiningEngine
 class QuantyMasterSuiteWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("QuantyCoin Master Suite (v7.0.0 Cyberpunk Dark Edition)")
+        self.setWindowTitle("QuantyCoin Master Suite (QTY2 / 2.0.0)")
         self.resize(1180, 760)
         self.setStyleSheet(CYBERPUNK_QSS)
 
