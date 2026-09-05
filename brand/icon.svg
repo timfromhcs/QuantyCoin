@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#0369A1" />
+    </linearGradient>
+    <linearGradient id="iconCore" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0EA5E9" />
+      <stop offset="100%" stop-color="#7DD3FC" />
+    </linearGradient>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#0B0F17" rx="100"/>
+
+  <!-- Geometric Outer Torus -->
+  <path d="M 256 64
+           C 362 64 448 150 448 256
+           C 448 304.5 430 348.8 400.2 382.6
+           L 448 434
+           L 404 448
+           L 352.5 396.5
+           C 324.5 423.8 285.5 448 256 448
+           C 150 448 64 362 64 256
+           C 64 150 150 64 256 64 Z" 
+        fill="none" 
+        stroke="url(#iconGradient)" 
+        stroke-width="32" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" />
+
+  <!-- Verification Lattice Grid -->
+  <circle cx="256" cy="256" r="118" fill="none" stroke="#0284C7" stroke-width="10" stroke-dasharray="14 10" opacity="0.6"/>
+  <polygon points="256,180 332,256 256,332 180,256" fill="url(#iconCore)" opacity="0.95" />
+
+  <!-- Q-Ray -->
+  <path d="M 292 292 L 434 434" 
+        stroke="url(#iconCore)" 
+        stroke-width="26" 
+        stroke-linecap="round" />
+
+  <!-- High-Contrast Core -->
+  <circle cx="256" cy="256" r="28" fill="#FFFFFF" />
+  <circle cx="256" cy="256" r="14" fill="#0B0F17" />
+</svg>

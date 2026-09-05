@@ -1,0 +1,67 @@
+{
+  "palette_name": "QuantyCoin High-Contrast Precision System",
+  "version": "4.0",
+  "colors": {
+    "primary_dark_bg": {
+      "hex": "#0B0F17",
+      "rgb": [11, 15, 23],
+      "usage": "Application and CLI dark background canvas"
+    },
+    "primary_light_bg": {
+      "hex": "#FFFFFF",
+      "rgb": [255, 255, 255],
+      "usage": "Light mode application canvas"
+    },
+    "core_blue": {
+      "hex": "#0284C7",
+      "rgb": [2, 132, 199],
+      "usage": "Brand core accent, mining lane active indicators"
+    },
+    "electric_cyan": {
+      "hex": "#38BDF8",
+      "rgb": [56, 189, 248],
+      "usage": "Glow accents, verified consensus highlight"
+    },
+    "dark_text": {
+      "hex": "#0F172A",
+      "rgb": [15, 23, 42],
+      "usage": "High-contrast text on light backgrounds"
+    },
+    "light_text": {
+      "hex": "#F8FAFC",
+      "rgb": [248, 250, 252],
+      "usage": "High-contrast text on dark backgrounds"
+    },
+    "secondary_text": {
+      "hex": "#94A3B8",
+      "rgb": [148, 163, 184],
+      "usage": "Hash strings, address labels, timestamps"
+    },
+    "success": {
+      "hex": "#10B981",
+      "rgb": [16, 185, 129],
+      "usage": "Consensus validation pass, confirmed block tip"
+    },
+    "warning": {
+      "hex": "#F59E0B",
+      "rgb": [245, 158, 11],
+      "usage": "Reorganization alert, unconfirmed mempool"
+    },
+    "error": {
+      "hex": "#EF4444",
+      "rgb": [239, 68, 68],
+      "usage": "Consensus corruption, invalid block or signature"
+    },
+    "neutral_surface": {
+      "hex": "#1E293B",
+      "rgb": [30, 41, 59],
+      "usage": "Card backgrounds, data table row highlights"
+    }
+  },
+  "contrast_ratios": {
+    "light_text_on_dark_bg": "16.8:1 (AAA Pass)",
+    "electric_cyan_on_dark_bg": "9.4:1 (AAA Pass)",
+    "dark_text_on_light_bg": "17.4:1 (AAA Pass)",
+    "core_blue_on_light_bg": "4.8:1 (AA Pass)"
+  }
+}

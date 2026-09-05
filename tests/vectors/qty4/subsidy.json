@@ -1,0 +1,32 @@
+[
+  {
+    "height": 0,
+    "lane_a_subsidy_sat": 5000000000,
+    "lane_b_subsidy_sat": 2500000000
+  },
+  {
+    "height": 100,
+    "lane_a_subsidy_sat": 5000000000,
+    "lane_b_subsidy_sat": 2500000000
+  },
+  {
+    "height": 2100000,
+    "lane_a_subsidy_sat": 2500000000,
+    "lane_b_subsidy_sat": 1250000000
+  },
+  {
+    "height": 4200000,
+    "lane_a_subsidy_sat": 1250000000,
+    "lane_b_subsidy_sat": 625000000
+  },
+  {
+    "height": 6300000,
+    "lane_a_subsidy_sat": 625000000,
+    "lane_b_subsidy_sat": 312500000
+  },
+  {
+    "height": 134400000,
+    "lane_a_subsidy_sat": 0,
+    "lane_b_subsidy_sat": 0
+  }
+]

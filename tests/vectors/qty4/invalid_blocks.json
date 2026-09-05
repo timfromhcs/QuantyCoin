@@ -1,0 +1,14 @@
+[
+  {
+    "description": "Block with no transactions",
+    "error": "Block has no transactions"
+  },
+  {
+    "description": "Block with duplicate coinbase",
+    "error": "Transaction 1 is an illegal additional coinbase"
+  },
+  {
+    "description": "Block exceeding 32MB size limit",
+    "error": "Block size exceeds 32 MB limit"
+  }
+]

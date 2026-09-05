@@ -551,7 +551,7 @@ class QuantyRPCServer:
             header_version = tmpl["version"]
             
             script_pubkey = address_to_scriptpubkey(payout_address)
-            cb_msg = f"/QuantyGenerator:QTY2/H:{height}/P:{pow_type}/".encode('utf-8')
+            cb_msg = f"/QuantyGenerator:QTY4/H:{height}/P:{pow_type}/".encode('utf-8')
             cb_script = bytes([len(cb_msg)]) + cb_msg
             
             coinbase_tx = Transaction(

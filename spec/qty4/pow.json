@@ -1,0 +1,34 @@
+{
+  "lanes": {
+    "LANE_A": {
+      "id": 0,
+      "name": "SHA256D",
+      "algorithm": "double_sha256",
+      "hardware_target": "ASIC",
+      "target_interval_seconds": 120,
+      "thermodynamic_work_weight": 1,
+      "base_subsidy_satoshis": 5000000000,
+      "pow_limit_bits": 504365055,
+      "pow_limit_hex": "00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "LANE_B": {
+      "id": 1,
+      "name": "SCRYPT_1024",
+      "algorithm": "rfc7914_scrypt",
+      "scrypt_parameters": {
+        "N": 1024,
+        "r": 1,
+        "p": 1
+      },
+      "hardware_target": "CPU_GPU",
+      "target_interval_seconds": 120,
+      "thermodynamic_work_weight": 2048,
+      "base_subsidy_satoshis": 2500000000,
+      "pow_limit_bits": 504365055,
+      "pow_limit_hex": "00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    }
+  },
+  "difficulty_algorithm": "LWMA-1",
+  "lwma_window": 45,
+  "integer_arithmetic_only": true
+}

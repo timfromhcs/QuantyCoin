@@ -9,6 +9,7 @@ from typing import List, Optional, Tuple, Dict, Any
 from crypto import hash256, hash160, sha256, ecdsa_sign, ecdsa_verify, privkey_to_pubkey, encode_der_signature, decode_der_signature
 from crypto.bip32_44 import encode_segwit_address, MAINNET_BECH32_HRP
 from crypto.mldsa import mldsa_sign, mldsa_verify, PUBLIC_KEY_BYTES, SIGNATURE_BYTES
+from .genesis_constants import MAX_MONEY_SATOSHIS
 
 
 class SignatureType:
@@ -52,6 +53,8 @@ class TxIn:
 class TxOut:
     """Transaction Output (specifies value and locking script)."""
     def __init__(self, value: int, script_pubkey: bytes):
+        if not isinstance(value, int) or value < 0 or value > MAX_MONEY_SATOSHIS:
+            raise ValueError(f"TxOut value {value} out of consensus monetary range [0, {MAX_MONEY_SATOSHIS}]")
         self.value = value  # Satoshis (1 QTY = 100,000,000 Satoshis)
         self.script_pubkey = script_pubkey  # Locking script bytes
 
@@ -247,9 +250,9 @@ class Transaction:
         return hash256(bytes(preimage))
 
     def get_pqc_sighash(self, input_index: int, prev_script: bytes, prev_amount: int = 0, sig_type: int = SignatureType.ML_DSA) -> bytes:
-        """Domain-separated post-quantum signature hash."""
+        """Domain-separated post-quantum signature hash for QTY4."""
         bip143_hash = self.get_sighash(input_index, prev_script, prev_amount)
-        domain_tag = b"QUANTYCOIN_PQC_SIGHASH_V1"
+        domain_tag = b"QUANTYCOIN_QTY4_PQC_SIGHASH_V1"
         return sha256(domain_tag + bytes([sig_type]) + bip143_hash)
 
     def sign_input(self, input_index: int, privkey_bytes: bytes, prev_script: bytes, prev_amount: int) -> None:
@@ -349,6 +352,49 @@ class Transaction:
                 return False
 
         return False
+
+    def validate_structure(self) -> Tuple[bool, str]:
+        """Perform stateless structural validations on the transaction."""
+        if not self.vin:
+            return False, "Transaction has no inputs"
+        if not self.vout:
+            return False, "Transaction has no outputs"
+
+        raw_size = len(self.serialize(include_witness=True))
+        if raw_size > 1_000_000:
+            return False, "Transaction size exceeds 1,000,000 bytes limit"
+
+        total_out = 0
+        for i, out in enumerate(self.vout):
+            if out.value < 0:
+                return False, f"Output {i} has negative value: {out.value}"
+            if out.value > MAX_MONEY_SATOSHIS:
+                return False, f"Output {i} exceeds MAX_MONEY_SATOSHIS: {out.value}"
+            total_out += out.value
+            if total_out > MAX_MONEY_SATOSHIS:
+                return False, "Total transaction output value exceeds MAX_MONEY_SATOSHIS"
+
+        # Check for duplicate inputs
+        seen_inputs = set()
+        for i, inp in enumerate(self.vin):
+            key = (inp.prev_txid, inp.prev_vout)
+            if key in seen_inputs:
+                return False, f"Duplicate input detected at index {i}"
+            seen_inputs.add(key)
+
+        # Check coinbase structure
+        if self.is_coinbase():
+            if len(self.vin) != 1:
+                return False, "Coinbase transaction must have exactly 1 input"
+            inp = self.vin[0]
+            if len(inp.script_sig) < 2 or len(inp.script_sig) > 100:
+                return False, f"Coinbase scriptSig length {len(inp.script_sig)} out of bounds [2, 100]"
+        else:
+            for i, inp in enumerate(self.vin):
+                if inp.is_coinbase():
+                    return False, f"Non-coinbase transaction contains coinbase input at index {i}"
+
+        return True, "Valid"
 
     def to_dict(self) -> Dict[str, Any]:
         return {

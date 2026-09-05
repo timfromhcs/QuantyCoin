@@ -1,0 +1,14 @@
+{
+  "v0_segwit": {
+    "address": "qty1qgfpyysjzgfpyysjzgfpyysjzgfpyysjzsnxzlw",
+    "script_pubkey": "00144242424242424242424242424242424242424242"
+  },
+  "v1_pqc": {
+    "address": "qty1pgfpyysjzgfpyysjzgfpyysjzgfpyysjzgfpyysjzgfpyysjzgfpqdd37v8",
+    "script_pubkey": "51204242424242424242424242424242424242424242424242424242424242424242"
+  },
+  "v2_hybrid": {
+    "address": "qty1zgfpyysjzgfpyysjzgfpyysjzgfpyysjzgfpyysjzgfpyysjzgfpq9sg3zv",
+    "script_pubkey": "52204242424242424242424242424242424242424242424242424242424242424242"
+  }
+}

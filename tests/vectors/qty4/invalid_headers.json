@@ -1,0 +1,18 @@
+[
+  {
+    "description": "Nonce failing target",
+    "bits": "1e0fffff",
+    "nonce": 0,
+    "expected_error": "Invalid Proof-of-Work"
+  },
+  {
+    "description": "Negative compact target",
+    "bits": "1e8fffff",
+    "expected_error": "Negative compact target"
+  },
+  {
+    "description": "Zero target",
+    "bits": "00000000",
+    "expected_error": "Target is non-positive"
+  }
+]

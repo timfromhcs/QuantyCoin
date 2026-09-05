@@ -1,0 +1,5 @@
+{
+  "shallow_depth": 3,
+  "deep_depth": 25,
+  "rollback_invariant": "chainstate_atomic_and_exact"
+}

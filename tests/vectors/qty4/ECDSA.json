@@ -1,0 +1,8 @@
+{
+  "private_key_hex": "11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff",
+  "public_key_hex": "02f3487993f80fa3e0b31ea74eaa98e2f2333ef868d3f4fa57bb571bb3bd86142b",
+  "message": "QuantyCoin QTY4 ECDSA Verification Vector",
+  "message_hash": "d411d4e1a41894757745fc795cee377caa97c8e7ac62222279f44dd12377d00d",
+  "r_hex": "0x3c77e5a9d9c22666b279b831ccbf8e6b3c6c0a7f5659a00933b1a219448b69f6",
+  "s_hex": "0x5a62e8cbcd4b27d6f48fd24ab40b83449f2593c39625f605c9f93b5b8857e34b"
+}

@@ -1,0 +1,15 @@
+{
+  "rule": "highest_weighted_cumulative_work",
+  "scenarios": [
+    {
+      "branch_A_work": 10000000,
+      "branch_B_work": 9999999,
+      "winner": "branch_A"
+    },
+    {
+      "branch_A_work": 5000000,
+      "branch_B_work": 5000001,
+      "winner": "branch_B"
+    }
+  ]
+}

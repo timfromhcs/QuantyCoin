@@ -1,0 +1,29 @@
+{
+  "standard": "NIST FIPS 204",
+  "algorithm": "ML-DSA-44",
+  "security_category": "NIST Security Category 2 (AES-128 equivalent)",
+  "public_key_bytes": 1312,
+  "secret_key_bytes": 2560,
+  "signature_bytes": 2420,
+  "seed_bytes": 32,
+  "sighash_domain_tag": "QUANTYCOIN_QTY4_PQC_SIGHASH_V1",
+  "native_backend_library": "libqtydilithium",
+  "fail_closed_on_missing_backend": true,
+  "modes": {
+    "MODE_0_LEGACY_ECDSA": {
+      "witness_version": 0,
+      "address_prefix": "qty1q",
+      "pqc_status": "LEGACY_CLASSICAL"
+    },
+    "MODE_1_ML_DSA": {
+      "witness_version": 1,
+      "address_prefix": "qty1p",
+      "pqc_status": "PURE_QUANTUM_RESISTANT"
+    },
+    "MODE_2_HYBRID": {
+      "witness_version": 2,
+      "address_prefix": "qty1z",
+      "pqc_status": "DUAL_AUTHORIZATION_SECP256K1_PLUS_ML_DSA"
+    }
+  }
+}

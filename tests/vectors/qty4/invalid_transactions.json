@@ -1,0 +1,14 @@
+[
+  {
+    "description": "Transaction with no inputs",
+    "error": "Transaction has no inputs"
+  },
+  {
+    "description": "Transaction with duplicate inputs",
+    "error": "Duplicate input detected"
+  },
+  {
+    "description": "Transaction exceeding max money",
+    "error": "exceeds MAX_MONEY_SATOSHIS"
+  }
+]

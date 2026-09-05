@@ -1,0 +1,15 @@
+{
+  "protocol_version": 70040,
+  "chain_id": "quantycoin-4.0",
+  "target_block_time_seconds": 60,
+  "max_block_size_bytes": 33554432,
+  "max_standard_tx_size_bytes": 1000000,
+  "coinbase_maturity_blocks": 100,
+  "median_time_past_window": 11,
+  "future_timestamp_limit_seconds": 7200,
+  "difficulty_retarget_window": 45,
+  "subsidy_halving_interval_blocks": 2100000,
+  "max_supply_satoshis": 2100000000000000,
+  "satoshis_per_coin": 100000000,
+  "fork_choice_rule": "weighted_cumulative_work"
+}

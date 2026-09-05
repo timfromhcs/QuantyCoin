@@ -113,7 +113,7 @@ class MiningEngine:
                 script_pubkey = address_to_scriptpubkey(self.payout_address)
                 
                 lane_name = "GP" if self.pow_type == 1 else "SHA"
-                cb_msg = f"/QuantyMiner:v3.0/{lane_name}/H:{height}/".encode('utf-8')
+                cb_msg = f"/QuantyMiner:QTY4/{lane_name}/H:{height}/".encode('utf-8')
                 cb_script = bytes([len(cb_msg)]) + cb_msg
                 
                 coinbase_tx = Transaction(

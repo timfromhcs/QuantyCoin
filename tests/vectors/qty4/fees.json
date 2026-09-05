@@ -1,0 +1,4 @@
+{
+  "fee_calculation": "sum(inputs) - sum(outputs)",
+  "minimum_fee": 0
+}
