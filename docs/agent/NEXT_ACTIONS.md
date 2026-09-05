@@ -106,3 +106,17 @@
   - Independent verification: zero leaks (`verify_security.py`), genesis audit (`verify_genesis.py`), link validator (`verify_documentation.py`), full test suite (`test_runner.py`).
   - Hardening reports generated: `docs/agent/CLOUD_BUILD_VERIFICATION.md`, `docs/agent/FINAL_DIFF_REVIEW.md`, `docs/agent/FINAL_HARDENING_REPORT.md`, `docs/agent/PR_VERIFICATION.md`.
   - Push to `v2.0` and open PR to `main` with `NEVER_MERGE_MAIN` policy enforced.
+
+- [x] **Step 15: NIST FIPS 204 PQC, Dual-PoW Consensus & Stratum V2 Protocol (QUANTYCOIN-QTY2-PQC-DUALPOW-SV2-2026)**
+  - Baseline audit & parameter frozen: `docs/agent/PQC_DUALPOW_BASELINE.md`.
+  - 5 Protocol Specifications authored: `PQC_SPEC.md`, `DUAL_POW_SPEC.md`, `CHAINWORK_SPEC.md`, `STRATUM_V2_SPEC.md`, `MIGRATION_SPEC.md`.
+  - Native C ML-DSA library compiled (`src/crypto/libqtydilithium.dll`) with standard SHAKE-256 fallback in `crypto/mldsa.py`.
+  - Upgraded `crypto/bip32_44.py` to BIP 350 Bech32m witness programs (`qty1p...`, `qty1z...`).
+  - Implemented multi-mode transaction authorization in `core/transaction.py` (Classical, ML-DSA-65, Hybrid).
+  - 80-byte block header preserved with upper-16-bit `pow_type` encoding in `core/block.py`.
+  - Implemented independent per-lane LWMA-1 difficulty adjustment and thermodynamic cumulative chainwork ($W_A=1, W_B=2048$) in `core/consensus.py` and `node/chainstate.py`.
+  - Native Stratum V2 binary framing and dual-lane channel multiplexing in `miner/stratum_v2.py`.
+  - Dual-lane CPU/GPU miner with CLI flags `--lane` (`sha256d` or `general`) in `miner/engine.py` and `miner/cli.py`.
+  - Extended RPC server with `getmininglanes`, `getminingtargets`, `getchainwork`, `getnewpqaddress`, `getaddressinfo`, `getstratuminfo`.
+  - 100% verified test suite in `tests/test_pqc_dualpow_sv2.py` and integrated into `tests/test_runner.py`.
+  - Security and documentation integrity verified (`verify_security.py` & `verify_documentation.py`).

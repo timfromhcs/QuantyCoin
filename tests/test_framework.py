@@ -104,10 +104,10 @@ class QuantyTestFramework:
             if j != node_idx:
                 self.disconnect_nodes(node_idx, j)
 
-    def generate(self, node_idx: int, num_blocks: int, address: Optional[str] = None) -> List[str]:
+    def generate(self, node_idx: int, num_blocks: int, address: Optional[str] = None, pow_type: int = 0) -> List[str]:
         """Mine num_blocks on node_idx."""
         addr = address or GENESIS_COINBASE_PAYOUT_ADDRESS
-        return self.nodes[node_idx].rpc.generate_to_address(num_blocks, addr)
+        return self.nodes[node_idx].rpc.generate_to_address(num_blocks, addr, pow_type=pow_type)
 
     def sync_blocks(self, timeout: float = 30.0) -> None:
         """Wait until all nodes agree on the highest block hash and height."""

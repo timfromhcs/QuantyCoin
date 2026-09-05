@@ -9,15 +9,29 @@ from crypto import hash256, compute_merkle_root
 from .transaction import Transaction, _encode_varint, _decode_varint
 
 
+POW_TYPE_SHA256D = 0
+POW_TYPE_GENERAL_PURPOSE = 1
+
+
 class BlockHeader:
-    """QuantyCoin 80-byte Block Header."""
+    """QuantyCoin 80-byte Block Header with Dual-PoW Lane Support."""
     def __init__(self, version: int, prev_block: bytes, merkle_root: bytes, timestamp: int, bits: int, nonce: int):
-        self.version = version          # 4 bytes int32 (LE)
+        self.version = version          # 4 bytes int32 (LE): bits 0..15 base version, bits 16..31 pow_type
         self.prev_block = prev_block    # 32 bytes (LE)
         self.merkle_root = merkle_root  # 32 bytes (LE)
         self.timestamp = timestamp      # 4 bytes uint32 (LE)
         self.bits = bits                # 4 bytes uint32 (LE)
         self.nonce = nonce              # 4 bytes uint32 (LE)
+
+    @property
+    def pow_type(self) -> int:
+        """Extract PoW mining lane from header version field."""
+        return (self.version >> 16) & 0xFFFF
+
+    @property
+    def base_version(self) -> int:
+        """Extract base protocol version from header version field."""
+        return self.version & 0xFFFF
 
     def serialize(self) -> bytes:
         return (
@@ -43,11 +57,24 @@ class BlockHeader:
 
     @property
     def hash(self) -> bytes:
+        """Canonical block identifier hash (Double-SHA256)."""
         return hash256(self.serialize())
 
     @property
     def hash_hex(self) -> str:
         return self.hash[::-1].hex()
+
+    @property
+    def pow_hash(self) -> bytes:
+        """Algorithm-specific Proof-of-Work evaluation hash."""
+        if self.pow_type == POW_TYPE_GENERAL_PURPOSE:
+            import hashlib
+            return hashlib.scrypt(self.serialize(), salt=b"quantycoin_pow_gp", n=1024, r=1, p=1, maxmem=0, dklen=32)
+        return self.hash
+
+    @property
+    def pow_hash_hex(self) -> str:
+        return self.pow_hash[::-1].hex()
 
     def get_target(self) -> int:
         exponent = self.bits >> 24
@@ -59,11 +86,11 @@ class BlockHeader:
 
     def verify_pow(self) -> bool:
         target = self.get_target()
-        hash_int = int.from_bytes(self.hash[::-1], 'big')
-        return hash_int <= target
+        h_int = int.from_bytes(self.pow_hash[::-1], 'big')
+        return h_int <= target
 
     def mine(self) -> int:
-        """Find a nonce that satisfies the PoW target."""
+        """Find a nonce that satisfies the PoW target for this lane."""
         while not self.verify_pow():
             self.nonce = (self.nonce + 1) & 0xFFFFFFFF
         return self.nonce
@@ -72,6 +99,8 @@ class BlockHeader:
         return {
             "hash": self.hash_hex,
             "version": self.version,
+            "pow_type": self.pow_type,
+            "pow_lane": "SHA256D_ASIC" if self.pow_type == 0 else "GENERAL_PURPOSE",
             "previousblockhash": self.prev_block[::-1].hex(),
             "merkleroot": self.merkle_root[::-1].hex(),
             "time": self.timestamp,

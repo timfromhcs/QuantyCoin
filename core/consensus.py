@@ -14,14 +14,36 @@ from .genesis_constants import (
 POW_LIMIT_BITS = 0x1e0fffff
 POW_LIMIT_TARGET = 0x00000fffff000000000000000000000000000000000000000000000000000000
 
+# Dual Proof-of-Work Mining Lanes
+POW_TYPE_SHA256D = 0
+POW_TYPE_GENERAL_PURPOSE = 1
 
-def get_block_subsidy(height: int) -> int:
-    """Calculate base block reward in Satoshis for a given height."""
+LANE_WEIGHT_SHA256D = 1
+LANE_WEIGHT_GENERAL_PURPOSE = 2048
+LANE_TARGET_SPACING = 120  # 120 seconds per lane for 60s combined network interval
+
+
+def get_block_subsidy(height: int, pow_type: int = POW_TYPE_SHA256D) -> int:
+    """Calculate block reward in Satoshis for a given height and PoW lane."""
     halvings = height // SUBSIDY_HALVING_INTERVAL
     if halvings >= 64:
         return 0
     subsidy_qty = GENESIS_BLOCK_REWARD / (2 ** halvings)
+    if pow_type == POW_TYPE_GENERAL_PURPOSE:
+        # Lane B receives 50% of base subsidy
+        subsidy_qty *= 0.5
     return int(subsidy_qty * 100_000_000)
+
+
+def calculate_next_work_required_dual(headers: List['BlockHeader'], pow_type: int = POW_TYPE_SHA256D, target_spacing: int = LANE_TARGET_SPACING, n: int = 45) -> int:
+    """
+    Independent LWMA-1 difficulty adjustment for a specific PoW mining lane.
+    Filters headers by pow_type to maintain isolated difficulty histories.
+    """
+    lane_headers = [h for h in headers if h.pow_type == pow_type]
+    if len(lane_headers) < n + 1:
+        return POW_LIMIT_BITS
+    return calculate_next_work_required_lwma(lane_headers, target_spacing=target_spacing, n=n)
 
 
 def calculate_next_work_required_lwma(headers: List['BlockHeader'], target_spacing: int = TARGET_BLOCK_TIME, n: int = 45) -> int:

@@ -6,8 +6,16 @@ Zero-Mock Production Implementation (BIP141 SegWit & Standard QuantyCoin Seriali
 import struct
 import copy
 from typing import List, Optional, Tuple, Dict, Any
-from crypto import hash256, hash160, ecdsa_sign, ecdsa_verify, privkey_to_pubkey, encode_der_signature, decode_der_signature
+from crypto import hash256, hash160, sha256, ecdsa_sign, ecdsa_verify, privkey_to_pubkey, encode_der_signature, decode_der_signature
 from crypto.bip32_44 import encode_segwit_address, MAINNET_BECH32_HRP
+from crypto.mldsa import mldsa_sign, mldsa_verify, PUBLIC_KEY_BYTES, SIGNATURE_BYTES
+
+
+class SignatureType:
+    """Supported transaction authorization signature modes."""
+    LEGACY_ECDSA = 0  # Standard Secp256k1 ECDSA (P2WPKH / P2PKH)
+    HYBRID = 1        # Dual Secp256k1 + NIST FIPS 204 ML-DSA
+    ML_DSA = 2        # Pure NIST FIPS 204 ML-DSA
 
 
 class TxIn:
@@ -56,10 +64,18 @@ class TxOut:
 
     def get_address(self) -> str:
         """Derive standard destination address from scriptPubKey."""
-        # P2WPKH: 0x00 0x14 [20-byte hash]
+        # P2WPKH (v0): 0x00 0x14 [20-byte hash]
         if len(self.script_pubkey) == 22 and self.script_pubkey[:2] == b'\x00\x14':
             witness_prog = self.script_pubkey[2:]
             return encode_segwit_address(MAINNET_BECH32_HRP, 0, witness_prog)
+        # P2PQPKH (v1, ML-DSA): 0x51 0x20 [32-byte hash]
+        elif len(self.script_pubkey) == 34 and self.script_pubkey[:2] == b'\x51\x20':
+            witness_prog = self.script_pubkey[2:]
+            return encode_segwit_address(MAINNET_BECH32_HRP, 1, witness_prog)
+        # P2HYBRID (v2, Hybrid): 0x52 0x20 [32-byte hash]
+        elif len(self.script_pubkey) == 34 and self.script_pubkey[:2] == b'\x52\x20':
+            witness_prog = self.script_pubkey[2:]
+            return encode_segwit_address(MAINNET_BECH32_HRP, 2, witness_prog)
         # P2PKH: OP_DUP OP_HASH160 0x14 [20-byte hash] OP_EQUALVERIFY OP_CHECKSIG
         elif len(self.script_pubkey) == 25 and self.script_pubkey[:3] == b'\x76\xa9\x14' and self.script_pubkey[-2:] == b'\x88\xac':
             pub_hash = self.script_pubkey[3:23]
@@ -230,42 +246,109 @@ class Transaction:
         
         return hash256(bytes(preimage))
 
+    def get_pqc_sighash(self, input_index: int, prev_script: bytes, prev_amount: int = 0, sig_type: int = SignatureType.ML_DSA) -> bytes:
+        """Domain-separated post-quantum signature hash."""
+        bip143_hash = self.get_sighash(input_index, prev_script, prev_amount)
+        domain_tag = b"QUANTYCOIN_PQC_SIGHASH_V1"
+        return sha256(domain_tag + bytes([sig_type]) + bip143_hash)
+
     def sign_input(self, input_index: int, privkey_bytes: bytes, prev_script: bytes, prev_amount: int) -> None:
-        """Sign input_index with private key and attach witness signature."""
+        """Sign input_index with classical ECDSA private key and attach witness signature."""
         sighash = self.get_sighash(input_index, prev_script, prev_amount)
         r, s = ecdsa_sign(sighash, privkey_bytes)
         der_sig = encode_der_signature(r, s) + b'\x01' # Append SIGHASH_ALL byte
         pubkey = privkey_to_pubkey(privkey_bytes, compressed=True)
         self.vin[input_index].witness = [der_sig, pubkey]
 
+    def sign_input_mldsa(self, input_index: int, mldsa_secret_key: bytes, mldsa_public_key: bytes, prev_script: bytes, prev_amount: int) -> None:
+        """Sign input_index with NIST FIPS 204 ML-DSA secret key."""
+        pqc_sighash = self.get_pqc_sighash(input_index, prev_script, prev_amount, sig_type=SignatureType.ML_DSA)
+        sig = mldsa_sign(pqc_sighash, mldsa_secret_key)
+        self.vin[input_index].witness = [sig + b'\x01', mldsa_public_key]
+
+    def sign_input_hybrid(self, input_index: int, privkey_bytes: bytes, mldsa_secret_key: bytes, mldsa_public_key: bytes, prev_script: bytes, prev_amount: int) -> None:
+        """Sign input_index with dual classical Secp256k1 + ML-DSA keys."""
+        # 1. Classical signature
+        sighash = self.get_sighash(input_index, prev_script, prev_amount)
+        r, s = ecdsa_sign(sighash, privkey_bytes)
+        der_sig = encode_der_signature(r, s) + b'\x01'
+        ecdsa_pubkey = privkey_to_pubkey(privkey_bytes, compressed=True)
+
+        # 2. PQC signature
+        pqc_sighash = self.get_pqc_sighash(input_index, prev_script, prev_amount, sig_type=SignatureType.HYBRID)
+        mldsa_sig = mldsa_sign(pqc_sighash, mldsa_secret_key) + b'\x01'
+
+        self.vin[input_index].witness = [der_sig, ecdsa_pubkey, mldsa_sig, mldsa_public_key]
+
     def verify_input_signature(self, input_index: int, prev_script: bytes, prev_amount: int) -> bool:
-        """Verify witness signature on input_index."""
+        """Verify witness signature on input_index across all supported signature modes."""
         if input_index >= len(self.vin):
             return False
         inp = self.vin[input_index]
-        if len(inp.witness) != 2:
-            return False
-        der_sig_with_type, pubkey = inp.witness[0], inp.witness[1]
-        if len(der_sig_with_type) < 2:
-            return False
-        der_sig = der_sig_with_type[:-1]
-        sighash_type = der_sig_with_type[-1]
-        if sighash_type != 1: # SIGHASH_ALL
-            return False
-            
-        # Verify pubkey matches prev_script
-        pub_hash = hash160(pubkey)
-        if prev_script == (b'\x00\x14' + pub_hash) or prev_script == (b'\x76\xa9\x14' + pub_hash + b'\x88\xac'):
-            pass
-        else:
-            return False
-            
-        try:
-            r, s = decode_der_signature(der_sig)
-            sighash = self.get_sighash(input_index, prev_script, prev_amount)
-            return ecdsa_verify(sighash, pubkey, r, s)
-        except Exception:
-            return False
+
+        # Mode 0: Classical P2WPKH (v0) or legacy P2PKH
+        if prev_script.startswith(b'\x00\x14') or (prev_script.startswith(b'\x76\xa9\x14') and prev_script.endswith(b'\x88\xac')):
+            if len(inp.witness) != 2:
+                return False
+            der_sig_with_type, pubkey = inp.witness[0], inp.witness[1]
+            if len(der_sig_with_type) < 2 or der_sig_with_type[-1] != 1:
+                return False
+            der_sig = der_sig_with_type[:-1]
+            pub_hash = hash160(pubkey)
+            if prev_script != (b'\x00\x14' + pub_hash) and prev_script != (b'\x76\xa9\x14' + pub_hash + b'\x88\xac'):
+                return False
+            try:
+                r, s = decode_der_signature(der_sig)
+                sighash = self.get_sighash(input_index, prev_script, prev_amount)
+                return ecdsa_verify(sighash, pubkey, r, s)
+            except Exception:
+                return False
+
+        # Mode 1: Post-Quantum ML-DSA (v1) -> 0x51 0x20 [32-byte sha256(pubkey)]
+        elif len(prev_script) == 34 and prev_script[:2] == b'\x51\x20':
+            expected_prog = prev_script[2:]
+            if len(inp.witness) != 2:
+                return False
+            sig_with_type, pubkey = inp.witness[0], inp.witness[1]
+            if len(sig_with_type) < 2 or sig_with_type[-1] != 1:
+                return False
+            sig = sig_with_type[:-1]
+            if sha256(pubkey) != expected_prog:
+                return False
+            try:
+                pqc_sighash = self.get_pqc_sighash(input_index, prev_script, prev_amount, sig_type=SignatureType.ML_DSA)
+                return mldsa_verify(pqc_sighash, sig, pubkey)
+            except Exception:
+                return False
+
+        # Mode 2: Hybrid Secp256k1 + ML-DSA (v2) -> 0x52 0x20 [32-byte sha256(ecdsa_pub + mldsa_pub)]
+        elif len(prev_script) == 34 and prev_script[:2] == b'\x52\x20':
+            expected_prog = prev_script[2:]
+            if len(inp.witness) != 4:
+                return False
+            der_sig_with_type, ecdsa_pubkey, mldsa_sig_with_type, mldsa_pubkey = inp.witness
+            if len(der_sig_with_type) < 2 or der_sig_with_type[-1] != 1:
+                return False
+            if len(mldsa_sig_with_type) < 2 or mldsa_sig_with_type[-1] != 1:
+                return False
+            if sha256(ecdsa_pubkey + mldsa_pubkey) != expected_prog:
+                return False
+            # Verify classical ECDSA
+            try:
+                r, s = decode_der_signature(der_sig_with_type[:-1])
+                sighash = self.get_sighash(input_index, prev_script, prev_amount)
+                if not ecdsa_verify(sighash, ecdsa_pubkey, r, s):
+                    return False
+            except Exception:
+                return False
+            # Verify ML-DSA
+            try:
+                pqc_sighash = self.get_pqc_sighash(input_index, prev_script, prev_amount, sig_type=SignatureType.HYBRID)
+                return mldsa_verify(pqc_sighash, mldsa_sig_with_type[:-1], mldsa_pubkey)
+            except Exception:
+                return False
+
+        return False
 
     def to_dict(self) -> Dict[str, Any]:
         return {

@@ -10,9 +10,15 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 from typing import Dict, Any, Optional, Callable, List, Tuple, Union
 from urllib.parse import urlparse, parse_qs
-from core.genesis_constants import DEFAULT_RPC_PORT
+from core.genesis_constants import DEFAULT_RPC_PORT, PROTOCOL_VERSION, DEFAULT_STRATUM_PORT
+from core.consensus import (
+    get_block_subsidy, POW_TYPE_SHA256D, POW_TYPE_GENERAL_PURPOSE,
+    LANE_WEIGHT_SHA256D, LANE_WEIGHT_GENERAL_PURPOSE, bits_to_target
+)
 from core.transaction import Transaction
 from core.block import Block, BlockHeader
+from crypto.mldsa import MLDSAKey
+from crypto.bip32_44 import encode_segwit_address, decode_segwit_address, MAINNET_BECH32_HRP, sha256
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
@@ -192,6 +198,12 @@ class QuantyRPCServer:
             "getrawmempool": self._rpc_getrawmempool,
             "getpeerinfo": self._rpc_getpeerinfo,
             "getmininginfo": self._rpc_getmininginfo,
+            "getmininglanes": self._rpc_getmininglanes,
+            "getminingtargets": self._rpc_getminingtargets,
+            "getchainwork": self._rpc_getchainwork,
+            "getnewpqaddress": self._rpc_getnewpqaddress,
+            "getaddressinfo": self._rpc_getaddressinfo,
+            "getstratuminfo": self._rpc_getstratuminfo,
             "getblocktemplate": self._rpc_getblocktemplate,
             "submitblock": self._rpc_submitblock,
             "generatetoaddress": self._rpc_generatetoaddress,
@@ -222,12 +234,15 @@ class QuantyRPCServer:
     # RPC Handlers
     def _rpc_getinfo(self, params: list) -> Dict[str, Any]:
         return {
-            "version": "7.0.0",
-            "protocolversion": 70015,
+            "version": "2.0.0",
+            "protocolversion": PROTOCOL_VERSION,
             "blocks": self.chainstate.best_height,
             "bestblockhash": self.chainstate.best_hash_hex,
             "connections": self.p2p.peer_count if self.p2p else 0,
-            "difficulty": self.chainstate.get_next_work_required(),
+            "difficulty_sha256d": self.chainstate.get_next_work_required(POW_TYPE_SHA256D),
+            "difficulty_general": self.chainstate.get_next_work_required(POW_TYPE_GENERAL_PURPOSE),
+            "mining_lanes": ["SHA256D_ASIC", "GENERAL_PURPOSE"],
+            "pqc_status": "ACTIVE (NIST FIPS 204 ML-DSA-65 & HYBRID)",
             "mempool_size": self.chainstate.mempool.get_info()["size"],
             "circulating_supply": self.chainstate.utxo_set.total_circulation / 100_000_000,
             "testnet": False
@@ -235,9 +250,9 @@ class QuantyRPCServer:
 
     def _rpc_getnetworkinfo(self, params: list) -> Dict[str, Any]:
         return {
-            "version": "7.0.0",
-            "subversion": "/QuantyCore:7.0.0/",
-            "protocolversion": 70015,
+            "version": "2.0.0",
+            "subversion": "/QuantyCore:2.0.0/",
+            "protocolversion": PROTOCOL_VERSION,
             "connections": self.p2p.peer_count if self.p2p else 0,
             "relayfee": 0.00001000,
             "warnings": ""
@@ -249,7 +264,9 @@ class QuantyRPCServer:
             "blocks": self.chainstate.best_height,
             "bestblockhash": self.chainstate.best_hash_hex,
             "chainwork": hex(self.chainstate.best_tip.chainwork if self.chainstate.best_tip else 0),
-            "size_on_disk": len(self.chainstate.block_index) * 1024
+            "size_on_disk": len(self.chainstate.block_index) * 1024,
+            "pqc_active": True,
+            "dual_pow": True
         }
 
     def _rpc_getblockcount(self, params: list) -> int:
@@ -301,33 +318,172 @@ class QuantyRPCServer:
         return self.p2p.get_peer_info() if self.p2p else []
 
     def _rpc_getmininginfo(self, params: list) -> Dict[str, Any]:
+        h_sha = self.chainstate.get_next_work_required(POW_TYPE_SHA256D)
+        h_gp = self.chainstate.get_next_work_required(POW_TYPE_GENERAL_PURPOSE)
         return {
             "blocks": self.chainstate.best_height,
+            "chainwork": hex(self.chainstate.best_tip.chainwork if self.chainstate.best_tip else 0),
             "currentblocksize": 1000,
             "currentblocktx": len(self.chainstate.mempool.get_sorted_transactions()),
-            "difficulty": self.chainstate.get_next_work_required(),
+            "difficulty": h_sha,
+            "difficulty_sha256d": h_sha,
+            "difficulty_general": h_gp,
             "networkhashps": 50000.0,
+            "lanes": {
+                "SHA256D_ASIC": {
+                    "pow_type": POW_TYPE_SHA256D,
+                    "bits": f"{h_sha:08x}",
+                    "weight": LANE_WEIGHT_SHA256D,
+                    "target_spacing": 120,
+                    "reward_sat": get_block_subsidy(self.chainstate.best_height + 1, POW_TYPE_SHA256D)
+                },
+                "GENERAL_PURPOSE": {
+                    "pow_type": POW_TYPE_GENERAL_PURPOSE,
+                    "bits": f"{h_gp:08x}",
+                    "weight": LANE_WEIGHT_GENERAL_PURPOSE,
+                    "target_spacing": 120,
+                    "reward_sat": get_block_subsidy(self.chainstate.best_height + 1, POW_TYPE_GENERAL_PURPOSE)
+                }
+            },
             "pooledtx": self.chainstate.mempool.get_info()["size"],
             "chain": "main"
         }
 
+    def _rpc_getmininglanes(self, params: list) -> Dict[str, Any]:
+        """Return specifications and active state for all supported PoW mining lanes."""
+        best_h = self.chainstate.best_height
+        bits_sha = self.chainstate.get_next_work_required(POW_TYPE_SHA256D)
+        bits_gp = self.chainstate.get_next_work_required(POW_TYPE_GENERAL_PURPOSE)
+        return {
+            "active_lanes": [
+                {
+                    "name": "SHA256D_ASIC",
+                    "pow_type": POW_TYPE_SHA256D,
+                    "algorithm": "sha256d",
+                    "target_bits": f"{bits_sha:08x}",
+                    "target_hex": hex(bits_to_target(bits_sha)),
+                    "weight": LANE_WEIGHT_SHA256D,
+                    "target_spacing_seconds": 120,
+                    "block_reward_sat": get_block_subsidy(best_h + 1, POW_TYPE_SHA256D)
+                },
+                {
+                    "name": "GENERAL_PURPOSE",
+                    "pow_type": POW_TYPE_GENERAL_PURPOSE,
+                    "algorithm": "scrypt(1024,1,1)",
+                    "target_bits": f"{bits_gp:08x}",
+                    "target_hex": hex(bits_to_target(bits_gp)),
+                    "weight": LANE_WEIGHT_GENERAL_PURPOSE,
+                    "target_spacing_seconds": 120,
+                    "block_reward_sat": get_block_subsidy(best_h + 1, POW_TYPE_GENERAL_PURPOSE)
+                }
+            ],
+            "combined_block_time_seconds": 60,
+            "chainwork": hex(self.chainstate.best_tip.chainwork if self.chainstate.best_tip else 0)
+        }
+
+    def _rpc_getminingtargets(self, params: list) -> Dict[str, Any]:
+        """Return active 256-bit mining targets for both lanes."""
+        bits_sha = self.chainstate.get_next_work_required(POW_TYPE_SHA256D)
+        bits_gp = self.chainstate.get_next_work_required(POW_TYPE_GENERAL_PURPOSE)
+        return {
+            "SHA256D_ASIC": hex(bits_to_target(bits_sha)),
+            "GENERAL_PURPOSE": hex(bits_to_target(bits_gp))
+        }
+
+    def _rpc_getchainwork(self, params: list) -> Dict[str, Any]:
+        """Return cumulative validated chainwork."""
+        cw = self.chainstate.best_tip.chainwork if self.chainstate.best_tip else 0
+        return {
+            "chainwork_hex": hex(cw),
+            "chainwork_int": cw,
+            "best_height": self.chainstate.best_height,
+            "best_hash": self.chainstate.best_hash_hex
+        }
+
+    def _rpc_getnewpqaddress(self, params: list) -> Dict[str, Any]:
+        """Derive a new NIST FIPS 204 ML-DSA post-quantum address."""
+        key = MLDSAKey.generate()
+        prog = sha256(key.public_key)
+        addr = encode_segwit_address(MAINNET_BECH32_HRP, 1, prog)
+        return {
+            "address": addr,
+            "type": "pqc_ml_dsa_65",
+            "witness_version": 1,
+            "public_key_hex": key.public_key.hex(),
+            "witness_program_hex": prog.hex()
+        }
+
+    def _rpc_getaddressinfo(self, params: list) -> Dict[str, Any]:
+        """Analyze an address and classify its cryptographic security model."""
+        if not params:
+            raise ValueError("Missing address parameter")
+        addr = params[0]
+        hrp, prog, spec = None, None, None
+        try:
+            from crypto.bip32_44 import decode_segwit_address, base58check_decode
+            if addr.startswith("qty1") or addr.startswith("quan1"):
+                ver, prog = decode_segwit_address(addr.split("1")[0], addr)
+                if ver == 0:
+                    return {"address": addr, "type": "p2wpkh_classical", "witness_version": 0, "quantum_secure": False}
+                elif ver == 1:
+                    return {"address": addr, "type": "p2pqpkh_mldsa", "witness_version": 1, "quantum_secure": True}
+                elif ver == 2:
+                    return {"address": addr, "type": "p2hybrid", "witness_version": 2, "quantum_secure": True}
+            else:
+                ver, p = base58check_decode(addr)
+                return {"address": addr, "type": "legacy_base58_p2pkh", "quantum_secure": False}
+        except Exception as e:
+            raise ValueError(f"Invalid address: {e}")
+        return {"address": addr, "type": "unknown", "quantum_secure": False}
+
+    def _rpc_getstratuminfo(self, params: list) -> Dict[str, Any]:
+        """Return telemetry and connection endpoints for Stratum V1 and V2 services."""
+        return {
+            "stratum_v1": {
+                "enabled": True,
+                "port": DEFAULT_STRATUM_PORT,
+                "url": f"stratum+tcp://{self.host}:{DEFAULT_STRATUM_PORT}",
+                "protocol": "Stratum/1.0"
+            },
+            "stratum_v2": {
+                "enabled": True,
+                "port": DEFAULT_STRATUM_PORT + 1,
+                "url": f"sv2://{self.host}:{DEFAULT_STRATUM_PORT + 1}",
+                "protocol": "Stratum/2.0",
+                "features": ["binary_framing", "dual_pow_channels", "low_latency_prevhash"]
+            }
+        }
+
     def _rpc_getblocktemplate(self, params: list) -> Dict[str, Any]:
-        """Generate candidate block template for miners."""
+        """Generate candidate block template for miners across either PoW lane."""
         best_height = self.chainstate.best_height
         prev_hash = self.chainstate.best_hash
-        bits = self.chainstate.get_next_work_required()
+        
+        pow_type = POW_TYPE_SHA256D
+        if params:
+            if isinstance(params[0], int):
+                pow_type = params[0]
+            elif isinstance(params[0], dict) and "pow_type" in params[0]:
+                pow_type = int(params[0]["pow_type"])
+                
+        bits = self.chainstate.get_next_work_required(pow_type=pow_type)
+        subsidy = get_block_subsidy(best_height + 1, pow_type=pow_type)
         
         # Include mempool transactions
         txs = self.chainstate.mempool.get_sorted_transactions()
         
+        header_version = (pow_type << 16) | 2
+        
         return {
-            "version": 1,
+            "version": header_version,
+            "pow_type": pow_type,
+            "pow_lane": "SHA256D_ASIC" if pow_type == 0 else "GENERAL_PURPOSE",
             "previousblockhash": prev_hash[::-1].hex(),
             "height": best_height + 1,
             "bits": f"{bits:08x}",
-            "target": hex(BlockHeader(1, prev_hash, b'\x00'*32, 0, bits, 0).get_target()),
+            "target": hex(BlockHeader(header_version, prev_hash, b'\x00'*32, 0, bits, 0).get_target()),
             "transactions": [tx.serialize().hex() for tx in txs],
-            "coinbasevalue": 50 * 100_000_000
+            "coinbasevalue": subsidy
         }
 
     def _rpc_submitblock(self, params: list) -> str:
@@ -351,16 +507,18 @@ class QuantyRPCServer:
 
         num_blocks = int(params[0]) if len(params) > 0 else 1
         payout_address = str(params[1]) if len(params) > 1 else GENESIS_COINBASE_PAYOUT_ADDRESS
+        pow_type = int(params[2]) if len(params) > 2 else POW_TYPE_SHA256D
         
         mined_hashes = []
         for _ in range(num_blocks):
-            tmpl = self._rpc_getblocktemplate([])
+            tmpl = self._rpc_getblocktemplate([pow_type])
             height = tmpl["height"]
             prev_hash = bytes.fromhex(tmpl["previousblockhash"])[::-1]
             bits = int(tmpl["bits"], 16)
+            header_version = tmpl["version"]
             
             script_pubkey = address_to_scriptpubkey(payout_address)
-            cb_msg = f"/QuantyGenerator:QTY2/H:{height}/".encode('utf-8')
+            cb_msg = f"/QuantyGenerator:QTY2/H:{height}/P:{pow_type}/".encode('utf-8')
             cb_script = bytes([len(cb_msg)]) + cb_msg
             
             coinbase_tx = Transaction(
@@ -379,7 +537,7 @@ class QuantyRPCServer:
             timestamp = int(time.time())
             
             header = BlockHeader(
-                version=1,
+                version=header_version,
                 prev_block=prev_hash,
                 merkle_root=merkle_root,
                 timestamp=timestamp,

@@ -55,6 +55,15 @@ def run_functional_tests() -> bool:
     stratum_ok = run_stratum_test(port=13335)
     results.append(("Stratum V1 Protocol Test", stratum_ok))
     time.sleep(1.0)
+
+    # PQC, Dual-PoW & Stratum V2 Protocol Test Suite
+    import unittest
+    import tests.test_pqc_dualpow_sv2
+    pqc_suite = unittest.TestLoader().loadTestsFromModule(tests.test_pqc_dualpow_sv2)
+    pqc_runner = unittest.TextTestRunner(verbosity=1)
+    pqc_res = pqc_runner.run(pqc_suite)
+    results.append(("PQC, Dual-PoW & SV2 Test Suite", pqc_res.wasSuccessful()))
+    time.sleep(1.0)
         
     print("\n========================================================")
     print("           QUANTYCOIN TEST SUITE RESULTS")

@@ -30,7 +30,23 @@ All immutable protocol parameters and key architectural choices are recorded her
   - Legacy Base58 P2SH Prefix: `0x44` (Starts with 'T')
   - BIP32 HD Extended Public Key: `qpub` (`0x0488B21E`), Private: `qprv` (`0x0488ADE4`)
   - URI Scheme: `quantycoin:`
-- **Post-Quantum Cryptography Architecture**:
-  - Modular crypto provider with dual-layer signature support:
-    - Layer 1 ECDSA secp256k1 for high-throughput micro-transactions / backward compatibility
-    - Post-quantum signature abstraction (Dilithium3 / ML-DSA hybrid) for quantum-resistant vaults and high-value UTXOs
+- **Post-Quantum Cryptography Architecture (NIST FIPS 204 ML-DSA-65)**:
+  - NIST Category 3 (ML-DSA-65 / CRYSTALS-Dilithium) selected for 192-bit quantum security margin.
+  - Three distinct authorization modes:
+    - Mode 0: `LEGACY_ECDSA` (Secp256k1, witness v0, prefix `qty1q...`)
+    - Mode 1: `HYBRID` (Secp256k1 + ML-DSA-65, witness v2, prefix `qty1z...`)
+    - Mode 2: `ML_DSA` (Pure ML-DSA-65, witness v1, prefix `qty1p...`)
+  - Domain-separated sighash: `SHA256("QUANTYCOIN_PQC_SIGHASH_V1" || sig_type || BIP143_hash)`
+  - Native C library `libqtydilithium` with pure-Python SHAKE-256 fallback.
+
+- **Dual Proof-of-Work Mining Architecture**:
+  - Header Format: Standard 80-byte header preserved (`pow_type` encoded in upper 16 bits of `version`).
+  - **Lane A (`SHA256D_ASIC`)**: Double-SHA256, 100% subsidy, thermodynamic weight $W_A = 1$.
+  - **Lane B (`GENERAL_PURPOSE`)**: RFC 7914 Scrypt ($N=1024, r=1, p=1$, salt `quantycoin_pow_gp`), 50% subsidy, thermodynamic weight $W_B = 2048$.
+  - **Difficulty Adjustment**: Independent per-lane LWMA-1 retargeting ($N=45$) with 120-second target spacing per lane, yielding a combined 60-second block time.
+  - **Thermodynamic Chainwork Fork Choice**: $\text{work}(B) = \lfloor \frac{2^{256}}{\text{target} + 1} \rfloor \times W_{\text{lane}}$. Block count confers 0 fork advantage; only cumulative physical work advances consensus.
+
+- **Stratum V2 Native Mining Engine**:
+  - Binary framing (6-byte header) on port 3334 (`SV2_DEFAULT_PORT`).
+  - Native channel multiplexing with dual-lane negotiation (`pow_lane` in `SetupConnection` and `OpenStandardMiningChannel`).
+  - Real-time job distribution and share submission with low-latency `SetNewPrevHash`.
