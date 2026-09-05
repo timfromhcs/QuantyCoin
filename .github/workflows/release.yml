@@ -1,4 +1,4 @@
-name: QuantyCoin Release v7.0 (Native Qt6 Desktop Suites, Sovereign Wallets & Native Daemons)
+name: QuantyCoin Release Pipeline (Native Daemons, Wallets & Desktop Suites)
 
 on:
   push:
@@ -232,3 +232,4 @@ jobs:
             release-assets/windows/*
             release-assets/linux/*
             release-assets/macos/*
+

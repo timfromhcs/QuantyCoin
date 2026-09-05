@@ -1,190 +1,59 @@
-name: QuantyCoin Release Build
+name: Cloud Build & Platform Verification
 
 on:
   push:
-    branches: [ main, master ]
-    tags: [ 'v*' ]
+    branches:
+      - main
+      - master
+      - 'v2**'
   pull_request:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
+      - 'v2**'
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-linux:
-    name: Build Linux x86_64
-    runs-on: ubuntu-22.04
+  cloud-build:
+    name: Build & Smoke Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Source
+        uses: actions/checkout@v4
 
-      - name: Install Linux dependencies
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Build Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libtool autotools-dev automake pkg-config \
-            bsdmainutils python3 libssl-dev libevent-dev libboost-system-dev libboost-filesystem-dev \
-            libboost-test-dev libboost-thread-dev libsqlite3-dev qtbase5-dev qttools5-dev-tools \
-            libprotobuf-dev protobuf-compiler libqrencode-dev libminiupnpc-dev libnatpmp-dev zip
+          python -m pip install --upgrade pip
+          pip install pyinstaller qrcode pillow pyside6
 
-      - name: Build QuantyCoin
+      - name: Verify Code Compilation
         run: |
-          find . -type f \( -name "*.sh" -o -name "config.guess" -o -name "config.sub" -o -name "gen_id" -o -name "autogen.sh" -o -name "configure" -o -name "compile" -o -name "depcomp" -o -name "install-sh" -o -name "missing" -o -name "test-driver" \) -exec chmod +x {} + 2>/dev/null || true
-          ./autogen.sh
-          ./configure --with-gui=qt5 --enable-upnp-default --disable-bench --disable-fuzz
-          make -j$(nproc)
+          python -m py_compile quantyd_cli.py quanty_node_app.py quanty_wallet_cli.py quanty_wallet_full_app.py quanty_miner_cli.py quanty_miner_app.py quanty_suite_app.py
 
-      - name: Package Linux Release
+      - name: Smoke Build CLI Executables
+        env:
+          PYTHONPATH: .
         run: |
-          mkdir -p release_linux
-          cp src/qtyd src/qty-cli src/qty-tx src/qty-wallet release_linux/ || true
-          cp src/qt/qty-qt release_linux/ || true
-          cd release_linux && zip -r ../quantycoin-linux-x86_64.zip . && cd ..
+          python -c "import os; os.makedirs('dist/bin', exist_ok=True)"
+          python -m PyInstaller --onefile --paths . --name "quantyd" quantyd_cli.py --distpath dist/bin
+          python -m PyInstaller --onefile --paths . --name "quanty-wallet" quanty_wallet_cli.py --distpath dist/bin
+          python -m PyInstaller --onefile --paths . --name "quanty-miner" quanty_miner_cli.py --distpath dist/bin
 
-      - name: Upload Linux Artifact
+      - name: Upload Smoke Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: quantycoin-linux-x86_64
-          path: quantycoin-linux-x86_64.zip
-
-  build-windows:
-    name: Build Windows x86_64 (MinGW)
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install MinGW cross-compiler
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y g++-mingw-w64-x86-64 mingw-w64-x86-64-dev \
-            build-essential libtool autotools-dev automake pkg-config \
-            bsdmainutils python3 zip
-
-      - name: Build Windows Binaries
-        run: |
-          find . -type f \( -name "*.sh" -o -name "config.guess" -o -name "config.sub" -o -name "gen_id" -o -name "autogen.sh" -o -name "configure" -o -name "compile" -o -name "depcomp" -o -name "install-sh" -o -name "missing" -o -name "test-driver" \) -exec chmod +x {} + 2>/dev/null || true
-          cd depends
-          make HOST=x86_64-w64-mingw32 -j$(nproc) NO_QT=1 NO_UPNP=1 NO_NATPMP=1 || true
-          cd ..
-          ./autogen.sh
-          ./configure --host=x86_64-w64-mingw32 --prefix=$(pwd)/depends/x86_64-w64-mingw32 --without-gui --disable-bench --disable-fuzz || ./configure --host=x86_64-w64-mingw32 --without-gui --disable-bench --disable-fuzz
-          make -j$(nproc) || true
-
-      - name: Package Windows Release
-        run: |
-          mkdir -p release_windows
-          find src/ -name "*.exe" -exec cp {} release_windows/ \;
-          if [ ! -f release_windows/qtyd.exe ]; then
-            touch release_windows/qtyd.exe release_windows/qty-cli.exe release_windows/qty-qt.exe
-          fi
-          cd release_windows && zip -r ../quantycoin-windows-x86_64.zip . && cd ..
-
-      - name: Upload Windows Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: quantycoin-windows-x86_64
-          path: quantycoin-windows-x86_64.zip
-
-  build-macos:
-    name: Build macOS x86_64
-    runs-on: macos-13
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install macOS dependencies
-        run: |
-          brew install automake libtool boost miniupnpc libevent pkg-config sqlite qt@5
-
-      - name: Build QuantyCoin macOS
-        run: |
-          find . -type f \( -name "*.sh" -o -name "config.guess" -o -name "config.sub" -o -name "gen_id" -o -name "autogen.sh" -o -name "configure" -o -name "compile" -o -name "depcomp" -o -name "install-sh" -o -name "missing" -o -name "test-driver" \) -exec chmod +x {} + 2>/dev/null || true
-          export PATH="/usr/local/opt/qt@5/bin:/opt/homebrew/opt/qt@5/bin:$PATH"
-          export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig:/opt/homebrew/opt/qt@5/lib/pkgconfig:$PKG_CONFIG_PATH"
-          ./autogen.sh
-          ./configure --with-gui=qt5 --disable-bench --disable-fuzz || ./configure --without-gui --disable-bench --disable-fuzz
-          make -j$(sysctl -n hw.ncpu) || true
-
-      - name: Package macOS Release
-        run: |
-          mkdir -p release_macos
-          cp src/qtyd src/qty-cli src/qty-tx src/qty-wallet release_macos/ 2>/dev/null || true
-          cp -r src/qt/qty-qt.app release_macos/ 2>/dev/null || true
-          if [ ! -f release_macos/qtyd ]; then
-            touch release_macos/qtyd release_macos/qty-cli release_macos/qty-qt
-          fi
-          cd release_macos && zip -r ../quantycoin-macos-x86_64.zip . && cd ..
-
-      - name: Upload macOS Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: quantycoin-macos-x86_64
-          path: quantycoin-macos-x86_64.zip
-
-  build-android:
-    name: Build Android Wallet
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Build Android Wallet Package
-        run: |
-          find . -type f \( -name "*.sh" -o -name "config.guess" -o -name "config.sub" -o -name "gen_id" -o -name "autogen.sh" -o -name "configure" -o -name "compile" -o -name "depcomp" -o -name "install-sh" -o -name "missing" -o -name "test-driver" \) -exec chmod +x {} + 2>/dev/null || true
-          mkdir -p release_android
-          cp scripts/start_airdrop_registrar.py scripts/explorer.py release_android/ || true
-          cp -r scripts/ release_android/ 2>/dev/null || true
-          echo '#!/bin/bash' > release_android/quantycoin-android-wallet.sh
-          echo 'echo "QuantyCoin Android Standalone Light Client Wallet v2.3.0"' >> release_android/quantycoin-android-wallet.sh
-          echo 'echo "Connecting to QuantyCoin Mainnet Seed Nodes..."' >> release_android/quantycoin-android-wallet.sh
-          echo 'python3 scripts/start_airdrop_registrar.py info' >> release_android/quantycoin-android-wallet.sh
-          chmod +x release_android/quantycoin-android-wallet.sh
-          cd release_android && zip -r ../quantycoin-android-wallet.zip . && cd ..
-
-      - name: Upload Android Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: quantycoin-android-wallet
-          path: quantycoin-android-wallet.zip
-
-  release:
-    name: Create GitHub Release
-    needs: [build-linux, build-windows, build-macos, build-android]
-    if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-
-      - name: Organize Release Files
-        run: |
-          cp quantycoin-linux-x86_64/quantycoin-linux-x86_64.zip . || touch quantycoin-linux-x86_64.zip
-          cp quantycoin-windows-x86_64/quantycoin-windows-x86_64.zip . || touch quantycoin-windows-x86_64.zip
-          cp quantycoin-macos-x86_64/quantycoin-macos-x86_64.zip . || touch quantycoin-macos-x86_64.zip
-          cp quantycoin-android-wallet/quantycoin-android-wallet.zip . || touch quantycoin-android-wallet.zip
-          sha256sum quantycoin-*.zip > checksums.txt
-
-      - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            quantycoin-linux-x86_64.zip
-            quantycoin-macos-x86_64.zip
-            quantycoin-windows-x86_64.zip
-            quantycoin-android-wallet.zip
-            checksums.txt
-          title: QuantyCoin v2.3.0 Release
-          body: |
-            ## QuantyCoin (QTY) v2.3.0 Release
-            - Multi-platform support: Linux x86_64, Windows MinGW x86_64, macOS x86_64, Android Wallet
-            - Quantum-Resistant signatures (ML-DSA / P2QRH)
-            - 32 MB Block Size & 1-Minute Block Intervals
-            - 50/50 Fee Split (Miner / Community Treasury)
-            - Autonomous Monthly Treasury Airdrops (> 5 QTY & > 21 days age)
-            - Standalone Light Client Mode (Auto remote seed failover)
-            - Integrated Block Explorer & GUI Suite
-            - SHA-256 ASIC-compatible Mining
-          draft: false
-          prerelease: false
+          name: quantycoin-binaries-${{ matrix.os }}
+          path: dist/bin/
+          retention-days: 7
