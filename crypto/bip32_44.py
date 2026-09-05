@@ -106,37 +106,47 @@ def _bech32_hrp_expand(hrp: str) -> List[int]:
     return [ord(x) >> 5 for x in hrp] + [0] + [ord(x) & 31 for x in hrp]
 
 
-def _bech32_verify_checksum(hrp: str, data: List[int]) -> bool:
-    return _bech32_polymod(_bech32_hrp_expand(hrp) + data) == 1
+BECH32_CONST = 1
+BECH32M_CONST = 0x2bc830a3
 
 
-def _bech32_create_checksum(hrp: str, data: List[int]) -> List[int]:
+def _bech32_verify_checksum(hrp: str, data: List[int]) -> Optional[int]:
+    check = _bech32_polymod(_bech32_hrp_expand(hrp) + data)
+    if check == BECH32_CONST:
+        return BECH32_CONST
+    elif check == BECH32M_CONST:
+        return BECH32M_CONST
+    return None
+
+
+def _bech32_create_checksum(hrp: str, data: List[int], spec: int = BECH32_CONST) -> List[int]:
     values = _bech32_hrp_expand(hrp) + data
-    polymod = _bech32_polymod(values + [0, 0, 0, 0, 0, 0]) ^ 1
+    polymod = _bech32_polymod(values + [0, 0, 0, 0, 0, 0]) ^ spec
     return [(polymod >> 5 * (5 - i)) & 31 for i in range(6)]
 
 
-def bech32_encode(hrp: str, data: List[int]) -> str:
-    """Compute a Bech32 string."""
-    combined = data + _bech32_create_checksum(hrp, data)
+def bech32_encode(hrp: str, data: List[int], spec: int = BECH32_CONST) -> str:
+    """Compute a Bech32 or Bech32m string."""
+    combined = data + _bech32_create_checksum(hrp, data, spec)
     return hrp + '1' + ''.join([CHARSET[d] for d in combined])
 
 
-def bech32_decode(bech: str) -> Tuple[Optional[str], Optional[List[int]]]:
-    """Validate and decode a Bech32 string. Returns (hrp, data5bit)."""
+def bech32_decode(bech: str) -> Tuple[Optional[str], Optional[List[int]], Optional[int]]:
+    """Validate and decode a Bech32/Bech32m string. Returns (hrp, data5bit, spec)."""
     if (any(ord(x) < 33 or ord(x) > 126 for x in bech)) or (bech.lower() != bech and bech.upper() != bech):
-        return None, None
+        return None, None, None
     bech = bech.lower()
     pos = bech.rfind('1')
     if pos < 1 or pos + 7 > len(bech) or len(bech) > 90:
-        return None, None
+        return None, None, None
     if not all(x in CHARSET for x in bech[pos+1:]):
-        return None, None
+        return None, None, None
     hrp = bech[:pos]
     data = [CHARSET.find(x) for x in bech[pos+1:]]
-    if not _bech32_verify_checksum(hrp, data):
-        return None, None
-    return hrp, data[:-6]
+    spec = _bech32_verify_checksum(hrp, data)
+    if spec is None:
+        return None, None, None
+    return hrp, data[:-6], spec
 
 
 def convertbits(data: Sequence, frombits: int, tobits: int, pad: bool = True) -> Optional[List[int]]:
@@ -163,22 +173,28 @@ def convertbits(data: Sequence, frombits: int, tobits: int, pad: bool = True) ->
 
 
 def encode_segwit_address(hrp: str, witness_version: int, witness_program: bytes) -> str:
-    """Encode witness program (20-byte pubkeyhash for P2WPKH) into Bech32 address."""
+    """Encode witness program into Bech32 (v0) or Bech32m (v1+) address."""
     conv = convertbits(witness_program, 8, 5)
     if conv is None:
         raise ValueError("Failed to convert bits for SegWit address")
-    return bech32_encode(hrp, [witness_version] + conv)
+    spec = BECH32_CONST if witness_version == 0 else BECH32M_CONST
+    return bech32_encode(hrp, [witness_version] + conv, spec=spec)
 
 
 def decode_segwit_address(hrp: str, addr: str) -> Tuple[Optional[int], Optional[bytes]]:
-    """Decode a SegWit Bech32 address into (witness_version, witness_program)."""
-    dec_hrp, data = bech32_decode(addr)
+    """Decode a SegWit Bech32/Bech32m address into (witness_version, witness_program)."""
+    dec_hrp, data, spec = bech32_decode(addr)
     if dec_hrp != hrp or data is None or len(data) < 1:
+        return None, None
+    version = data[0]
+    if version == 0 and spec != BECH32_CONST:
+        return None, None
+    if version > 0 and spec != BECH32M_CONST:
         return None, None
     decoded = convertbits(data[1:], 5, 8, False)
     if decoded is None or len(decoded) < 2 or len(decoded) > 40:
         return None, None
-    return data[0], bytes(decoded)
+    return version, bytes(decoded)
 
 
 def address_to_scriptpubkey(address: str) -> bytes:

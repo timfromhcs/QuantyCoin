@@ -39,7 +39,7 @@ class WalletRPCClient:
                 headers={"Content-Type": "application/json"}
             )
             try:
-                with urllib.request.urlopen(req, timeout=30) as response:
+                with urllib.request.urlopen(req, timeout=120) as response:
                     res_body = response.read().decode('utf-8')
                     res = json.loads(res_body)
                     if res.get("error"):
@@ -69,14 +69,33 @@ class WalletRPCClient:
     def get_network_info(self) -> Dict[str, Any]:
         return self._call("getnetworkinfo", [])
 
-    def get_block_template(self) -> Dict[str, Any]:
-        return self._call("getblocktemplate", [])
+    def get_block_template(self, pow_type: Optional[int] = None) -> Dict[str, Any]:
+        params = [pow_type] if pow_type is not None else []
+        return self._call("getblocktemplate", params)
 
     def submit_block(self, raw_block_hex: str) -> str:
         return self._call("submitblock", [raw_block_hex])
 
-    def generate_to_address(self, num_blocks: int, address: str) -> List[str]:
-        return self._call("generatetoaddress", [num_blocks, address])
+    def generate_to_address(self, num_blocks: int, address: str, pow_type: int = 0) -> List[str]:
+        return self._call("generatetoaddress", [num_blocks, address, pow_type])
+
+    def get_mining_lanes(self) -> Dict[str, Any]:
+        return self._call("getmininglanes", [])
+
+    def get_mining_targets(self) -> Dict[str, Any]:
+        return self._call("getminingtargets", [])
+
+    def get_chainwork(self) -> Dict[str, Any]:
+        return self._call("getchainwork", [])
+
+    def get_new_pq_address(self) -> Dict[str, Any]:
+        return self._call("getnewpqaddress", [])
+
+    def get_address_info(self, address: str) -> Dict[str, Any]:
+        return self._call("getaddressinfo", [address])
+
+    def get_stratum_info(self) -> Dict[str, Any]:
+        return self._call("getstratuminfo", [])
 
     def help(self) -> Dict[str, str]:
         return self._call("help", [])

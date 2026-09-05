@@ -14,7 +14,7 @@
 [![Security: Zero-Leak](https://img.shields.io/badge/security-zero--leak%20verified-00FF88.svg)](THREAT_MODEL.md)
 
 <p align="center">
-  <strong>An independent SHA-256D Proof-of-Work Layer-1 cryptocurrency featuring 60-second block intervals, responsive LWMA-1 difficulty adjustment, 32 MB block capacity, native Stratum V1 mining pool architecture, and self-sovereign Qt6 desktop applications.</strong>
+  <strong>An independent Dual-PoW Layer-1 cryptocurrency featuring SHA-256D ASIC and General-Purpose CPU/GPU mining lanes, NIST FIPS 204 ML-DSA-65 post-quantum transaction authorization, 60-second combined block intervals, thermodynamic cumulative chainwork, native Stratum V2 protocol, and self-sovereign Qt6 desktop applications.</strong>
 </p>
 
 </div>
@@ -71,13 +71,18 @@ Every feature listed below is verified by automated, executable test suites:
 
 | Feature / Capability | Classification | Direct Evidence Location |
 | :--- | :--- | :--- |
-| **SHA-256D Proof-of-Work** | **VERIFIED** | `core/block.py`, `tests/test_core.py` |
+| **SHA-256D ASIC Mining (Lane A)** | **VERIFIED** | `core/block.py`, `tests/test_pqc_dualpow_sv2.py` |
+| **CPU/GPU Scrypt Mining (Lane B)** | **VERIFIED** | `core/block.py`, `tests/test_pqc_dualpow_sv2.py` |
+| **Thermodynamic Cumulative Chainwork**| **VERIFIED** | `node/chainstate.py`, `docs/protocol/CHAINWORK_SPEC.md` |
+| **NIST FIPS 204 ML-DSA-65 Signatures**| **VERIFIED** | `crypto/mldsa.py`, `tests/test_pqc_dualpow_sv2.py` |
+| **Hybrid Bech32m Authorization** | **VERIFIED** | `core/transaction.py`, `tests/test_pqc_dualpow_sv2.py` |
+| **Stratum V2 Binary Engine** | **VERIFIED** | `miner/stratum_v2.py`, `tests/test_pqc_dualpow_sv2.py` |
 | **Air-Gapped Genesis Block** | **VERIFIED** | `genesis/PUBLIC_GENESIS_MANIFEST.json` |
-| **LWMA-1 Difficulty Retargeting** | **VERIFIED** | `core/consensus.py`, `tests/test_core.py` |
+| **LWMA-1 Per-Lane Retargeting** | **VERIFIED** | `core/consensus.py`, `tests/test_pqc_dualpow_sv2.py` |
 | **UTXO Chainstate & Deep Reorgs**| **VERIFIED** | `core/utxo.py`, `tests/test_functional_reorg.py` |
 | **Full Mesh P2P Wire Relay** | **VERIFIED** | `network/p2p_server.py`, `tests/test_functional_p2p.py` |
 | **Stratum V1 Mining Pool Server** | **VERIFIED** | `miner/stratum.py`, `tests/test_functional_stratum.py` |
-| **BIP39/44 HD Wallet & Bech32** | **VERIFIED** | `wallet/hd_wallet.py`, `tests/test_functional_wallet.py` |
+| **BIP39/44 Multi-Mode HD Wallet** | **VERIFIED** | `wallet/hd_wallet.py`, `tests/test_functional_wallet.py` |
 | **Threaded JSON-RPC 2.0 Engine** | **VERIFIED** | `node/rpc_server.py`, `tests/test_framework.py` |
 | **Native Qt6 Desktop Applications**| **VERIFIED** | `ui/`, `quanty_suite_app.py` |
 

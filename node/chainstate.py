@@ -14,7 +14,10 @@ from core.utxo import UTXOSet
 from core.mempool import Mempool
 from core.consensus import (
     get_block_subsidy, calculate_next_work_required_lwma,
-    bits_to_target, target_to_bits, POW_LIMIT_BITS
+    calculate_next_work_required_dual,
+    bits_to_target, target_to_bits, POW_LIMIT_BITS,
+    POW_TYPE_SHA256D, POW_TYPE_GENERAL_PURPOSE,
+    LANE_WEIGHT_SHA256D, LANE_WEIGHT_GENERAL_PURPOSE
 )
 from core.genesis_constants import (
     GENESIS_HASH, GENESIS_TIMESTAMP, GENESIS_NONCE, GENESIS_BITS,
@@ -22,12 +25,14 @@ from core.genesis_constants import (
 )
 
 
-def get_block_work(bits: int) -> int:
-    """Calculate chainwork contribution for a given difficulty target."""
+def get_block_work(bits: int, pow_type: int = POW_TYPE_SHA256D) -> int:
+    """Calculate chainwork contribution for a given difficulty target and PoW lane."""
     target = bits_to_target(bits)
     if target <= 0:
         return 0
-    return (1 << 256) // (target + 1)
+    raw_work = (1 << 256) // (target + 1)
+    weight = LANE_WEIGHT_GENERAL_PURPOSE if pow_type == POW_TYPE_GENERAL_PURPOSE else LANE_WEIGHT_SHA256D
+    return raw_work * weight
 
 
 class BlockIndexNode:
@@ -39,6 +44,10 @@ class BlockIndexNode:
         self.raw_block = raw_block
         self.prev_hash = prev_hash
         self.hash = header.hash
+
+    @property
+    def pow_type(self) -> int:
+        return self.header.pow_type
 
 
 class Chainstate:
@@ -147,11 +156,15 @@ class Chainstate:
             node = self.block_index.get(block_hash)
             return node.header if node else None
 
-    def get_next_work_required(self) -> int:
-        """Calculate next difficulty target bits for mining."""
+    def get_block_work(self, header: BlockHeader) -> int:
+        """Calculate thermodynamic work for block header."""
+        return get_block_work(header.bits, header.pow_type)
+
+    def get_next_work_required(self, pow_type: int = POW_TYPE_SHA256D) -> int:
+        """Calculate next difficulty target bits for mining on specified PoW lane."""
         with self._lock:
             headers = [self.block_index[h].header for h in self.active_chain]
-            return calculate_next_work_required_lwma(headers)
+            return calculate_next_work_required_dual(headers, pow_type=pow_type)
 
     def process_block(self, block: Block) -> Tuple[bool, str]:
         """
@@ -182,7 +195,7 @@ class Chainstate:
             if block.header.timestamp <= parent_node.header.timestamp - 7200:
                 return False, "Block timestamp too far in past"
                 
-            chainwork = parent_node.chainwork + get_block_work(block.header.bits)
+            chainwork = parent_node.chainwork + get_block_work(block.header.bits, block.header.pow_type)
             raw_block = block.serialize()
             
             node = BlockIndexNode(

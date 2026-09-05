@@ -6,16 +6,19 @@ Coin Selection, Transaction Signing & QR Code Generation
 
 import os
 import json
+import hashlib
 from typing import List, Dict, Tuple, Optional, Any
 from crypto import (
     generate_mnemonic, validate_mnemonic, mnemonic_to_seed,
-    HDKey, hash160
+    HDKey, hash160, sha256
 )
-from core.transaction import Transaction, TxIn, TxOut
+from crypto.bip32_44 import encode_segwit_address, MAINNET_BECH32_HRP
+from crypto.mldsa import MLDSAKey
+from core.transaction import Transaction, TxIn, TxOut, SignatureType
 
 
 class HDWallet:
-    """Production Multi-Account BIP44 HD Wallet for QuantyCoin."""
+    """Production Multi-Account BIP44 HD Wallet for QuantyCoin with Post-Quantum Capability."""
     def __init__(self, mnemonic: Optional[str] = None, passphrase: str = "", account_index: int = 0):
         if mnemonic is None:
             self.mnemonic = generate_mnemonic(256)
@@ -37,10 +40,15 @@ class HDWallet:
         # index -> HDKey
         self.receiving_keys: Dict[int, HDKey] = {}
         self.change_keys: Dict[int, HDKey] = {}
+        self.pq_keys: Dict[int, MLDSAKey] = {}
+        self.pq_addresses: Dict[int, str] = {}
+        self.hybrid_addresses: Dict[int, str] = {}
         
         # Pre-derive first 5 receiving addresses
         for i in range(5):
             self.get_receiving_address(i)
+            self.get_pq_address(i)
+            self.get_hybrid_address(i)
 
     def get_receiving_key(self, index: int = 0) -> HDKey:
         """Derive receiving key at m/44'/999'/account'/0/index."""
@@ -65,12 +73,40 @@ class HDWallet:
     def get_change_address(self, index: int = 0) -> str:
         return self.get_change_key(index).get_address()
 
+    def get_pq_key(self, index: int = 0) -> MLDSAKey:
+        """Deterministically derive ML-DSA keypair from HD seed and derivation path."""
+        if index not in self.pq_keys:
+            # Deterministic domain-separated seed derivation for ML-DSA
+            path_str = f"m/44'/999'/{self.account_index}'/pq/{index}"
+            pq_seed = hashlib.sha256(self.seed + path_str.encode('utf-8')).digest()
+            self.pq_keys[index] = MLDSAKey.from_seed(pq_seed)
+        return self.pq_keys[index]
+
+    def get_pq_address(self, index: int = 0, hrp: str = MAINNET_BECH32_HRP) -> str:
+        """Derive Bech32m witness v1 address: qty1p..."""
+        if index not in self.pq_addresses:
+            k = self.get_pq_key(index)
+            prog = sha256(k.public_key)
+            self.pq_addresses[index] = encode_segwit_address(hrp, 1, prog)
+        return self.pq_addresses[index]
+
+    def get_hybrid_address(self, index: int = 0, hrp: str = MAINNET_BECH32_HRP) -> str:
+        """Derive Bech32m witness v2 address: qty1z..."""
+        if index not in self.hybrid_addresses:
+            secp_key = self.get_receiving_key(index)
+            pq_key = self.get_pq_key(index)
+            prog = sha256(secp_key.get_public_key() + pq_key.public_key)
+            self.hybrid_addresses[index] = encode_segwit_address(hrp, 2, prog)
+        return self.hybrid_addresses[index]
+
     def get_all_known_addresses(self) -> List[str]:
         addrs = []
         for key in self.receiving_keys.values():
             addrs.append(key.get_address())
         for key in self.change_keys.values():
             addrs.append(key.get_address())
+        addrs.extend(self.pq_addresses.values())
+        addrs.extend(self.hybrid_addresses.values())
         return addrs
 
     def find_key_for_address(self, address: str) -> Optional[HDKey]:
@@ -86,6 +122,28 @@ class HDWallet:
             k = self.get_receiving_key(i)
             if k.get_address() == address:
                 return k
+        return None
+
+    def find_pq_key_for_address(self, address: str) -> Optional[Tuple[int, MLDSAKey]]:
+        """Find the ML-DSA key matching a qty1p address."""
+        for idx, addr in self.pq_addresses.items():
+            if addr == address:
+                return idx, self.pq_keys[idx]
+        for i in range(len(self.pq_addresses), len(self.pq_addresses) + 50):
+            addr = self.get_pq_address(i)
+            if addr == address:
+                return i, self.pq_keys[i]
+        return None
+
+    def find_hybrid_keys_for_address(self, address: str) -> Optional[Tuple[int, HDKey, MLDSAKey]]:
+        """Find the (HDKey, MLDSAKey) matching a qty1z address."""
+        for idx, addr in self.hybrid_addresses.items():
+            if addr == address:
+                return idx, self.get_receiving_key(idx), self.pq_keys[idx]
+        for i in range(len(self.hybrid_addresses), len(self.hybrid_addresses) + 50):
+            addr = self.get_hybrid_address(i)
+            if addr == address:
+                return i, self.get_receiving_key(i), self.pq_keys[i]
         return None
 
     def build_transaction(self, destination_address: str, amount_sat: int, available_utxos: List[Dict[str, Any]], fee_sat: int = 10000, change_address: Optional[str] = None) -> Transaction:
@@ -141,7 +199,39 @@ class HDWallet:
             prev_script = bytes.fromhex(utxo["scriptPubKey"])
             prev_amount = utxo["value_sat"]
             
-            # Find key
+            # Check if input corresponds to a Post-Quantum address (qty1p...)
+            pq_match = None
+            if addr and addr.startswith("qty1p"):
+                pq_match = self.find_pq_key_for_address(addr)
+            if not pq_match and len(prev_script) == 34 and prev_script[:2] == b'\x51\x20':
+                prog = prev_script[2:]
+                for idx, k in self.pq_keys.items():
+                    if sha256(k.public_key) == prog:
+                        pq_match = (idx, k)
+                        break
+            if pq_match:
+                _, pq_key = pq_match
+                tx.sign_input_mldsa(i, pq_key.secret_key, pq_key.public_key, prev_script, prev_amount)
+                continue
+
+            # Check if input corresponds to a Hybrid address (qty1z...)
+            hybrid_match = None
+            if addr and addr.startswith("qty1z"):
+                hybrid_match = self.find_hybrid_keys_for_address(addr)
+            if not hybrid_match and len(prev_script) == 34 and prev_script[:2] == b'\x52\x20':
+                prog = prev_script[2:]
+                for idx in range(len(self.receiving_keys)):
+                    secp = self.get_receiving_key(idx)
+                    pqk = self.get_pq_key(idx)
+                    if sha256(secp.get_public_key() + pqk.public_key) == prog:
+                        hybrid_match = (idx, secp, pqk)
+                        break
+            if hybrid_match:
+                _, secp_k, pq_k = hybrid_match
+                tx.sign_input_hybrid(i, secp_k.key, pq_k.secret_key, pq_k.public_key, prev_script, prev_amount)
+                continue
+
+            # Classical ECDSA signing
             key = None
             if addr:
                 key = self.find_key_for_address(addr)
@@ -167,11 +257,13 @@ class HDWallet:
     def export_keystore(self, filepath: str) -> None:
         """Export wallet metadata to file (encrypted/json)."""
         data = {
-            "version": 1,
+            "version": 2,
             "account_index": self.account_index,
             "primary_address": self.get_receiving_address(0),
             "receiving_addresses": [k.get_address() for k in self.receiving_keys.values()],
-            "change_addresses": [k.get_address() for k in self.change_keys.values()]
+            "change_addresses": [k.get_address() for k in self.change_keys.values()],
+            "pq_addresses": list(self.pq_addresses.values()),
+            "hybrid_addresses": list(self.hybrid_addresses.values())
         }
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2)

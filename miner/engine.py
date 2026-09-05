@@ -14,15 +14,18 @@ from core.block import Block, BlockHeader
 from wallet.rpc_client import WalletRPCClient
 
 
+import hashlib
+
 class MiningWorker:
     """Individual worker thread searching a slice of the 32-bit nonce space."""
-    def __init__(self, worker_id: int, start_nonce: int, nonce_stride: int, header_prefix: bytes, header_suffix: bytes, target: int, on_found: Callable[[int, bytes], None]):
+    def __init__(self, worker_id: int, start_nonce: int, nonce_stride: int, header_prefix: bytes, header_suffix: bytes, target: int, on_found: Callable[[int, bytes], None], pow_type: int = 0):
         self.worker_id = worker_id
         self.nonce = start_nonce
         self.nonce_stride = nonce_stride
         self.header_prefix = header_prefix  # 76 bytes (version, prev_block, merkle_root, time, bits)
         self.target = target
         self.on_found = on_found
+        self.pow_type = pow_type
         
         self.is_running = True
         self.hashes_computed = 0
@@ -33,10 +36,14 @@ class MiningWorker:
         target = self.target
         stride = self.nonce_stride
         curr_nonce = self.nonce
+        pow_type = self.pow_type
         
         while self.is_running and curr_nonce <= 0xFFFFFFFF:
             header = prefix + struct.pack('<I', curr_nonce)
-            h = hash256(header)
+            if pow_type == 1:
+                h = hashlib.scrypt(header, salt=b"quantycoin_pow_gp", n=1024, r=1, p=1, maxmem=0, dklen=32)
+            else:
+                h = hash256(header)
             self.hashes_computed += 1
             
             # Check target (little endian int)
@@ -50,10 +57,11 @@ class MiningWorker:
 
 class MiningEngine:
     """Multi-Threaded Solo Mining Engine for QuantyCoin."""
-    def __init__(self, payout_address: str, rpc_host: str = "127.0.0.1", rpc_port: int = 19889, threads: int = 4):
+    def __init__(self, payout_address: str, rpc_host: str = "127.0.0.1", rpc_port: int = 19889, threads: int = 4, pow_type: int = 0):
         self.payout_address = payout_address
         self.rpc_client = WalletRPCClient(rpc_host=rpc_host, rpc_port=rpc_port)
         self.threads = threads
+        self.pow_type = pow_type
         
         self.is_mining = False
         self.total_hashes = 0
@@ -93,7 +101,7 @@ class MiningEngine:
         while self.is_mining:
             try:
                 # 1. Fetch template from node
-                tmpl = self.rpc_client.get_block_template()
+                tmpl = self.rpc_client.get_block_template(self.pow_type)
                 version = tmpl["version"]
                 prev_hash = bytes.fromhex(tmpl["previousblockhash"])[::-1]
                 height = tmpl["height"]
@@ -104,7 +112,8 @@ class MiningEngine:
                 from crypto.bip32_44 import address_to_scriptpubkey
                 script_pubkey = address_to_scriptpubkey(self.payout_address)
                 
-                cb_msg = f"/QuantyMiner:v3.0/H:{height}/".encode('utf-8')
+                lane_name = "GP" if self.pow_type == 1 else "SHA"
+                cb_msg = f"/QuantyMiner:v3.0/{lane_name}/H:{height}/".encode('utf-8')
                 cb_script = bytes([len(cb_msg)]) + cb_msg
                 
                 coinbase_tx = Transaction(
@@ -146,7 +155,8 @@ class MiningEngine:
                         header_prefix=header_prefix,
                         header_suffix=b'',
                         target=target,
-                        on_found=self._on_block_found
+                        on_found=self._on_block_found,
+                        pow_type=self.pow_type
                     )
                     self._workers.append(w)
                     th = threading.Thread(target=w.run, daemon=True)

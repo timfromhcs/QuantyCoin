@@ -228,3 +228,97 @@ Every major milestone must have concrete, reproducible execution evidence record
     - Honest Nakamoto PoW throughput benchmarks documented (14-28 TPS, 16 TX/s mempool benchmark).
     - Dynamic verification badges linked.
 
+---
+
+## 11. Post-Quantum Cryptography, Dual-PoW Consensus & Stratum V2 Verification
+- **Timestamp**: 2026-09-05T12:03:30+02:00
+- **Contract**: `QUANTYCOIN-QTY2-PQC-DUALPOW-SV2-2026`
+- **Execution Log (`python tests/test_runner.py`)**:
+  ```
+  ========================================================
+  RUNNING CRYPTOGRAPHIC & CORE UNIT TESTS
+  ========================================================
+  [PASS] Cryptographic verification suite
+  [PASS] Core transaction & consensus suite
+  [PASS] P2P protocol serialization suite
+
+  ========================================================
+  RUNNING TEST: MiningTest
+  ========================================================
+  1. Verifying initial Genesis state...
+  2. Mining 5 blocks on Node 0...
+  3. Synchronizing blocks across P2P wire to Node 1...
+  4. Verifying miner coinbase rewards & balance calculation...
+  5. Querying mining telemetry & block templates...
+  [PASS] MiningTest COMPLETED WITH 100% SUCCESS!
+
+  ========================================================
+  RUNNING TEST: WalletTest
+  ========================================================
+  1. Creating test HD wallets...
+  2. Mining 3 blocks to fund Wallet A...
+  3. Fetching spendable UTXOs for Wallet A...
+  4. Creating & signing 25 QTY transaction from Wallet A -> Wallet B...
+  5. Broadcasting transaction to Node 0 mempool...
+  6. Synchronizing mempools across P2P network...
+  7. Mining 1 block to confirm transaction...
+  8. Verifying final confirmed balances...
+  [PASS] WalletTest COMPLETED WITH 100% SUCCESS!
+
+  ========================================================
+  RUNNING TEST: P2PTest
+  ========================================================
+  1. Verifying initial P2P mesh network topology...
+  2. Verifying protocol version and user agents...
+  3. Mining blocks on Node 0 and checking propagation to Node 1 & 2...
+  4. Mining 2 blocks on Node 2 and syncing backwards to Node 0 & 1...
+  [PASS] P2PTest COMPLETED WITH 100% SUCCESS!
+
+  ========================================================
+  RUNNING TEST: ReorgTest
+  ========================================================
+  1. Mining 3 common base blocks on Node 0 and syncing...
+  2. Disconnecting Node 1 to simulate a network split / partition...
+  3. Mining Branch A on Node 0 (2 blocks -> Height 5)...
+  4. Mining Branch B on Node 1 (4 blocks -> Height 7)...
+  5. Reconnecting partition & resolving fork choice...
+  6. Verifying that Node 0 reorganized to Branch B (Height 7)...
+  [PASS] ReorgTest COMPLETED WITH 100% SUCCESS!
+
+  ========================================================
+  RUNNING STRATUM V1 MINING PROTOCOL TEST (Port: 13335)
+  ========================================================
+    [PASS] 1. mining.subscribe handshake successful
+    [PASS] 2. mining.authorize accepted
+    [PASS] 3. mining.submit share validated and counted
+  ALL STRATUM V1 PROTOCOL TESTS PASSED WITH 100% SUCCESS!
+
+  ========================================================
+  RUNNING PQC, DUAL-POW & STRATUM V2 PROTOCOL TEST SUITE
+  ========================================================
+  [PASS] PQC & Hybrid Signature Verification (NIST FIPS 204 ML-DSA-65 & Hybrid Bech32m)
+  [PASS] Dual-PoW Lane A & Lane B Mining & Verification (SHA256D ASIC & Scrypt 1024 General Purpose)
+  [PASS] Cumulative Thermodynamic Chainwork Calculations (W_A = 1, W_B = 2048)
+  [PASS] Stratum V2 Binary Framing & Dual-Lane Multiplexing (Port 19445)
+  [PASS] New Protocol RPC Endpoints (getmininglanes, getminingtargets, getchainwork, getnewpqaddress, getaddressinfo, getstratuminfo)
+  [PASS] HDWallet Post-Quantum Key Derivation & Transaction Creation (qty1p... & qty1z...)
+
+  ========================================================
+             QUANTYCOIN TEST SUITE RESULTS
+  ========================================================
+   - Mining & Subsidy Test               : [PASSED]
+   - Wallet & BIP39 Transaction Test     : [PASSED]
+   - P2P Multi-Node Relay Test           : [PASSED]
+   - Chain Split & Deep Reorg Test       : [PASSED]
+   - Stratum V1 Protocol Test            : [PASSED]
+   - PQC, Dual-PoW & SV2 Test Suite      : [PASSED]
+  ========================================================
+  ALL TESTS PASSED WITH 100% SUCCESS (0 FAILURES)!
+  ========================================================
+  ```
+- **Security Scanner Proof**:
+  - `python scripts/verify_security.py`: `[PASS] No secrets, private credentials or forbidden files detected.` (100% PASS, 0 leaks).
+- **Documentation Validator Proof**:
+  - `python scripts/verify_documentation.py`: `[PASS] All markdown links resolve successfully. ALL DOCUMENTATION VALIDATION CHECKS PASSED (100%).`
+
+
