@@ -1,0 +1,28 @@
+# QuantyCoin (QTY) — Protocol QTY2 Machine Index
+> Independent SHA-256D Proof-of-Work Layer-1 Cryptocurrency with LWMA-1 Difficulty Retargeting, Stratum V1 Pool Engine, and Native Qt6 Desktop Applications.
+
+## Core Technical Summary
+- **Protocol Version:** 70020 (QTY2 / v2.0.0 Mainnet)
+- **Chain Identifier:** quantycoin-2.0
+- **Genesis Block Hash:** 00000f7cecd0b1eafaab4d65183f7bd12713b67b6c1c4a30f6bf3f1b8efd30ba
+- **Consensus:** Double-SHA256 (SHA-256D) Proof-of-Work with single-block LWMA-1 difficulty adjustment (window: 45 blocks)
+- **Max Supply:** 21,000,000 QTY (2.1 x 10^15 Satoshis)
+- **Target Block Time:** 60 seconds
+- **Block Reward:** 50 QTY initial, halving every 2,100,000 blocks (~4 years)
+- **Max Block Size:** 32 MB (33,554,432 bytes)
+- **Network Ports:** P2P: 19888, RPC: 19889, Stratum Pool: 3333
+- **Wire Magic:** `0x5155414E` ("QUAN")
+- **Address Schemes:** Native SegWit Bech32 (`qty1q...`), Legacy Base58Check (`Q...`)
+- **Native Applications:** Sovereign Full Wallet (built-in Node), Node Manager GUI, Multi-Threaded Miner GUI, and Combined Master Suite (Qt6 / PySide6).
+
+## Authoritative Documentation & Links
+- [Project Summary & Specs](docs/project-summary.md)
+- [Trust Center & Verification Boundaries](TRUST.md)
+- [Independent Verification Guide](VERIFICATION.md)
+- [Technical Architecture](ARCHITECTURE.md)
+- [Protocol Specification](docs/protocol/index.md)
+- [Formal Threat Model](THREAT_MODEL.md)
+- [Security Policy & Disclosures](SECURITY.md)
+- [Technical Roadmap](ROADMAP.md)
+- [Repository & Source Code](https://github.com/timfromhcs/QuantyCoin)
+- [Citation Metadata](CITATION.cff)

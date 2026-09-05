@@ -1,41 +1,32 @@
 {
-  "project": "QuantyCoin",
-  "version": "2.3.0",
-  "ticker": "QTY",
-  "network": "QuantyCoin Mainnet (QTY)",
-  "genesis": {
-    "height": 0,
-    "hash": "0000005bf8fea73c1465d4ca5b9f96d837fd8089201d455a9f51d41b2ec8b6a4",
-    "merkle_root": "fa0ed1209057624c98b130c0bb391862314557e9666afa124a2c7db005f3c735",
-    "timestamp": 1771804800,
-    "timestamp_str": "QuantyCoin genesis: quantum-safe launch baseline, 16/Aug/2026",
-    "nonce": 2303311,
-    "bits": "0x1e0377ae"
-  },
-  "consensus_v2": {
-    "max_block_size_mb": 32,
-    "target_block_time_seconds": 60,
-    "difficulty_algorithm": "DGW / LWMA (Height 1)",
-    "pow_algorithm": "SHA-256 (ASIC Compatible)",
-    "signature_scheme": "ML-DSA-65 (Post-Quantum)",
-    "fee_distribution": {
-      "miner_share_percent": 50,
-      "treasury_donation_share_percent": 50,
-      "treasury_address": "qty1qspendenwallettreasury2026"
-    },
-    "monthly_airdrop": {
-      "interval_blocks": 43200,
-      "min_required_balance_qty": 5.0,
-      "min_required_wallet_age_days": 21,
-      "distribution_mode": "Equal share of accumulated monthly treasury balance among all registered eligible participants"
+  "network": "QuantyCoin-2.0-Mainnet",
+  "version": "2.0.0",
+  "protocol_version": 70020,
+  "chain_id": "quantycoin-2.0",
+  "magic_bytes": "0x5155414e",
+  "genesis_block": {
+    "hash": "00000f7cecd0b1eafaab4d65183f7bd12713b67b6c1c4a30f6bf3f1b8efd30ba",
+    "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "merkle_root": "ac6346e4b3ae1f3e4cfabaa09376ee83d268d12476d3e243a42d0e22cf79224f",
+    "timestamp": 1788600000,
+    "bits": 504365055,
+    "nonce": 333641,
+    "target": "0xfffff000000000000000000000000000000000000000000000000000000",
+    "serialized_block": "0100000000000000000000000000000000000000000000000000000000000000000000004f2279cf220e2da443e2d37624d168d283ee7693a0bafa4c3e1faeb3e44663acc0de9b6affff0f1e491705000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff5304ffff001d01044b323032362d30392d30353a205175616e7479436f696e20322e30202d2053484132353644204c617965722d31204175746f6e6f6d6f757320426c6f636b636861696e2050726f746f636f6cffffffff0100f2052a01000000160014bd7469ff9aa9788791217792589a656ad05788f700000000",
+    "coinbase": {
+      "txid": "ac6346e4b3ae1f3e4cfabaa09376ee83d268d12476d3e243a42d0e22cf79224f",
+      "value_qty": 50.0,
+      "value_sat": 5000000000,
+      "payout_address": "qty1qh46xnlu649ug0yfpw7f93xn9dtg90z8hukfsy4"
     }
   },
-  "light_client": {
-    "auto_connect_online_seeds": true,
-    "fallback_seed_nodes": [
-      "seed1.quantycoin.org",
-      "seed2.quantycoin.org"
-    ],
-    "standalone_mode_without_local_node": true
+  "tokenomics": {
+    "max_supply_qty": 21000000,
+    "initial_reward_qty": 50.0,
+    "halving_interval_blocks": 2100000,
+    "target_block_time_seconds": 60,
+    "max_block_size_bytes": 33554432,
+    "difficulty_algorithm": "LWMA-1 (Linear-Weighted Moving Average)",
+    "coinbase_maturity": 100
   }
 }

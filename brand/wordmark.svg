@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" width="100%" height="100%">
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <text x="10" y="80" font-size="68" font-weight="900" letter-spacing="-1.5px" fill="#F8FAFC">QUANTY</text>
+    <text x="305" y="80" font-size="68" font-weight="400" letter-spacing="-1.5px" fill="#38BDF8">COIN</text>
+    
+    <!-- Protocol Badge -->
+    <rect x="480" y="38" width="68" height="28" rx="6" fill="#0284C7" fill-opacity="0.2" stroke="#38BDF8" stroke-width="1.5" />
+    <text x="514" y="57" font-size="14" font-weight="800" fill="#38BDF8" text-anchor="middle" letter-spacing="1px">QTY2</text>
+    
+    <!-- Subtitle descriptor -->
+    <text x="14" y="110" font-size="13" font-weight="600" fill="#94A3B8" letter-spacing="3px">OPEN-SOURCE LAYER-1 PROTOCOL</text>
+  </g>
+</svg>

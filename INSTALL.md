@@ -1,1 +1,1 @@
-See [doc/build-\*.md](/doc)
+See [doc/](doc/) and [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md).

@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software in your research or blockchain engineering, please cite it as below."
+title: "QuantyCoin: Independent SHA-256D Proof-of-Work Layer-1 Cryptocurrency"
+version: 2.0.0
+date-released: 2026-09-05
+authors:
+  - family-names: "Heinrichs"
+    given-names: "Tim"
+    email: "timfromhcs@gmail.com"
+    affiliation: "QuantyCoin Foundation & HCS"
+repository-code: "https://github.com/timfromhcs/QuantyCoin"
+keywords:
+  - "blockchain"
+  - "layer-1"
+  - "cryptocurrency"
+  - "proof-of-work"
+  - "sha256d"
+  - "utxo"
+  - "qt6"
+  - "lwma-1"
+  - "stratum"
+license: "MIT"

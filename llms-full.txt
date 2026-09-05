@@ -1,0 +1,49 @@
+# QuantyCoin (QTY2) — Comprehensive Technical Reference & Protocol Specification
+
+## 1. Executive Summary & Philosophy
+QuantyCoin (QTY2) is an open-source, sovereign Layer-1 blockchain engineering project designed as an independent SHA-256D Proof-of-Work cryptocurrency with 60-second block intervals, dynamic LWMA-1 difficulty adjustment, native SegWit Bech32 addresses, and desktop GUI applications.
+
+## 2. Cryptographic Algorithms & Encodings
+- **Public Key Cryptography:** Secp256k1 ECDSA (RFC 6979 deterministic k) & Ed25519 (RFC 8032)
+- **Hash Functions:** Double SHA-256 (`hash256`), RIPEMD-160 (`hash160`), Keccak-256 (`keccak256`)
+- **Key Derivation:** BIP39 (12/24 word mnemonics, PBKDF2 HMAC-SHA512) and BIP32/BIP44 Hierarchical Deterministic trees (`m/44'/999'/account'/change/index`)
+- **Address Encodings:** Bech32 Native SegWit (HRP `qty`, witness version 0) and Base58Check (version byte `0x3A` for 'Q' prefix)
+
+## 3. Blockchain State & Consensus Mechanics
+- **Hard Cap:** 21,000,000 QTY
+- **Block Time:** 60.0 seconds
+- **Difficulty Adjustment:** LWMA-1 (Linear-Weighted Moving Average across 144 blocks)
+- **Initial Subsidy:** 50.0 QTY ($5 \times 10^9$ Satoshis)
+- **Halving Cadence:** Every 2,100,000 blocks
+- **Block Size Hard Limit:** 32 MB
+- **Fee Split Protocol:** 50% Miner / 50% Protocol Treasury
+
+## 4. P2P Wire Protocol Specification
+- **Magic Bytes:** `0x5155414E` (ASCII "QUAN")
+- **Header Length:** 24 bytes (4 bytes Magic, 12 bytes Command ASCII, 4 bytes Length uint32_le, 4 bytes Checksum uint32_le)
+- **Supported Wire Commands:** `version`, `verack`, `ping`, `pong`, `inv`, `getdata`, `getblocks`, `block`, `tx`
+
+## 5. JSON-RPC 2.0 API Reference (Port 19889)
+- `getinfo`: Returns node status, blockchain height, circulating supply, and peer metrics
+- `getblockchaininfo`: Returns best block hash, height, and cumulative chainwork
+- `getnetworkinfo`: Returns protocol version, user agent, connection count, and relay fees
+- `getblockcount`: Returns active tip block height
+- `getbestblockhash`: Returns 64-char hex hash of active tip
+- `getblock`: Returns decoded block header, transactions, and metrics
+- `getblockhash`: Returns block hash at specified height
+- `getrawtransaction`: Returns decoded transaction details
+- `sendrawtransaction`: Validates, adds to mempool, and broadcasts raw transaction hex
+- `getmempoolinfo`: Returns mempool transaction count and total fees
+- `getrawmempool`: Returns array of unconfirmed transaction IDs
+- `getpeerinfo`: Returns active peer connections and ping latencies
+- `getmininginfo`: Returns network hashrate, current difficulty, and block templates
+- `getblocktemplate`: Returns candidate mining block template
+- `submitblock`: Submits solved block to consensus validator
+- `generatetoaddress`: Mines specified number of blocks to payout address
+- `getaddressbalance`: Returns confirmed balance in QTY and Satoshis
+- `getaddressutxos`: Returns spendable UTXO list for address
+- `help`: Returns interactive command reference
+
+## 6. Functional Test Harness & CI/CD
+- Complete test runner (`tests/test_runner.py`) executing cryptographic unit tests, consensus validation, mining mechanics, BIP39 SegWit transactions, P2P network relay, and deep multi-block chain reorganizations.
+- 100% automated cross-platform native installer build matrix via `.github/workflows/release.yml`.
