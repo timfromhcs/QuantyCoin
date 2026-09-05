@@ -1,6 +1,6 @@
-# QuantyCoin (QTY2) Brand Guidelines & Visual Identity System
+# QuantyCoin (QTY3) Brand Guidelines & Visual Identity System
 
-**Protocol Version**: QTY2 (Protocol 70020)  
+**Protocol Version**: QTY3 (Protocol 70020)  
 **Status**: Official Active Standard  
 **Last Updated**: September 2026  
 
@@ -8,7 +8,7 @@
 
 ## 1. Brand Identity Overview
 
-QuantyCoin (QTY2) is an open-source, sovereign Layer-1 cryptocurrency engineered on pure double-SHA256 (SHA-256D) Proof-of-Work with 60-second block cadence, LWMA-1 difficulty adjustment, native SegWit Bech32 addresses, and desktop GUI applications.
+QuantyCoin (QTY3) is an open-source, sovereign Layer-1 cryptocurrency engineered on Asymmetric Dual Proof-of-Work (SHA-256D ASIC & RFC 7914 Scrypt 1024 CPU/GPU) with NIST FIPS 204 ML-DSA-44 post-quantum cryptography, 60-second block cadence, thermodynamic chainwork, native SegWit & Bech32m addresses, Stratum V1/V2, and desktop GUI applications.
 
 The visual identity embodies **cryptographic rigor, open-source transparency, precision engineering, and sovereign decentralization**.
 
@@ -20,7 +20,7 @@ All vector and raster brand assets are housed within the `/brand/` root director
 
 | Asset Path | Format | Dimensions / ViewBox | Primary Purpose |
 | :--- | :--- | :--- | :--- |
-| `brand/logo.svg` | SVG | `750x180` | Primary horizontal lockup (mark + wordmark + QTY2 badge) |
+| `brand/logo.svg` | SVG | `750x180` | Primary horizontal lockup (mark + wordmark + QTY3 badge) |
 | `brand/logo-mark.svg` | SVG | `512x512` | Standalone geometric Q icon for avatars, app icons, and coins |
 | `brand/wordmark.svg` | SVG | `560x120` | Logotype for headers and linear media |
 | `brand/monochrome.svg` | SVG | `512x512` | Pure single-color silhouette for hardware wallets and engravings |
@@ -65,11 +65,11 @@ The QuantyCoin color system is designed for high contrast and modern dark interf
 - **Styles**:
   - `QUANTY`: ExtraBold / Black (Weight: 900), letter-spacing: -1.5px.
   - `COIN`: Regular / Light (Weight: 400), letter-spacing: -1.5px.
-  - `QTY2` Badge: Bold (Weight: 800), all-caps, tracking: +1px.
+  - `QTY3` Badge: Bold (Weight: 800), all-caps, tracking: +1px.
 
 ### Monospace (Technical & Addresses)
 - **Family**: JetBrains Mono, SF Mono, Consolas, or `monospace`.
-- **Usage**: Bech32 addresses (`qty1q...`), hex hashes, block heights, RPC commands.
+- **Usage**: Bech32/Bech32m addresses (`qty1q...` SegWit, `qty1p...` ML-DSA-44 PQC, `qty1z...` Hybrid), hex hashes, block heights, RPC commands.
 
 ---
 
@@ -78,7 +78,7 @@ The QuantyCoin color system is designed for high contrast and modern dark interf
 The QuantyCoin logo-mark consists of three core geometric elements:
 
 1. **The Outer Torus (Q Ring)**: Represents the decentralized consensus network loop and circular transaction flow.
-2. **The Inner Node Grid & Diamond Core**: Represents the cryptographic genesis block matrix and precision SHA-256 target validation.
+2. **The Inner Node Grid & Diamond Core**: Represents the cryptographic genesis block matrix and dual-lane target validation.
 3. **The Dynamic Q-Tail**: Diagonal ray emerging from the core at 45 degrees, symbolizing peer-to-peer relay velocity and chain progression.
 
 ---
@@ -99,6 +99,6 @@ To preserve protocol authenticity and security integrity:
 
 - **DO NOT** modify the colors, gradients, or aspect ratios of the mark.
 - **DO NOT** tilt, rotate, or distort the mark angles.
-- **DO NOT** use legacy "v7.0" or "v6.0" logos or labels. The frozen protocol baseline is **QTY2**.
+- **DO NOT** use legacy "v7.0", "v6.0", or deprecated logos/labels. The frozen protocol baseline is **QTY3**.
 - **DO NOT** claim or imply endorsement or protocol identity equivalence with Bitcoin, Bitcoin Knots, or forks. QuantyCoin is an independent network with unique genesis, magic bytes, and ports.
 - **DO NOT** place the color logo on busy or clashing photographic backgrounds without an opaque backdrop container.

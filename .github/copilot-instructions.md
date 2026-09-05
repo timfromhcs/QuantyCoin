@@ -1,8 +1,8 @@
 # QuantyCoin Copilot & Agent Instruction Manual
 
 ## 1. Project Identity & Architecture
-- **Project**: QuantyCoin 2.0 (`QTY2`), Protocol Version `70020`.
-- **Core Architecture**: Independent SHA-256D Proof-of-Work Layer-1 cryptocurrency.
+- **Project**: QuantyCoin 3.0 (`QTY3`), Protocol Version `70020`.
+- **Core Architecture**: Asymmetric Dual Proof-of-Work (SHA-256D ASIC Lane A & Scrypt 1024 CPU/GPU Lane B) Layer-1 cryptocurrency with native NIST FIPS 204 ML-DSA-44 post-quantum cryptography.
 - **Authoritative Implementation**: The Python codebase (`core/`, `crypto/`, `network/`, `node/`, `wallet/`, `miner/`, `ui/`) is the verified operational stack.
 - **Reference Codebase**: `src/` is an architectural reference / C++ experimental branch. Never import Bitcoin network identity, magic bytes, or genesis hashes into QuantyCoin.
 

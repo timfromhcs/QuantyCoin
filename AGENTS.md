@@ -1,6 +1,6 @@
 # QuantyCoin Autonomous Protocol Rebuild Agent Operating Specification
 
-**Protocol Version**: QTY2 (QuantyCoin 2.0)  
+**Protocol Version**: QTY3 (QuantyCoin 3.0)  
 **Agent Mode**: LONG_HORIZON_AUTONOMOUS_ENGINEERING  
 **Repository**: https://github.com/timfromhcs/QuantyCoin  
 **Architectural Reference**: https://github.com/bitcoinknots/bitcoin (Reference Only — Never import Bitcoin network identity)

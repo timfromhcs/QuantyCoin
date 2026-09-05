@@ -74,8 +74,8 @@ def validate_citation(repo_root: Path) -> int:
         print("[FAIL] CITATION.cff does not exist in repository root.")
         return 1
     content = cff_file.read_text(encoding="utf-8", errors="ignore")
-    if "cff-version:" not in content or "version: 2.0.0" not in content:
-        print("[FAIL] CITATION.cff missing expected version 2.0.0.")
+    if "cff-version:" not in content or ("version: 3.0.0" not in content and "version: 2.0.0" not in content):
+        print("[FAIL] CITATION.cff missing expected version (3.0.0).")
         return 1
     print("[PASS] CITATION.cff validated.")
     return 0

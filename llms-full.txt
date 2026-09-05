@@ -1,22 +1,30 @@
-# QuantyCoin (QTY2) — Comprehensive Technical Reference & Protocol Specification
+# QuantyCoin (QTY3) — Comprehensive Technical Reference & Protocol Specification
 
 ## 1. Executive Summary & Philosophy
-QuantyCoin (QTY2) is an open-source, sovereign Layer-1 blockchain engineering project designed as an independent SHA-256D Proof-of-Work cryptocurrency with 60-second block intervals, dynamic LWMA-1 difficulty adjustment, native SegWit Bech32 addresses, and desktop GUI applications.
+QuantyCoin (QTY3) is an open-source, sovereign Layer-1 blockchain engineering project designed as an independent post-quantum cryptocurrency featuring asymmetric Dual Proof-of-Work mining (SHA-256D ASIC & RFC 7914 Scrypt CPU/GPU), NIST FIPS 204 ML-DSA-44 transaction authorization, thermodynamic cumulative chainwork, 60-second combined block intervals, responsive LWMA-1 difficulty adjustment, Stratum V2 binary framing, and self-sovereign Qt6 desktop applications.
 
 ## 2. Cryptographic Algorithms & Encodings
-- **Public Key Cryptography:** Secp256k1 ECDSA (RFC 6979 deterministic k) & Ed25519 (RFC 8032)
-- **Hash Functions:** Double SHA-256 (`hash256`), RIPEMD-160 (`hash160`), Keccak-256 (`keccak256`)
-- **Key Derivation:** BIP39 (12/24 word mnemonics, PBKDF2 HMAC-SHA512) and BIP32/BIP44 Hierarchical Deterministic trees (`m/44'/999'/account'/change/index`)
-- **Address Encodings:** Bech32 Native SegWit (HRP `qty`, witness version 0) and Base58Check (version byte `0x3A` for 'Q' prefix)
+- **Post-Quantum Cryptography:** NIST FIPS 204 ML-DSA-44 (CRYSTALS-Dilithium2) via native C lattice acceleration (`libqtydilithium`). Public key: 1,312 bytes; Signature: 2,420 bytes.
+- **Classical Signatures:** Secp256k1 ECDSA (RFC 6979 deterministic k)
+- **Hash Functions:** Double SHA-256 (`hash256`), SHA-256 (`sha256`), RIPEMD-160 (`hash160`), RFC 7914 Scrypt
+- **Key Derivation:** BIP39 (12/24 word mnemonics, PBKDF2 HMAC-SHA512) and BIP32/BIP44 Hierarchical Deterministic trees
+- **Address Encodings:**
+  - Witness v0 Native SegWit Bech32 (`qty1q...`)
+  - Witness v1 Pure ML-DSA-44 Bech32m (`qty1p...`)
+  - Witness v2 Hybrid ECDSA + ML-DSA-44 Bech32m (`qty1z...`)
+  - Legacy P2PKH Base58Check (`Q...`)
 
 ## 3. Blockchain State & Consensus Mechanics
 - **Hard Cap:** 21,000,000 QTY
-- **Block Time:** 60.0 seconds
-- **Difficulty Adjustment:** LWMA-1 (Linear-Weighted Moving Average across 144 blocks)
-- **Initial Subsidy:** 50.0 QTY ($5 \times 10^9$ Satoshis)
-- **Halving Cadence:** Every 2,100,000 blocks
+- **Block Time:** 60.0 seconds combined (120 seconds per lane)
+- **Mining Lanes:** Asymmetric Dual-PoW:
+  - Lane A: SHA-256D ASIC (100% block reward / 50 QTY initial)
+  - Lane B: RFC 7914 Scrypt 1024/1/1 General Purpose CPU/GPU (50% block reward / 25 QTY initial)
+- **Difficulty Adjustment:** Independent per-lane LWMA-1 (Linear-Weighted Moving Average across 45-block per-lane window)
+- **Fork Choice:** Cumulative Thermodynamic Chainwork ($W_A = 1, W_B = 2048$)
+- **Halving Cadence:** Every 2,100,000 blocks (~4 years)
 - **Block Size Hard Limit:** 32 MB
-- **Fee Split Protocol:** 50% Miner / 50% Protocol Treasury
+- **Mining Servers:** Native Stratum V2 binary engine on port 3334 & Stratum V1 on port 3333
 
 ## 4. P2P Wire Protocol Specification
 - **Magic Bytes:** `0x5155414E` (ASCII "QUAN")

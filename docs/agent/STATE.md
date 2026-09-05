@@ -2,7 +2,7 @@
 
 **Branch**: `feature/qty3-pq-dualpow-sv2`  
 **Current Phase**: QTY3 Post-Quantum Mainnet Transformation & Integration Verification  
-**Protocol Version**: QTY2/QTY3 (70020)  
+**Protocol Version**: QTY3 (70020)  
 **Last Updated**: 2026-09-05  
 
 ---
@@ -27,7 +27,7 @@
 | **Stratum V2 Server** | **VERIFIED** | Native Stratum V2 binary framing (port 3334) with dual-lane multiplexing and low latency. |
 | **Wallet & Multi-Sig PQC** | **VERIFIED** | HD wallet generating and spending classical, pure ML-DSA, and hybrid UTXOs with automated migration. |
 | **RPC Server** | **VERIFIED** | Added `getmininglanes`, `getminingtargets`, `getchainwork`, `getnewpqaddress`, `getaddressinfo`, `getstratuminfo`. |
-| **Desktop Applications** | **VERIFIED** | Native Qt6 Node, Wallet, Miner, and Suite applications updated to QTY2 2.0.0. |
+| **Desktop Applications** | **VERIFIED** | Native Qt6 Node, Wallet, Miner, and Suite applications updated to QTY3 3.0.0. |
 | **Brand System & Assets** | **VERIFIED** | Complete vector (`/brand/` SVGs) and raster preview assets generated and documented. |
 | **Testing & CI/CD** | **VERIFIED** | Complete test runner passing with 100% success (0 failures). |
 | **Completion Gate** | **PASS** | 100% verified across all mandatory contract checkpoints. |

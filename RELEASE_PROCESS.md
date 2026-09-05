@@ -1,6 +1,6 @@
 # QuantyCoin Official Release Process
 
-**Protocol Version**: QTY2 (`70020`)  
+**Protocol Version**: QTY3 (`70020`)  
 **Standard**: Evidence-Gated Release Pipeline  
 
 ---
@@ -20,10 +20,10 @@ A release may only be published if all the following gates pass:
 
 ### Windows
 - NSIS scripts in `packaging/windows/` generate:
-  - `QuantyCoin-Node-Setup-v2.0.exe`
-  - `QuantyCoin-Wallet-Setup-v2.0.exe`
-  - `QuantyCoin-Miner-Setup-v2.0.exe`
-  - `QuantyCoin-Suite-Setup-v2.0.exe`
+  - `QuantyCoin-Node-Setup-3.0.0.exe`
+  - `QuantyCoin-Wallet-Setup-3.0.0.exe`
+  - `QuantyCoin-Miner-Setup-3.0.0.exe`
+  - `QuantyCoin-Suite-Setup-3.0.0.exe`
 - Portable Windows zip archive packaging.
 
 ### Linux

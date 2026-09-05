@@ -1,6 +1,6 @@
 # QuantyCoin Formal Threat Model
 
-**Protocol Version**: QTY2 (`70020`)  
+**Protocol Version**: QTY3 (`70020`)  
 **Security Architecture Standard**: Bounded Inputs, Hostile Network Assumption (R008), Consensus Invariance  
 
 ---
@@ -30,21 +30,24 @@
 | :--- | :--- | :--- | :--- |
 | **Invalid Proof-of-Work** | Poison chainstate | Strict comparison against compact target bits (`verify_pow()`); headers with insufficient work are dropped before transaction deserialization. | **VERIFIED** (`core/block.py`) |
 | **Timestamp Manipulation** | Warp difficulty retargeting | Median Time Past (MTP) enforcement; blocks with timestamps in the past or > 2 hours in the future are rejected. | **VERIFIED** (`core/consensus.py`) |
-| **Hashrate Hopping (Timewarp)** | Manipulate LWMA retarget | LWMA-1 retargets every single block, clamping solve time to `[-6 * spacing, +6 * spacing]`. | **VERIFIED** (`core/consensus.py`) |
+| **Hashrate Hopping (Timewarp)** | Manipulate LWMA retarget | LWMA-1 retargets independently per-lane every block, clamping solve time to `[-6 * spacing, +6 * spacing]`. | **VERIFIED** (`core/consensus.py`) |
+| **Low-Difficulty GPU Spam** | Reorganize canonical chain | Cumulative Thermodynamic Chainwork ($W_{\text{SHA256D}} = 1, W_{\text{Scrypt}} = 2048$); fork choice strictly follows total physical energy, defeating block-count inflation attacks. | **VERIFIED** (`tests/test_pqc_dualpow_sv2.py`) |
 | **Double-Spending** | Replay or conflicting inputs | In-memory mempool conflict detection; UTXO database validates uniqueness of outpoints. | **VERIFIED** (`tests/test_multinode_stress.py`) |
-| **Deep Reorg Partition** | Chain fork | Cumulative chainwork calculation (`1 << 256 / (target + 1)`); automatic rollback and state re-application on longer valid work. | **VERIFIED** (`tests/test_functional_reorg.py`) |
+| **Deep Reorg Partition** | Chain fork | Cumulative thermodynamic chainwork calculation; automatic rollback and state re-application on longer valid work. | **VERIFIED** (`tests/test_functional_reorg.py`) |
 
-### C. Wallet & Key Storage
+### C. Wallet & Cryptographic Attacks
 
 | Threat | Impact | Mitigation Mechanism | Verification Status |
 | :--- | :--- | :--- | :--- |
+| **Quantum Cryptanalytic Attack (Shor's Algorithm)** | ECDSA key recovery | NIST FIPS 204 ML-DSA-44 lattice cryptography via native C acceleration (`libqtydilithium`); witness v1 (`qty1p...`) and v2 (`qty1z...`) addresses; sovereign UTXO migration tooling. | **VERIFIED** (`tests/test_pqc_dualpow_sv2.py`) |
+| **Cross-Mode Signature Replay** | Replay classical signature in PQC mode | Domain-separated sighash: `SHA256("QUANTYCOIN_PQC_SIGHASH_V1" \|\| sig_type \|\| BIP143_hash)` binding signatures uniquely to their authorization mode. | **VERIFIED** (`tests/test_pqc_dualpow_sv2.py`) |
+| **Signature Malleability** | Alter TXID without invalidating sig | Strict DER validation for ECDSA; fixed-size lattice vectors for ML-DSA-44 (2,420 bytes); bit-flip rejection. | **VERIFIED** (`tests/test_pqc_dualpow_sv2.py`) |
 | **Weak Entropy Key Generation** | Predictable private keys | Uses cryptographically secure `os.urandom(32)` for 24-word BIP39 seed generation. | **VERIFIED** (`crypto/bip39.py`) |
 | **Secret Leakage to Disk/Git** | Private key exposure | Strict `.gitignore` policy and `scripts/verify_security.py` scanner. Genesis working files air-gapped in `QuantySecrets`. | **VERIFIED** (`scripts/verify_security.py`) |
-| **Transaction Signature Forgery** | Fund theft | RFC 6979 deterministic ECDSA signing; strict DER decoding and public key validation. | **VERIFIED** (`tests/test_crypto.py`) |
 
 ---
 
-## 3. Residual Risks & In-Progress Areas
+## 3. Operational Security Guidelines
 
-1. **Post-Quantum Dilithium C++ Layer**: The C++ Dilithium integration in `src/` requires completion of audit remediations before mainnet activation.
-2. **RPC Surface**: RPC endpoints should remain bound to `127.0.0.1` unless protected by secure tunnels or reverse proxies with authentication.
+1. **RPC Surface**: RPC endpoints should remain bound to `127.0.0.1` unless protected by secure tunnels or reverse proxies with authentication.
+2. **Fail-Closed Consensus**: The node strictly terminates via `CryptographicBackendUnavailableError` if native lattice acceleration is unavailable, preventing fallback to unverified pseudo-cryptography.

@@ -1,4 +1,4 @@
-# QuantyCoin 2.0 (QTY2)
+# QuantyCoin 3.0 (QTY3)
 
 <div align="center">
 
@@ -7,7 +7,7 @@
 <br/>
 
 [![CI](https://github.com/timfromhcs/QuantyCoin/actions/workflows/ci.yml/badge.svg)](https://github.com/timfromhcs/QuantyCoin/actions)
-[![Protocol](https://img.shields.io/badge/protocol-QTY2%20(70020)-0284C7.svg)](docs/protocol/index.md)
+[![Protocol](https://img.shields.io/badge/protocol-QTY3%20(70020)-0284C7.svg)](docs/protocol/index.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-8A2BE2.svg)](LICENSE)
 [![Verification](https://img.shields.io/badge/verification-evidence--gated-00FF88.svg)](VERIFICATION.md)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB.svg?logo=python&logoColor=white)](https://www.python.org)
@@ -58,11 +58,13 @@ QuantyCoin QTY3 adheres to strict, evidence-based technical claims:
 
 ## 2. Why QuantyCoin?
 
-- **ASIC-Compatible SHA-256D PoW**: Operates on pure double-SHA256 Proof-of-Work, providing compatibility with standard mining infrastructure and hardware.
-- **60-Second Block Interval**: Provides frequent confirmation progress while preserving Proof-of-Work probabilistic finality.
-- **Oscillation-Free LWMA-1 Retargeting**: Linear-Weighted Moving Average recalculates target difficulty on every block across a 45-block window, absorbing hashrate fluctuations smoothly.
-- **Native Stratum V1 Pool Engine**: Directly hosts an ASIC-ready Stratum mining pool on TCP port `3333` without third-party proxy daemons.
-- **Complete Self-Sovereignty**: Bundles full node, wallet, miner, and telemetry into clean Qt6 desktop suites.
+- **Asymmetric Dual-PoW Consensus**: Independent Lane A (SHA-256D ASIC) and Lane B (memory-hard RFC 7914 Scrypt CPU/GPU) mining lanes, ensuring sustained decentralization and chain liveness even if ASIC rigs or GPUs experience complete partitioned outages.
+- **NIST FIPS 204 ML-DSA-44 Post-Quantum Authorization**: Real lattice-based quantum resilience using native C acceleration (`libqtydilithium`) with zero pseudo-cryptographic fallbacks, providing pure post-quantum (`qty1p...`) and hybrid (`qty1z...`) Bech32m witness addresses.
+- **Thermodynamic Cumulative Chainwork**: Canonical fork choice is strictly governed by total accumulated physical energy ($W_A = 1, W_B = 2048$), mathematically neutralizing low-difficulty GPU reorganization attacks.
+- **Stratum V2 Binary Engine & Legacy V1 Compatibility**: Next-generation binary framed mining protocol on port `3334` with dual-lane channel multiplexing, alongside standard Stratum V1 on port `3333`.
+- **Sovereign Legacy UTXO Quantum Audit & Migration**: Built-in wallet analysis identifying vulnerable Secp256k1 outputs and generating one-click atomic consolidation transactions to quantum-secure addresses.
+- **Oscillation-Free Per-Lane LWMA-1 Retargeting**: Partitioned 45-block moving average adjusts difficulty independently on every block per lane, maintaining an interleaved 60-second combined block interval.
+- **Complete Self-Sovereignty**: Bundles full node, sovereign wallet, multi-threaded miner, and master desktop cockpit into responsive native Qt6 suites for Windows and Linux.
 
 ---
 
@@ -162,16 +164,18 @@ graph TB
         RPC <-->|Submit Raw Tx| MEM
     end
 
-    subgraph MINING ["Mining Infrastructure (Port 3333)"]
-        STRATUM[Stratum V1 Pool Server]
-        ENG[Authoritative Mining Engine]
-        STRATUM <-->|Get Block Template| RPC
+    subgraph MINING ["Mining Infrastructure (Ports 3333 & 3334)"]
+        SV2[Stratum V2 Binary Server\nPort 3334]
+        SV1[Stratum V1 Pool Server\nPort 3333]
+        ENG[Dual-PoW Mining Engine\nSHA-256D & Scrypt]
+        SV2 <-->|Dual-Lane Channels| RPC
+        SV1 <-->|Get Block Template| RPC
         ENG <-->|Submit Mined Block| RPC
     end
 
     subgraph WALLET ["Wallet & Desktop GUIs (Qt6)"]
-        HD[BIP39/44 HD Wallet]
-        GUI_W[Sovereign Wallet GUI]
+        HD[BIP39/44 HD Wallet\n+ ML-DSA-44 & Hybrid]
+        GUI_W[Sovereign Wallet GUI\n+ Quantum Migration]
         GUI_N[Node Explorer GUI]
         GUI_M[Miner Telemetry GUI]
         GUI_S[Combined Master Suite]
@@ -179,7 +183,7 @@ graph TB
         HD -->|Sign Tx| RPC
         GUI_W <-->|Balance & History| RPC
         GUI_N <-->|Peer Telemetry| RPC
-        GUI_M <-->|Hashrate Stream| STRATUM
+        GUI_M <-->|Hashrate Stream| SV2
         GUI_S -->|Unified Control| RPC
     end
 ```
@@ -193,25 +197,28 @@ graph TB
 | **Protocol Version** | `70020` | Handshake version identifier (`PROTOCOL_VERSION`) |
 | **Chain Identifier** | `quantycoin-2.0` | Unique network identifier (`CHAIN_ID`) |
 | **Wire Magic Bytes** | `0x51 0x55 0x41 0x4E` | ASCII `"QUAN"` framing delimiter |
-| **Target Block Interval**| `60 seconds` | Cadence for Poisson difficulty retargeting |
-| **Difficulty Algorithm** | **LWMA-1** | Window: 45 blocks, bounded oscillation clamping |
+| **Target Block Interval**| `60 seconds` | Interleaved (120s per lane Poisson cadence) |
+| **Mining Lanes** | **Asymmetric Dual-PoW** | Lane A: SHA-256D (100% subsidy) &bull; Lane B: Scrypt 1024 (50% subsidy) |
+| **Difficulty Algorithm** | **LWMA-1** | Window: 45 blocks per lane, oscillation-free clamping |
+| **Fork-Choice Rule** | **Thermodynamic Chainwork** | Cumulative physical energy metric ($W_A=1, W_B=2048$) |
 | **Max Block Size** | `32 MB` (33,554,432 bytes) | Upper bound on serialized block length |
-| **Initial Block Reward** | `50.00 QTY` | $5,000,000,000$ Satoshis |
+| **Initial Block Reward** | `50.00 QTY` | Lane A: 50 QTY &bull; Lane B: 25 QTY |
 | **Halving Interval** | `2,100,000 blocks` | Halving occurs approximately every 4 years |
 | **Max Supply Cap** | `21,000,000 QTY` | Finite supply ceiling ($2.1 \times 10^{15}$ Satoshis) |
 | **Coinbase Maturity** | `100 blocks` | Mined outputs spendable after 100 confirmations |
-| **Address Encodings** | **Bech32 & Base58Check** | Native witness v0 (`qty1q...`) & legacy (`Q...`) |
-| **Default Ports** | P2P: `19888` &bull; RPC: `19889` &bull; Stratum: `3333` | Dedicated independent network ports |
+| **Post-Quantum Cryptography** | **NIST FIPS 204 ML-DSA-44** | Native C lattice acceleration (`libqtydilithium`) |
+| **Address Encodings** | **Bech32, Bech32m & Base58Check** | Witness v0 (`qty1q...`), v1 ML-DSA (`qty1p...`), v2 Hybrid (`qty1z...`), Legacy (`Q...`) |
+| **Default Ports** | P2P: `19888` &bull; RPC: `19889` &bull; SV1: `3333` &bull; SV2: `3334` | Dedicated independent network ports |
 
 ---
 
 ## 9. Air-Gapped Genesis Block
 
-The QuantyCoin 2.0 Genesis block was verifiably mined in an air-gapped environment:
+The QuantyCoin Genesis block was verifiably mined in an air-gapped environment, establishing permanent immutable consensus continuity:
 
 - **Genesis Hash**: `00000f7cecd0b1eafaab4d65183f7bd12713b67b6c1c4a30f6bf3f1b8efd30ba`
 - **Merkle Root**: `ac6346e4b3ae1f3e4cfabaa09376ee83d268d12476d3e243a42d0e22cf79224f`
-- **Timestamp**: `1788600000` (*"2026-09-05: QuantyCoin 2.0 - SHA256D Layer-1 Autonomous Blockchain Protocol"*)
+- **Coinbase Message / Timestamp**: `1788600000` (*"2026-09-05: QuantyCoin 2.0 - SHA256D Layer-1 Autonomous Blockchain Protocol"* — immutable genesis message)
 - **Nonce**: `333641`
 - **Bits**: `0x1e0fffff` (`504365055`)
 - **Payout Address**: `qty1qh46xnlu649ug0yfpw7f93xn9dtg90z8hukfsy4`
@@ -316,9 +323,9 @@ Releases follow an evidence-gated verification pipeline requiring zero security 
 ## 15. Roadmap
 
 Milestone progress is tracked in [`ROADMAP.md`](ROADMAP.md):
-- **Phase 1 (Completed)**: Protocol Rebuild, Air-Gapped Genesis, Stratum V1, Multi-Node Hardness.
-- **Phase 2 (Active)**: Public Seed Nodes, Compact Block Filters (BIP157/158), Automated Cross-Platform Binaries.
-- **Phase 3 (Planned)**: Formal audit of C++ Dilithium integration, Stratum V2 binary framing.
+- **Phase 1 (Completed)**: Layer-1 Protocol Rebuild, Air-Gapped Genesis, Stratum V1, Multi-Node Hardness.
+- **Phase 2 (Completed)**: NIST FIPS 204 ML-DSA-44 PQC, Asymmetric Dual-PoW Mining (SHA-256D & Scrypt), Thermodynamic Chainwork, Stratum V2 Binary Engine, UTXO Quantum Migration.
+- **Phase 3 (Active)**: Public Seed Nodes, Compact Block Filters (BIP157/158), Automated Windows & Linux Release Binaries, Public Testnet (TQUA).
 
 ---
 
@@ -333,9 +340,9 @@ Contributions from protocol engineers, cryptographers, and testers are welcomed.
 ```bibtex
 @software{QuantyCoin2026,
   author = {Heinrichs, Tim and QuantyCoin Core Contributors},
-  title = {QuantyCoin: Independent SHA-256D Proof-of-Work Layer-1 Cryptocurrency},
+  title = {QuantyCoin QTY3: Post-Quantum Dual-PoW Layer-1 Cryptocurrency},
   url = {https://github.com/timfromhcs/QuantyCoin},
-  version = {2.0.0},
+  version = {3.0.0},
   year = {2026}
 }
 ```

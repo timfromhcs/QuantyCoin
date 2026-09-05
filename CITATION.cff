@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software in your research or blockchain engineering, please cite it as below."
-title: "QuantyCoin: Independent SHA-256D Proof-of-Work Layer-1 Cryptocurrency"
-version: 2.0.0
+title: "QuantyCoin QTY3: Post-Quantum Dual-PoW Layer-1 Cryptocurrency"
+version: 3.0.0
 date-released: 2026-09-05
 authors:
   - family-names: "Heinrichs"
@@ -15,8 +15,11 @@ keywords:
   - "cryptocurrency"
   - "proof-of-work"
   - "sha256d"
+  - "post-quantum"
+  - "ml-dsa-44"
+  - "dual-pow"
+  - "stratum-v2"
   - "utxo"
   - "qt6"
   - "lwma-1"
-  - "stratum"
 license: "MIT"

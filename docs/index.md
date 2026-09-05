@@ -1,8 +1,8 @@
 # QuantyCoin Technical Documentation Center
 
-Welcome to the authoritative documentation center for **QuantyCoin 2.0 (QTY2)**.
+Welcome to the authoritative documentation center for **QuantyCoin 3.0 (QTY3)**.
 
-QuantyCoin is an independent Layer-1 cryptocurrency combining double-SHA256 (SHA-256D) Proof-of-Work mining, 60-second block intervals, responsive LWMA-1 difficulty retargeting, 32 MB block capacity, a native Stratum V1 mining pool server, and BIP39/44 HD wallets.
+QuantyCoin is an independent Layer-1 cryptocurrency combining asymmetric Dual Proof-of-Work mining (Lane A SHA-256D ASIC & Lane B RFC 7914 Scrypt CPU/GPU), NIST FIPS 204 ML-DSA-44 post-quantum transaction authorization, cumulative thermodynamic chainwork, 60-second combined block intervals, responsive LWMA-1 difficulty retargeting, 32 MB block capacity, native Stratum V2 and V1 mining pool engines, and self-sovereign Qt6 desktop applications.
 
 ---
 
