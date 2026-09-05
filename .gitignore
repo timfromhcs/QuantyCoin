@@ -169,3 +169,26 @@ build-linux/
 !src/qt/Makefile
 !src/qt/test/Makefile
 !src/test/Makefile
+
+# Zero-Leak Git Policy (QuantyCoin 2.0 / QTY2)
+QuantySecrets/
+quantysecrets/
+**/QuantySecrets/
+**/quantysecrets/
+*.secret
+*.secrets
+*.private
+*.key
+*.pem
+*.seed
+*.mnemonic
+*.wallet
+*_secrets.*
+*_secret.*
+genesis/working/
+genesis/generated/private/
+genesis/verification/private/
+genesis/archive/private/
+bitcoin knots reference don't push with repo in the end/
+QUANTYCOIN_GENESIS_CREATOR_SECRETS_DO_NOT_SHARE.txt
+

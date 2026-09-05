@@ -347,9 +347,10 @@ class QuantyRPCServer:
         from crypto import compute_merkle_root
         from crypto.bip32_44 import address_to_scriptpubkey
         from core.transaction import TxIn, TxOut
+        from core.genesis_constants import GENESIS_COINBASE_PAYOUT_ADDRESS
 
         num_blocks = int(params[0]) if len(params) > 0 else 1
-        payout_address = str(params[1]) if len(params) > 1 else "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g"
+        payout_address = str(params[1]) if len(params) > 1 else GENESIS_COINBASE_PAYOUT_ADDRESS
         
         mined_hashes = []
         for _ in range(num_blocks):

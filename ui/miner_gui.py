@@ -67,7 +67,7 @@ MINER_HTML_BODY = """
     </div>
     <div class="input-group">
       <label class="input-label">Coinbase Payout Address (qty1q...)</label>
-      <input type="text" id="miner-payout-addr" class="input-control" value="qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g">
+      <input type="text" id="miner-payout-addr" class="input-control" value="qty1qh46xnlu649ug0yfpw7f93xn9dtg90z8hukfsy4">
     </div>
     <div class="grid-2">
       <div class="input-group">

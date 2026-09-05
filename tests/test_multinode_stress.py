@@ -26,6 +26,7 @@ from core.transaction import Transaction, TxIn, TxOut
 from core.block import Block, BlockHeader
 from core.utxo import UTXOSet
 from core.mempool import Mempool
+from core.genesis_constants import GENESIS_TIMESTAMP
 from node.chainstate import Chainstate
 from node.daemon import QuantyNode
 
@@ -62,7 +63,7 @@ def run_test_1_mempool_saturation(tx_count: int = 1000):
         version=1,
         prev_block=chainstate.best_hash,
         merkle_root=compute_merkle_root([cb_tx.txid]),
-        timestamp=1771804800 + 60,
+        timestamp=GENESIS_TIMESTAMP + 60,
         bits=0x207fffff,
         nonce=0
     )
@@ -95,7 +96,7 @@ def run_test_1_mempool_saturation(tx_count: int = 1000):
         version=1,
         prev_block=b1.hash,
         merkle_root=compute_merkle_root([cb_b2.txid, split_tx.txid]),
-        timestamp=1771804800 + 120,
+        timestamp=GENESIS_TIMESTAMP + 120,
         bits=0x207fffff,
         nonce=0
     )
@@ -162,7 +163,7 @@ def run_test_2_chain_split_and_reorg():
             vout=[TxOut(value=50 * 100_000_000, script_pubkey=b'\x00\x14' + (b'\x11'*20))],
             locktime=0
         )
-        hdr = BlockHeader(version=1, prev_block=curr_prev, merkle_root=compute_merkle_root([cb.txid]), timestamp=1771804800 + h*60, bits=0x207fffff, nonce=0)
+        hdr = BlockHeader(version=1, prev_block=curr_prev, merkle_root=compute_merkle_root([cb.txid]), timestamp=GENESIS_TIMESTAMP + h*60, bits=0x207fffff, nonce=0)
         hdr.mine()
         blk = Block(header=hdr, transactions=[cb])
         node_main.process_block(blk)
@@ -181,7 +182,7 @@ def run_test_2_chain_split_and_reorg():
             vout=[TxOut(value=50 * 100_000_000, script_pubkey=b'\x00\x14' + (b'\xaa'*20))],
             locktime=0
         )
-        hdr = BlockHeader(version=1, prev_block=prev_a, merkle_root=compute_merkle_root([cb.txid]), timestamp=1771804800 + (3+i)*60, bits=0x207fffff, nonce=0)
+        hdr = BlockHeader(version=1, prev_block=prev_a, merkle_root=compute_merkle_root([cb.txid]), timestamp=GENESIS_TIMESTAMP + (3+i)*60, bits=0x207fffff, nonce=0)
         hdr.mine()
         blk = Block(header=hdr, transactions=[cb])
         branch_a_blocks.append(blk)
@@ -201,7 +202,7 @@ def run_test_2_chain_split_and_reorg():
             vout=[TxOut(value=50 * 100_000_000, script_pubkey=b'\x00\x14' + (b'\xbb'*20))],
             locktime=0
         )
-        hdr = BlockHeader(version=1, prev_block=prev_b, merkle_root=compute_merkle_root([cb.txid]), timestamp=1771804800 + (3+i)*60 + 5, bits=0x207fffff, nonce=0)
+        hdr = BlockHeader(version=1, prev_block=prev_b, merkle_root=compute_merkle_root([cb.txid]), timestamp=GENESIS_TIMESTAMP + (3+i)*60 + 5, bits=0x207fffff, nonce=0)
         hdr.mine()
         blk = Block(header=hdr, transactions=[cb])
         branch_b_blocks.append(blk)

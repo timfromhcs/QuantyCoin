@@ -4,6 +4,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from tests.test_framework import QuantyTestFramework
+from core.genesis_constants import GENESIS_COINBASE_PAYOUT_ADDRESS
 
 
 class MiningTest(QuantyTestFramework):
@@ -11,7 +12,7 @@ class MiningTest(QuantyTestFramework):
         super().__init__(num_nodes=2, base_p2p_port=21100, base_rpc_port=22100)
 
     def run_test(self):
-        payout_addr = "qty1q98n2qhm5aasdree49jjp3kd34c6vas7ev0fz2g"
+        payout_addr = GENESIS_COINBASE_PAYOUT_ADDRESS
         
         print("1. Verifying initial Genesis state...")
         assert self.nodes[0].rpc.get_block_count() == 0
