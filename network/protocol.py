@@ -1,7 +1,7 @@
 """
 QuantyCoin Network Wire Protocol
 Binary Framing, Header Encoding, Checksum Validation & Message Definitions
-Zero-Mock Implementation (TCP Wire Protocol on Port 19888)
+Zero-Mock Implementation (TCP Wire Protocol on Port 19444)
 """
 
 import struct

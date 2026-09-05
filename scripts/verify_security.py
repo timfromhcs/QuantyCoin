@@ -48,7 +48,6 @@ WHITELISTED_FILES = {
     "docs/agent/DECISIONS.md",
     "docs/agent/OPEN_QUESTIONS.md",
     "scripts/verify_security.py",
-    "scripts/generate_and_verify_genesis.py",
     ".gitignore",
 }
 

@@ -5,12 +5,11 @@ on:
     branches:
       - main
       - master
-      - 'v2**'
+      - 'feature/**'
   pull_request:
     branches:
       - main
       - master
-      - 'v2**'
 
 concurrency:
   group: documentation-${{ github.ref }}
@@ -31,3 +30,6 @@ jobs:
 
       - name: Validate Documentation Integrity
         run: python scripts/verify_documentation.py
+
+      - name: Validate Protocol Consistency
+        run: python scripts/verify_documentation_consistency.py

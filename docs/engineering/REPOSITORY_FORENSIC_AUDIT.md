@@ -112,21 +112,22 @@ graph TD
 ## 6. QTY4 Migration Execution Plan
 
 - [x] Phase P0: Forensic Repository Audit & Codebase Inventory (`docs/engineering/REPOSITORY_FORENSIC_AUDIT.md`)
-- [ ] Phase P1: Authoritative QTY4 Protocol Specifications & Machine-Readable Spec (`spec/qty4/`)
-- [ ] Phase P2: Consensus Core Hardening (Deterministic `Amount`, CheckBlock pipeline)
-- [ ] Phase P3: PoW, Difficulty (LWMA-1 integer), & MTP Time Hardening
-- [ ] Phase P4: Dual-PoW Security & Hostile Mining Analysis
-- [ ] Phase P5: Post-Quantum ML-DSA-44 & Domain-Separated Sighash
-- [ ] Phase P6: Canonical Binary Serialization
-- [ ] Phase P7: State, UTXO & Reorg Crash Recovery
-- [ ] Phase P8: P2P Network Hardening
-- [ ] Phase P9: Mempool & Consensus Separation
-- [ ] Phase P10: Consensus Vector Corpus (`tests/vectors/qty4/`)
-- [ ] Phase P11: Adversarial & Property-Based Testing
-- [ ] Phase P12: Differential Consensus Verification
-- [ ] Phase P13: Fault Injection & Crash Recovery
-- [ ] Phase P14: Brand & Visual Identity Refresh
-- [ ] Phase P15: Documentation Truth Rebuild
-- [ ] Phase P16: CI/CD Pipeline & Automated Release Gates
-- [ ] Phase P17: Reproducible Build & Genesis Verification
-- [ ] Phase P18: Release Freeze & Final Report (`FINAL_IMPLEMENTATION_REPORT_QTY4.md`)
+- [x] Phase P1: Authoritative QTY4 Protocol Specifications & Machine-Readable Spec (`spec/qty4/`)
+- [x] Phase P2: Consensus Core Hardening (Deterministic `Amount`, CheckBlock pipeline)
+- [x] Phase P3: PoW, Difficulty (LWMA-1 integer), & MTP Time Hardening
+- [x] Phase P4: Dual-PoW Security & Hostile Mining Analysis
+- [x] Phase P5: Post-Quantum ML-DSA-44 & Domain-Separated Sighash
+- [x] Phase P6: Canonical Binary Serialization
+- [x] Phase P7: State, UTXO & Reorg Crash Recovery
+- [x] Phase P8: P2P Network Hardening
+- [x] Phase P9: Mempool & Consensus Separation
+- [x] Phase P10: Consensus Vector Corpus (`tests/vectors/qty4/`)
+- [x] Phase P11: Adversarial & Property-Based Testing
+- [x] Phase P12: Differential Consensus Verification
+- [x] Phase P13: Fault Injection & Crash Recovery
+- [x] Phase P14: Brand & Visual Identity Refresh
+- [x] Phase P15: Documentation Truth Rebuild
+- [x] Phase P16: CI/CD Pipeline & Automated Release Gates
+- [x] Phase P17: Reproducible Build & Genesis Verification
+- [x] Phase P18: Release Freeze & Final Report (`FINAL_IMPLEMENTATION_REPORT_QTY4.md`)
+

@@ -44,10 +44,16 @@ The QTY4 rebuild was executed to eliminate technical debt, eliminate floating-po
 | File | Change Type | Rationale & Summary |
 | :--- | :---: | :--- |
 | `genesis/public/` | **Added** | Public genesis manifest, raw header hex, Merkle root, parameter JSON, and documentation. |
+| `scripts/verify_genesis.py` | **Rewritten** | Authoritative 6-gate QTY4 consensus and dual-path verification engine; eliminated obsolete QTY2 logic. |
+| `scripts/verify_documentation_consistency.py` | **Added** | Machine audit ensuring 100% parameter synchronization across all 23 active documents, manifests, and specs. |
 | `scripts/mine_qty4_genesis.py` | **Added** | Deterministic genesis block miner from 100% public inputs. |
 | `scripts/verify_qty4_genesis_dual_path.py` | **Added** | Dual-path independent cross-validator ensuring byte-for-byte reproducibility between Core and standalone standard library. |
 | `scripts/generate_qty4_vectors.py` | **Added** | Generates 25 verified JSON test vectors across 6 consensus categories. |
 | `scripts/verify_security.py` | **Modified** | Pre-commit/CI secret scanner inspecting against external vault references. |
+| `scripts/generate_and_verify_genesis.py` | **Deleted** | Removed obsolete single-lane QTY2 generator. |
+| `scripts/mine_genesis_vault.py` | **Deleted** | Removed obsolete non-canonical QTY2 generator. |
+| `public_genesis.json` | **Updated** | Synchronized to canonical QTY4 manifest matching `genesis/PUBLIC_GENESIS_MANIFEST.json`. |
+| `.github/workflows/*.yml` | **Modified** | Updated all CI workflows (`security.yml`, `ci.yml`, `documentation.yml`, `build.yml`, `release.yml`) for QTY4 gate enforcement. |
 
 ### E. Specification & Architecture (`spec/`, `docs/`)
 | File | Change Type | Rationale & Summary |

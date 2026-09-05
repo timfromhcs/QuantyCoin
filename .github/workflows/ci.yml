@@ -5,12 +5,11 @@ on:
     branches:
       - main
       - master
-      - 'v2**'
+      - 'feature/**'
   pull_request:
     branches:
       - main
       - master
-      - 'v2**'
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -44,6 +43,15 @@ jobs:
           python tests/test_crypto.py
           python tests/test_core.py
           python tests/test_p2p.py
+
+      - name: Run QTY4 Genesis Consensus Audit
+        run: python scripts/verify_genesis.py
+
+      - name: Run QTY4 Adversarial Hardening Test
+        run: python tests/test_adversarial_qty4.py
+
+      - name: Run Dual-PoW Security & Simulation
+        run: python tests/test_dualpow_security_simulation.py
 
       - name: Run Stratum V1 Mining Integration Test
         run: python tests/test_functional_stratum.py

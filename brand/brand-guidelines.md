@@ -1,6 +1,6 @@
-# QuantyCoin (QTY3) Brand Guidelines & Visual Identity System
+# QuantyCoin (QTY4) Brand Guidelines & Visual Identity System
 
-**Protocol Version**: QTY3 (Protocol 70020)  
+**Protocol Version**: QTY4 (Protocol 70040)  
 **Status**: Official Active Standard  
 **Last Updated**: September 2026  
 
@@ -8,7 +8,7 @@
 
 ## 1. Brand Identity Overview
 
-QuantyCoin (QTY3) is an open-source, sovereign Layer-1 cryptocurrency engineered on Asymmetric Dual Proof-of-Work (SHA-256D ASIC & RFC 7914 Scrypt 1024 CPU/GPU) with NIST FIPS 204 ML-DSA-44 post-quantum cryptography, 60-second block cadence, thermodynamic chainwork, native SegWit & Bech32m addresses, Stratum V1/V2, and desktop GUI applications.
+QuantyCoin (QTY4) is an open-source, sovereign Layer-1 cryptocurrency engineered on Asymmetric Dual Proof-of-Work (SHA-256D ASIC & RFC 7914 Scrypt 1024 CPU/GPU) with NIST FIPS 204 ML-DSA-44 post-quantum cryptography, pure 64-bit integer monetary arithmetic (`core.money.Amount`), 60-second block cadence, weighted chainwork, native SegWit & Bech32m addresses, Stratum V1/V2, and desktop GUI applications. See [BRAND_GUIDE.md](BRAND_GUIDE.md) for complete visual asset specifications.
 
 The visual identity embodies **cryptographic rigor, open-source transparency, precision engineering, and sovereign decentralization**.
 

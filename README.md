@@ -144,18 +144,18 @@ python quanty_wallet_full_app.py
 
 ```mermaid
 graph TB
-    subgraph P2P ["P2P Wire Network (Port 19888)"]
+    subgraph P2P ["P2P Wire Network (Port 19444)"]
         direction TB
         MGR[P2P Server & Wire Framing]
         PEERS[Inbound & Outbound Peer Sockets]
-        MGR <-->|Magic: 0x5155414E| PEERS
+        MGR <-->|Magic: 0x51545934| PEERS
     end
 
     subgraph CORE ["Core Node Daemon (quantyd)"]
         CS[Chainstate & Fork-Choice Engine]
         UTXO[UTXO State Machine & Undo Log]
         MEM[Mempool Engine & Fee Sorter]
-        RPC[Threaded JSON-RPC Server\nPort 19889]
+        RPC[Threaded JSON-RPC Server\nPort 19445]
 
         MGR -->|inv / block / tx| CS
         CS -->|Connect / Disconnect| UTXO

@@ -5,12 +5,11 @@ on:
     branches:
       - main
       - master
-      - 'v2**'
+      - 'feature/**'
   pull_request:
     branches:
       - main
       - master
-      - 'v2**'
 
 concurrency:
   group: build-${{ github.ref }}

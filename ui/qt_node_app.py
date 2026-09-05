@@ -56,9 +56,9 @@ class NodeRPCWorker(QtCore.QThread):
 
 
 class QuantyNodeWindow(QtWidgets.QMainWindow):
-    def __init__(self, rpc_port: int = 19889, auto_start_daemon: bool = True):
+    def __init__(self, rpc_port: int = 19445, auto_start_daemon: bool = True):
         super().__init__()
-        self.setWindowTitle("QuantyCoin Full Node (QTY2 / 2.0.0)")
+        self.setWindowTitle("QuantyCoin Full Node (QTY4 / 4.0.0)")
         self.resize(1020, 680)
         self.setStyleSheet(CYBERPUNK_QSS)
 
@@ -70,7 +70,7 @@ class QuantyNodeWindow(QtWidgets.QMainWindow):
         self.daemon: Optional[QuantyNode] = None
         if auto_start_daemon:
             try:
-                self.daemon = QuantyNode(p2p_port=19888, rpc_port=rpc_port)
+                self.daemon = QuantyNode(p2p_port=19444, rpc_port=rpc_port)
                 self.daemon.start()
             except Exception as e:
                 print(f"Node startup warning: {e}")
@@ -179,7 +179,7 @@ class QuantyNodeWindow(QtWidgets.QMainWindow):
         self.tabs.addTab(tab_rpc, "⚡ RPC Console")
 
         # STATUS BAR
-        self.statusBar().showMessage("QuantyCoin Node Mainnet v4.0 Active | P2P: 19888 | RPC: 19889")
+        self.statusBar().showMessage("QuantyCoin Node Mainnet v4.0 Active | P2P: 19444 | RPC: 19445")
 
     def _create_card(self, title: str, value: str, sub: str, color: str) -> QtWidgets.QFrame:
         card = QtWidgets.QFrame()

@@ -23,10 +23,11 @@
 | **9** | `test_multinode_stress.py` | Stress & Concurrency | `python tests/test_multinode_stress.py` | **PASS (4/4)** | 500-tx mempool saturation, chain split reorg, double-spend rejection, P2P chaos reconnect |
 | **10**| `test_adversarial_qty4.py` | Hostile Input Rejection | `python tests/test_adversarial_qty4.py` | **PASS (10/10)**| Negative compact target bits, target overflow, fuzz headers, PQC bitflip, hybrid bypass, UTXO non-mutation |
 | **11**| `test_dualpow_security_simulation.py`| Dual-PoW Security | `python tests/test_dualpow_security_simulation.py`| **PASS (3/3)** | Lane disappearance survival, anti-grinding chainwork verification, hashrate benchmark (391x cost ratio) |
-| **12**| `verify_qty4_genesis_dual_path.py`| Genesis Independence | `python scripts/verify_qty4_genesis_dual_path.py` | **PASS (100%)** | Byte-for-byte identity between Core consensus engine and zero-dependency standalone path |
-| **13**| `verify_security.py` | Secret Isolation Scanner | `python scripts/verify_security.py` | **PASS (0 leaks)**| Scans entire repository for private keys, seed phrases, forbidden file extensions; zero leaks |
-| **14**| `verify_documentation_consistency.py`| Doc Consistency | `python scripts/verify_documentation_consistency.py`| **PASS (100%)** | Validates port, protocol version, genesis hash, chain ID consistency across documentation |
-| **15**| `verify_documentation.py` | Link Integrity | `python scripts/verify_documentation.py` | **PASS (100%)** | Validates 90+ local relative markdown links, llms.txt, CITATION.cff formatting |
+| **12**| `verify_genesis.py` | Canonical Genesis Audit | `python scripts/verify_genesis.py` | **PASS (6/6 Gates)**| Dual-path cross-verification, consensus constants, manifest validation, zero stale artifacts |
+| **13**| `verify_qty4_genesis_dual_path.py`| Genesis Independence | `python scripts/verify_qty4_genesis_dual_path.py` | **PASS (100%)** | Byte-for-byte identity between Core consensus engine and zero-dependency standalone path |
+| **14**| `verify_security.py` | Secret Isolation Scanner | `python scripts/verify_security.py` | **PASS (0 leaks)**| Scans entire repository for private keys, seed phrases, forbidden file extensions; zero leaks |
+| **15**| `verify_documentation_consistency.py`| Doc Consistency | `python scripts/verify_documentation_consistency.py`| **PASS (100%)** | Validates port, protocol version, genesis hash, chain ID consistency across 23 active documents & specs |
+| **16**| `verify_documentation.py` | Link Integrity | `python scripts/verify_documentation.py` | **PASS (100%)** | Validates local relative markdown links, llms.txt, CITATION.cff formatting |
 
 ---
 

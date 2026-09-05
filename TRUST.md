@@ -1,7 +1,7 @@
 # QuantyCoin Trust Center
 
 **Last Updated**: 2026-09-05  
-**Protocol Version**: QTY3 (`70020`)  
+**Protocol Version**: QTY4 (`70040`)  
 **Core Policy**: Verification Over Marketing  
 
 ---

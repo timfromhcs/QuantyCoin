@@ -27,7 +27,7 @@ The QuantyCoin QTY4 Genesis Block was constructed and mined under strict fair-la
 | **Genesis Payout Address** | `qty1qu9ztelcfra7uz8agw9qnfej6h8x9tqtxhuaqpf` | Deterministic witness v0 community address |
 | **Genesis Hash** | `000004eb1e117df3168d6d27118982e0a23c236120183e8390a6bbb82ee6fde3` | Double SHA-256 over 80-byte header |
 | **Merkle Root** | `3526817e09d5a065247d15a45a7aa5cf351479e011d32ecfd752e94acfae55ea` | Single coinbase transaction hash |
-| **Total Block Size** | `285 bytes` | Canonical raw byte length |
+| **Total Block Size** | `267 bytes` | Canonical raw byte length |
 
 ---
 

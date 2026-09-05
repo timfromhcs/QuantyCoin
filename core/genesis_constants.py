@@ -39,6 +39,7 @@ GENESIS_HASH = "000004eb1e117df3168d6d27118982e0a23c236120183e8390a6bbb82ee6fde3
 GENESIS_MERKLE_ROOT = "3526817e09d5a065247d15a45a7aa5cf351479e011d32ecfd752e94acfae55ea"
 GENESIS_COINBASE_PAYOUT_ADDRESS = "qty1qu9ztelcfra7uz8agw9qnfej6h8x9tqtxhuaqpf"
 GENESIS_BLOCK_REWARD = 50  # 50 QTY
+GENESIS_BLOCK_REWARD_SATOSHIS = 50 * 100_000_000  # 5,000,000,000 satoshis
 
 # Consensus Parameters
 TARGET_BLOCK_TIME = 60                       # 60 seconds combined nominal block time

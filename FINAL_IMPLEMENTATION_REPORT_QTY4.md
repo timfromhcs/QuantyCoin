@@ -203,10 +203,11 @@ Generated into `tests/vectors/qty4/`:
 | 9 | `tests/test_multinode_stress.py` | 500-TX mempool saturation, network chaos | **PASS (4/4)** |
 | 10 | `tests/test_adversarial_qty4.py` | 10 hostile input attack vectors | **PASS (10/10)** |
 | 11 | `tests/test_dualpow_security_simulation.py` | Lane survival, anti-grinding, benchmarks | **PASS (3/3)** |
-| 12 | `scripts/verify_qty4_genesis_dual_path.py` | Dual-path byte-for-byte genesis match | **PASS (100%)** |
-| 13 | `scripts/verify_security.py` | Pre-commit/CI secret leak scanner | **PASS (0 leaks)** |
-| 14 | `scripts/verify_documentation_consistency.py` | Cross-document protocol parameter check | **PASS (100%)** |
-| 15 | `scripts/verify_documentation.py` | Link integrity, llms.txt, CITATION.cff | **PASS (100%)** |
+| 12 | `scripts/verify_genesis.py` | Canonical 6-gate consensus & dual-path genesis audit | **PASS (6/6 Gates)** |
+| 13 | `scripts/verify_qty4_genesis_dual_path.py` | Dual-path byte-for-byte genesis match | **PASS (100%)** |
+| 14 | `scripts/verify_security.py` | Pre-commit/CI secret leak scanner | **PASS (0 leaks)** |
+| 15 | `scripts/verify_documentation_consistency.py` | Cross-document protocol parameter check | **PASS (100%)** |
+| 16 | `scripts/verify_documentation.py` | Link integrity, llms.txt, CITATION.cff | **PASS (100%)** |
 
 ---
 
